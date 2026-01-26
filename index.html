@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Official Showroom</title>
+    <title>UrbanPaintPro | Official</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -11,51 +11,34 @@
     <style>
         :root { --p: #673ab7; --bg: #ffffff; --text: #212121; --light: #f5f5f5; }
         body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
-        
         .header { background: white; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -1px; }
+        .logo { font-weight: 800; font-size: 1.5rem; }
         .logo span { color: var(--p); }
-
         .section { display: none; padding: 20px; animation: fadeIn 0.4s ease; }
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .banner { background: #1a1a1a; color: white; padding: 25px; border-radius: 16px; margin-bottom: 25px; }
-        
         .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
         .cat-btn { background: #f0f0f0; padding: 10px 20px; border-radius: 20px; border: none; font-weight: 700; white-space: nowrap; cursor: pointer; }
         .cat-btn.active { background: var(--p); color: white; }
-
         .p-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: white; border-radius: 16px; margin-bottom: 15px; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .p-info h4 { margin: 0 0 5px; font-size: 1.1rem; }
-        .p-info p { margin: 0; font-size: 0.8rem; color: #757575; line-height: 1.4; }
         .p-price { font-weight: 800; font-size: 1.1rem; color: #000; margin-top: 8px; }
         .add-btn { background: white; color: var(--p); border: 1.5px solid var(--p); padding: 8px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; }
-
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #eee; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #eee; padding: 10px 0; }
         .nav-item { text-align: center; color: #9e9e9e; cursor: pointer; font-size: 0.75rem; font-weight: 600; flex: 1; }
         .nav-item.active { color: #000; }
-        .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
-
         #bot-window { position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; background: white; z-index: 2000; transition: 0.5s; border-radius: 24px 24px 0 0; display: flex; flex-direction: column; }
         #bot-window.open { bottom: 0; }
-        .chat-area { flex: 1; padding: 20px; overflow-y: auto; background: #fafafa; display: flex; flex-direction: column; gap: 15px; }
-
-        #admin-panel { display: none; background: #fdfdfd; border: 2px solid #000; padding: 15px; border-radius: 16px; margin-top: 20px; text-align: left; }
+        #admin-panel { display: none; background: #fdfdfd; border: 2px solid #000; padding: 15px; border-radius: 16px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="logo">Urban<span>PaintPro</span></div>
-    <div onclick="toggleBot(true)" style="padding:10px; color:#000; font-size:1.2rem;"><i class="fa-solid fa-robot"></i></div>
+    <div onclick="toggleBot(true)" style="padding:10px; font-size:1.2rem;"><i class="fa-solid fa-robot"></i></div>
 </div>
 
 <div id="explore" class="section active">
-    <div class="banner">
-        <h2>Expert Paint Services</h2>
-        <p>Premium finish for your dream home</p>
-    </div>
     <div class="cat-scroll">
         <button class="cat-btn active" onclick="filterBrand('all', this)">All Brands</button>
         <button class="cat-btn" onclick="filterBrand('asian', this)">Asian Paints</button>
@@ -71,32 +54,25 @@
 
 <div id="account" class="section">
     <div id="auth-area" style="text-align:center; padding-top:50px;">
-        <h2>Welcome</h2>
+        <h2 id="auth-title">Login / Sign Up</h2>
         <input type="email" id="user-email" placeholder="Email" style="width:100%; padding:15px; margin:10px 0; border-radius:12px; border:1px solid #ddd;">
-        <button onclick="handleAuth()" style="background:#000; color:white; padding:15px; border-radius:12px; width:100%; border:none; cursor:pointer;">Continue</button>
+        <input type="password" id="user-pass" placeholder="Password (Min 6 chars)" style="width:100%; padding:15px; margin:10px 0; border-radius:12px; border:1px solid #ddd;">
+        <button onclick="handleAuth()" id="auth-btn" style="background:#000; color:white; padding:15px; border-radius:12px; width:100%; border:none; cursor:pointer;">Proceed</button>
     </div>
     <div id="profile-area" style="display:none; text-align:center;">
         <h3 id="display-user" onclick="adminCheck()">User</h3>
         <button onclick="logout()" style="color:red; border:none; background:none; font-weight:700;">Logout</button>
-        
         <div id="admin-panel">
-            <h3 style="color:var(--p);">Cloud Admin Dashboard</h3>
+            <h4 style="color:var(--p);">Cloud Admin Dashboard</h4>
             <div id="admin-orders-list">Fetching orders...</div>
         </div>
     </div>
-    <div style="margin-top:30px;" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp"></i> WhatsApp: 9711904092</div>
 </div>
 
 <div id="bot-window">
-    <div style="padding: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee;">
-        <b>Paint Assistant</b>
-        <i class="fa fa-xmark" onclick="toggleBot(false)"></i>
-    </div>
-    <div class="chat-area" id="chat-box"></div>
-    <div style="padding: 15px 20px; display: flex; gap: 12px; border-top: 1px solid #eee;">
-        <input type="text" id="bot-input" placeholder="Price ya brand puchein..." style="flex:1; background:#f0f0f0; padding:12px; border-radius:12px; border:none; outline:none;">
-        <i class="fa fa-paper-plane" onclick="askBot()" style="color:var(--p); font-size:1.3rem;"></i>
-    </div>
+    <div style="padding: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee;"><b>Paint AI</b><i class="fa fa-xmark" onclick="toggleBot(false)"></i></div>
+    <div id="chat-box" style="flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;"></div>
+    <div style="padding:15px; display:flex; gap:10px; border-top:1px solid #eee;"><input type="text" id="bot-input" style="flex:1; padding:12px; border-radius:10px; border:1px solid #ddd;"><button onclick="askBot()" style="background:var(--p); color:white; border:none; border-radius:50%; width:40px;">></button></div>
 </div>
 
 <div class="bottom-nav">
@@ -116,19 +92,15 @@
       appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
     };
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.database();
-    let currentUser = localStorage.getItem('user');
     let clicks = 0;
 
     const products = [
-        { brand: 'asian', n: 'Royale Aspira', p: 68, d: 'Ultra Luxury: Teflon finish, 10yr warranty.' },
-        { brand: 'asian', n: 'Royale Matt', p: 54, d: 'Luxury: Elegant velvet matt finish.' },
-        { brand: 'asian', n: 'Tractor Emulsion', p: 16, d: 'Economy: Smooth budget finish.' },
-        { brand: 'asian', n: 'Apex Protek', p: 95, d: 'Exterior: 15yr warranty, self-cleaning.' },
-        { brand: 'berger', n: 'Silk Glamor', p: 65, d: 'Luxury: Ultra-smooth crystal sheen.' },
-        { brand: 'berger', n: 'Easy Clean Fresh', p: 35, d: 'Standard: Stain resistant, fresh fragrance.' },
-        { brand: 'berger', n: 'Bison Emulsion', p: 18, d: 'Economy: Good coverage budget paint.' },
-        { brand: 'berger', n: 'Weathercoat Long Life', p: 88, d: 'Exterior: Silicon protection, 10yr warranty.' }
+        { brand: 'asian', n: 'Royale Aspira', p: 68, d: 'Luxury Teflon Finish' },
+        { brand: 'asian', n: 'Tractor Emulsion', p: 16, d: 'Budget Smooth' },
+        { brand: 'berger', n: 'Silk Glamor', p: 65, d: 'Crystal Sheen' },
+        { brand: 'berger', n: 'Bison Emulsion', p: 18, d: 'Economy Budget' }
     ];
 
     function renderProducts(filter = 'all') {
@@ -136,22 +108,34 @@
         const filtered = filter === 'all' ? products : products.filter(p => p.brand === filter);
         list.innerHTML = filtered.map(p => `
             <div class="p-item">
-                <div class="p-info">
-                    <span style="font-size:0.6rem; color:var(--p); font-weight:900;">${p.brand.toUpperCase()}</span>
-                    <h4>${p.n}</h4><p>${p.d}</p>
-                    <div class="p-price">₹${p.p}/sqft</div>
-                </div>
+                <div class="p-info"><h4>${p.n}</h4><p>${p.d}</p><div class="p-price">₹${p.p}/sqft</div></div>
                 <button class="add-btn" onclick="buy('${p.n}', ${p.p})">Book</button>
             </div>`).join('');
     }
 
+    function handleAuth() {
+        const e = document.getElementById('user-email').value;
+        const p = document.getElementById('user-pass').value;
+        if(!e || p.length < 6) return alert("Sahi details daalein.");
+        
+        auth.signInWithEmailAndPassword(e, p)
+            .then(() => location.reload())
+            .catch(() => {
+                auth.createUserWithEmailAndPassword(e, p)
+                    .then(() => location.reload())
+                    .catch(err => alert(err.message));
+            });
+    }
+
+    function logout() { auth.signOut().then(() => location.reload()); }
+
     function buy(n, p) {
-        if(!currentUser) return nav('account', document.querySelectorAll('.nav-item')[2]);
+        if(!auth.currentUser) return nav('account', document.querySelectorAll('.nav-item')[2]);
         let area = prompt("Area (sqft):", "100");
         if(area) {
             let total = area * p;
             let orderId = Date.now();
-            db.ref('orders/' + orderId).set({ id: orderId, n, total, date: new Date().toLocaleDateString(), status: "Expert Assigned", user: currentUser })
+            db.ref('orders/' + orderId).set({ id: orderId, n, total, date: new Date().toLocaleDateString(), status: "Expert Assigned", user: auth.currentUser.email })
             .then(() => window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaintPro&am=${total}&cu=INR`);
         }
     }
@@ -164,17 +148,14 @@
                 document.getElementById('admin-panel').style.display = 'block';
                 db.ref('orders').on('value', snap => {
                     let html = "";
-                    if(snap.val()) {
-                        Object.values(snap.val()).reverse().forEach(o => {
-                            html += `<div style="border-bottom:1px solid #eee; padding:10px; font-size:0.8rem;">
-                            ${o.user}: ${o.n} (₹${o.total})<br>
-                            Status: <select onchange="updateStatus('${o.id}', this.value)">
-                                <option value="${o.status}">${o.status}</option>
-                                <option value="Work Started">Work Started</option>
-                                <option value="Painting Done">Painting Done</option>
-                            </select></div>`;
-                        });
-                    }
+                    if(snap.val()) Object.values(snap.val()).reverse().forEach(o => {
+                        html += `<div style="padding:10px; border-bottom:1px solid #eee;">${o.user}: ${o.n}<br>
+                        <select onchange="db.ref('orders/${o.id}').update({status:this.value})">
+                            <option value="${o.status}">${o.status}</option>
+                            <option value="Work Started">Work Started</option>
+                            <option value="Finished">Finished</option>
+                        </select></div>`;
+                    });
                     document.getElementById('admin-orders-list').innerHTML = html;
                 });
             }
@@ -182,13 +163,18 @@
         }
     }
 
-    function updateStatus(id, s) { db.ref('orders/' + id).update({ status: s }).then(() => alert("Updated!")); }
+    auth.onAuthStateChanged(user => {
+        if(user) {
+            document.getElementById('auth-area').style.display = 'none';
+            document.getElementById('profile-area').style.display = 'block';
+            document.getElementById('display-user').innerText = user.email;
+        }
+    });
+
     function filterBrand(brand, btn) {
         document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active'); renderProducts(brand);
     }
-    function handleAuth() { let e = document.getElementById('user-email').value; if(e.includes('@')) { localStorage.setItem('user', e); location.reload(); } }
-    function logout() { localStorage.removeItem('user'); location.reload(); }
     function toggleBot(s) { document.getElementById('bot-window').classList.toggle('open', s); }
     function nav(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -197,27 +183,23 @@
         if(id==='orders') renderOrders();
     }
     function renderOrders() {
-        if(!currentUser) return;
-        db.ref('orders').orderByChild('user').equalTo(currentUser).on('value', snap => {
+        if(!auth.currentUser) return;
+        db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
             let html = "";
-            if(snap.val()) {
-                Object.values(snap.val()).reverse().forEach(o => {
-                    html += `<div class="p-item" style="border-left:5px solid var(--p);"><div><h4>${o.n}</h4><p>Status: <b>${o.status}</b></p><b>Paid: ₹${o.total}</b></div></div>`;
-                });
-            }
-            document.getElementById('order-list').innerHTML = html || "No projects found.";
+            if(snap.val()) Object.values(snap.val()).reverse().forEach(o => {
+                html += `<div class="p-item" style="border-left:5px solid var(--p);"><div><h4>${o.n}</h4><p>Status: <b>${o.status}</b></p><b>₹${o.total}</b></div></div>`;
+            });
+            document.getElementById('order-list').innerHTML = html || "No projects.";
         });
     }
     function askBot() {
         const i = document.getElementById('bot-input'), c = document.getElementById('chat-box');
         if(!i.value) return;
-        c.innerHTML += `<div style="background:var(--p); color:white; padding:12px; border-radius:12px; align-self:flex-end; max-width:80%; margin-bottom:10px;">${i.value}</div>`;
-        let q = i.value.toLowerCase(), r = "Expert 9711904092 se aapko jald call karenge.";
-        if(q.includes("rate") || q.includes("asian")) r = "Asian Royale Aspira ₹68 aur Berger Silk Glamor ₹65 hai.";
-        setTimeout(() => { c.innerHTML += `<div style="background:white; padding:12px; border-radius:12px; align-self:flex-start; border:1px solid #eee; margin-bottom:10px;">${r}</div>`; c.scrollTop = c.scrollHeight; }, 600);
+        c.innerHTML += `<div style="background:var(--p); color:white; padding:10px; border-radius:10px; align-self:flex-end;">${i.value}</div>`;
+        setTimeout(() => { c.innerHTML += `<div style="background:#eee; padding:10px; border-radius:10px; align-self:flex-start;">Call 9711904092 for help.</div>`; c.scrollTop = c.scrollHeight; }, 600);
         i.value = "";
     }
-    window.onload = () => { renderProducts(); if(currentUser) { document.getElementById('auth-area').style.display = 'none'; document.getElementById('profile-area').style.display = 'block'; document.getElementById('display-user').innerText = currentUser; } };
+    window.onload = () => renderProducts();
 </script>
 </body>
 </html>
