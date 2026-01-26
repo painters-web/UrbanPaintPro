@@ -270,7 +270,7 @@
 </div>
 
 <script>
-    
+    // Arbaj, Ye aapki Firebase Config hai
     const firebaseConfig = {
       apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
       authDomain: "professionalpainters-28488.firebaseapp.com",
@@ -378,18 +378,13 @@
                 status: "Expert Assigned"
             }).then(() => {
                 window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaintPro&am=${total}&cu=INR`;
-            });
-        }
-    }
-
-    function fetchBookings() {
+            }) } } function fetchBookings() {
         if(!auth.currentUser) return;
         db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
             const list = document.getElementById('user-orders-list');
             if(!snap.val()) {
                 list.innerHTML = `<div style="text-align:center; margin-top:50px; color:#888;">Koi booking nahi mili.</div>`;
-                return;
-            }
+                return; }
             list.innerHTML = Object.values(snap.val()).reverse().map(o => `
                 <div style="background:white; padding:20px; border-radius:20px; border:1px solid #eee; margin-bottom:15px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
@@ -400,23 +395,16 @@
                     <div style="font-size:0.75rem; color:#999; margin-top:5px;">Date: ${o.date}</div>
                 </div>
             `).join('');
-        });
-    }
-
-    // ADMIN UNLOCK
+        }); } // ADMIN UNLOCK
     function adminUnlock() {
         adminClicks++;
         if(adminClicks >= 10) {
             const pin = prompt("Admin Password:");
             if(pin === "Arbaj@786") {
                 document.getElementById('admin-panel').style.display = 'block';
-                loadAdminData();
-            }
-            adminClicks = 0;
-        }
-    }
-
-    function loadAdminData() {
+                loadAdminData() }
+            adminClicks = 0;  } } 
+function loadAdminData() {
         db.ref('orders').on('value', snap => {
             const area = document.getElementById('all-cloud-orders');
             if(!snap.val()) return area.innerText = "No cloud data.";
@@ -430,8 +418,43 @@
                         <option value="Completed">Completed</option>
                     </select>
                 </div>
-            `).join('');
-        });
+            `).join(''); });
+    function updateStatusCloud(id, s) { db.ref('orders/' + id).update({ 
+         // CHAT ENGINE
+    function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const box = document.getElementById('chat-box');
+        if(!input.value) return;
+        
+        box.innerHTML += `<div class="msg user">${input.value}</div>`;
+        let q = input.value.toLowerCase();
+        let r = "Theek hai Arbaj, main expert se detail mangta hoon. 9711904092 par call karein.";
+        
+        if(q.includes("rate") || q.includes("price")) r = "Interior ₹16 se ₹68/sqft hai aur Exterior ₹22 se ₹95/sqft hai. Aapka project kitne sqft ka hai?";
+        else if(q.includes("asian")) r = "Asian Paints mein Royale Aspira (Ultra Luxury) aur Tractor (Economy) sabse popular hain.";
+        else if(q.includes("hi") || q.includes("hello")) r = "Hello! UrbanPaintPro mein swagat hai. Main paints aur rates mein help kar sakta hoon.";
+
+        setTimeout(() => {
+            box.innerHTML += `<div class="msg bot">${r}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }, 500);
+        input.value = "";
     }
 
-    function updateStatusCloud(id, s) { db.ref('orders/' + id).update({ 
+    // NAVIGATION
+    function nav(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+        window.scrollTo(0,0);
+        if(id === 'bookings') fetchBookings();
+    }
+
+    function toggleChat(s) { document.getElementById('chat-modal').classList.toggle('active', s); }
+
+    window.onload = () => renderCatalog();
+</script>
+
+</body>
+</html>
