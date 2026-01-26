@@ -3,131 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Final Master</title>
+    <title>UrbanPaintPro | Professional Painting</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --p: #673ab7; --bg: #ffffff; --grey: #f5f5f7; --success: #00c853; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; color: #1d1d1f; }
+        
+        /* Header */
         .header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 1000; }
-        .logo { font-weight: 900; font-size: 1.2rem; }
+        .logo { font-weight: 900; font-size: 1.3rem; }
         #auth-status { font-size: 10px; font-weight: 800; color: var(--p); border: 1.5px solid var(--p); padding: 4px 10px; border-radius: 8px; cursor: pointer; }
 
         /* Sections */
-        .section { display: none; padding: 20px; }
+        .section { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Auth Modal */
-        #auth-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .auth-card { background: white; width: 85%; padding: 30px; border-radius: 24px; text-align: center; }
-        .auth-card input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid #ddd; outline: none; }
+        /* Category Grid */
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .cat-card { background: var(--grey); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #eee; cursor: pointer; }
+        .cat-card i { font-size: 1.8rem; color: var(--p); margin-bottom: 8px; display: block; }
+        
+        /* Product Cards */
+        .p-card { border: 1px solid #eee; border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; background: white; }
+        .p-img { width: 60px; height: 60px; background: #eee; border-radius: 10px; overflow: hidden; }
+        .p-img img { width: 100%; height: 100%; object-fit: cover; }
+        .price { color: var(--p); font-weight: 800; font-size: 1.1rem; }
 
-        /* Products UI */
-        .tabs { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 15px; scrollbar-width: none; }
-        .tab { padding: 8px 16px; border-radius: 50px; background: var(--grey); font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer; border: 1px solid #eee; }
-        .tab.active { background: var(--p); color: white; }
-        .p-card { border: 1px solid #eee; border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .price { color: var(--p); font-weight: 800; }
+        /* Booking Tracking */
+        .track-box { border-left: 5px solid var(--p); background: #fafafa; padding: 20px; border-radius: 12px; margin-top: 10px; }
+        .progress-bar { height: 8px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .progress-fill { height: 100%; width: 40%; background: var(--p); }
+
+        /* Support Grid */
+        .support-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; text-align: center; }
+        .support-btn { background: white; padding: 15px 5px; border-radius: 12px; border: 1px solid #eee; cursor: pointer; }
+        .support-btn i { font-size: 1.4rem; display: block; margin-bottom: 5px; }
 
         /* Nav */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; padding: 12px 0; z-index: 2000; }
         .nav-item { flex: 1; text-align: center; font-size: 10px; color: #757575; font-weight: 600; cursor: pointer; }
         .nav-item.active { color: var(--p); }
-        .nav-item i { font-size: 1.3rem; margin-bottom: 3px; display: block; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="logo">Urban<span style="color:var(--p)">PaintPro</span></div>
-    <div id="auth-status" onclick="openAuth()">● LOGIN / SIGNUP</div>
-</div>
-
-<div id="auth-modal">
-    <div class="auth-card">
-        <h3 id="auth-title">Welcome</h3>
-        <input type="email" id="email" placeholder="Email Address">
-        <input type="password" id="pass" placeholder="Password">
-        <button onclick="handleAuth()" style="width:100%; padding:14px; background:var(--p); color:white; border:none; border-radius:12px; font-weight:bold;">Continue</button>
-        <p style="font-size: 0.7rem; color: #888; margin-top: 15px;" onclick="closeAuth()">Cancel</p>
-    </div>
+    <div id="auth-status" onclick="alert('Firebase Login Ready!')">● LOGIN</div>
 </div>
 
 <div id="home" class="section active">
-    <div class="tabs">
-        <div class="tab active" onclick="render('Interior', this)">Interior</div>
-        <div class="tab" onclick="render('Exterior', this)">Exterior</div>
-        <div class="tab" onclick="render('Waterproofing', this)">Waterproofing</div>
-        <div class="tab" onclick="render('Polish', this)">Polish</div>
+    <h3>Professional Painting</h3>
+    <p style="font-size: 0.8rem; color: #666; margin-top: -10px;">Asian Paints Expert Service • No GST</p>
+    
+    <div class="cat-grid">
+        <div class="cat-card" onclick="render('Interior')"><i class="fa fa-home"></i><span>Interior</span></div>
+        <div class="cat-card" onclick="render('Exterior')"><i class="fa fa-sun"></i><span>Exterior</span></div>
+        <div class="cat-card" onclick="render('Waterproofing')"><i class="fa fa-tint"></i><span>Waterproof</span></div>
+        <div class="cat-card" onclick="render('Polish')"><i class="fa fa-brush"></i><span>Wood Polish</span></div>
     </div>
-    <div id="product-list"></div>
+
+    <div id="product-list" style="margin-top:25px;"></div>
 </div>
 
-<div id="orders" class="section">
+<div id="bookings" class="section">
     <h3>Project Tracking</h3>
-    <div id="status-box" style="border-left: 5px solid #ddd; background: #fafafa; padding: 15px; border-radius: 12px;">
-        <p id="track-msg">Abhi koi active order nahi hai.</p>
+    <div id="order-card" style="display:none;">
+        <div class="track-box">
+            <div style="display:flex; justify-content:space-between;"><b>Measurement #UPP-786</b><small>ACTIVE</small></div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <p style="font-size:0.8rem; color:#666;">Status: Expert assigned for tomorrow 10:00 AM.</p>
+            <button onclick="confirmCancel()" style="background:none; border:none; color:red; font-size:0.8rem; font-weight:800; padding:0;">Cancel Project</button>
+        </div>
     </div>
+    <p id="no-order" style="text-align:center; color:#888; margin-top:50px;">Koi active order nahi hai.</p>
 </div>
 
 <div id="account" class="section">
-    <div style="background: #1a1a1a; color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
-        <small>REFERRAL CASH</small>
-        <h2>₹ 150.00</h2>
+    <div style="background: #1a1a1a; color: white; padding: 25px; border-radius: 20px; margin-bottom: 25px;">
+        <small style="opacity:0.7;">REFERRAL CASH</small>
+        <h2 style="margin:5px 0;">₹ 150.00</h2>
+        <div style="font-size:0.7rem; color:var(--success); font-weight:800;">1% CASH ON EVERY ORDER</div>
     </div>
-    <div style="background:white; border:1px solid #eee; border-radius:15px; overflow:hidden;">
-        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;" onclick="window.open('https://wa.me/919711904092')">
-            <span>WhatsApp Support</span><i class="fab fa-whatsapp" style="color:#25d366"></i>
-        </div>
-        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;" onclick="aiRobot()">
-            <span>Help Center (AI Robot)</span><i class="fa fa-robot" style="color:var(--p)"></i>
-        </div>
-        <div style="padding:15px; display:flex; justify-content:space-between;" onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')">
-            <span>Email Support</span><i class="fa fa-envelope" style="color:#ea4335"></i>
-        </div>
+
+    <h4>Team Support</h4>
+    <div class="support-grid">
+        <div class="support-btn" onclick="alert('Robot: Hello Arbaj! Main aapki kya madad karoon?')"><i class="fa fa-robot" style="color:var(--p)"></i>AI Robot</div>
+        <div class="support-btn" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366"></i>WhatsApp</div>
+        <div class="support-btn" onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')"><i class="fa fa-envelope" style="color:#ea4335"></i>Email</div>
     </div>
 </div>
 
 <div class="bottom-nav">
     <div class="nav-item active" onclick="nav('home', this)"><i class="fa fa-search"></i>Explore</div>
-    <div class="nav-item" onclick="nav('orders', this)"><i class="fa fa-calendar-check"></i>Orders</div>
+    <div class="nav-item" onclick="nav('bookings', this)"><i class="fa fa-calendar-check"></i>Bookings</div>
     <div class="nav-item" onclick="nav('account', this)"><i class="fa fa-user-circle"></i>Profile</div>
 </div>
 
 <script>
-    // Firebase Config Replace karein
-    const firebaseConfig = { apiKey: "AIzaSy...", ... };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
-    const paints = {
-        'Interior': [{n:"Royale Aspira", p:65, b:"LUXURY"}, {n:"Royale Luxury", p:42, b:"POPULAR"}, {n:"Tractor Emulsion", p:18, b:"BUDGET"}],
-        'Exterior': [{n:"Apex Ultima Protek", p:75, b:"TOP SHIELD"}, {n:"Ace Exterior", p:18, b:"BUDGET"}],
-        'Waterproofing': [{n:"Damp Proof", p:85, b:"TERRACE"}, {n:"Damp Sheath", p:45, b:"INTERIOR"}],
-        'Polish': [{n:"PU Wood Polish", p:450, b:"ELITE"}, {n:"Apcolite Enamel", p:38, b:"METAL/WOOD"}]
+    const asianPaints = {
+        'Interior': [
+            {n:"Royale Aspira", p:65, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/interior-walls-royale-aspira-asian-paints.png"},
+            {n:"Royale Luxury", p:42, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/interior-walls-royale-luxury-emulsion-asian-paints.png"},
+            {n:"Tractor Emulsion", p:18, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/interior-walls-tractor-emulsion-asian-paints.png"}
+        ],
+        'Exterior': [
+            {n:"Apex Ultima Protek", p:75, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/exterior-walls-apex-ultima-protek-asian-paints.png"},
+            {n:"Ace Exterior", p:18, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/exterior-walls-ace-exterior-emulsion-asian-paints.png"}
+        ],
+        'Waterproofing': [
+            {n:"SmartCare Damp Proof", p:85, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/waterproofing-smartcare-damp-proof-asian-paints.png"},
+            {n:"Damp Sheath", p:45, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/waterproofing-smartcare-damp-sheath-v2-asian-paints.png"}
+        ],
+        'Polish': [
+            {n:"PU Luxury Polish", p:450, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/wood-finishes-pu-luxury-italian-wood-finish-asian-paints.png"}
+        ]
     };
 
-    function render(cat, el) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        if(el) el.classList.add('active');
-        let html = "";
-        paints[cat].forEach(p => {
-            html += `<div class="p-card"><div><span style="font-size:9px; background:#f0ebf9; color:var(--p); padding:2px 6px; border-radius:4px; font-weight:800;">${p.b}</span><h4>${p.n}</h4><b class="price">₹${p.p}/sqft</b></div><button onclick="confirmOrder('${p.n}')" style="background:white; border:1.5px solid var(--p); color:var(--p); padding:6px 15px; border-radius:8px; font-weight:800;">Add</button></div>`;
+    function render(cat) {
+        let html = `<h4>${cat} Catalog</h4>`;
+        asianPaints[cat].forEach(p => {
+            html += `<div class="p-card">
+                <div class="p-img"><img src="${p.img}" alt="Paint"></div>
+                <div style="flex:1; padding-left:15px;">
+                    <b style="font-size:0.95rem;">${p.n}</b><br>
+                    <span class="price">₹${p.p}/sqft</span>
+                </div>
+                <button onclick="bookOrder('${p.n}')" style="background:var(--p); color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold;">Book</button>
+            </div>`;
         });
         document.getElementById('product-list').innerHTML = html;
+        window.scrollTo(0, 400);
     }
 
-    function confirmOrder(name) {
-        alert("Booking Successful for " + name + "! Expert kal 10 AM aayega.");
-        document.getElementById('track-msg').innerHTML = "<b>Order Active: " + name + "</b><br>Status: Expert arriving tomorrow 10 AM.";
-        document.getElementById('status-box').style.borderColor = "#673ab7";
-        nav('orders', document.querySelectorAll('.nav-item')[1]);
+    function bookOrder(name) {
+        alert("Success! " + name + " Measurement Book ho gaya hai.");
+        document.getElementById('no-order').style.display = 'none';
+        document.getElementById('order-card').style.display = 'block';
+        nav('bookings', document.querySelectorAll('.nav-item')[1]);
     }
 
-    function aiRobot() { alert("UrbanPaint AI: Namaste! Main aapki kya madad kar sakta hoon?"); }
-    function openAuth() { document.getElementById('auth-modal').style.display = 'flex'; }
-    function closeAuth() { document.getElementById('auth-modal').style.display = 'none'; }
+    function confirmCancel() {
+        if(confirm("Kya aap sach mein cancel karna chahte hain?")) {
+            document.getElementById('order-card').style.display = 'none';
+            document.getElementById('no-order').style.display = 'block';
+        }
+    }
+
     function nav(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
