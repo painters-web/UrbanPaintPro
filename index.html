@@ -3,163 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Luxury Painting</title>
+    <title>UrbanPaintPro | Official App</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --p: #673ab7; --bg: #f5f5f7; --gold: #d4af37; --text: #1d1d1f; }
-        body { font-family: 'SF Pro Display', -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; }
-
-        /* Premium Header */
-        .header { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); padding: 15px 20px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 2000; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .logo { font-weight: 900; font-size: 1.4rem; letter-spacing: -0.5px; }
-
-        /* Search Bar UI */
-        .search-container { padding: 10px 20px; }
-        .search-bar { background: #e5e5ea; border-radius: 12px; display: flex; align-items: center; padding: 12px 15px; }
-        .search-bar input { border: none; background: transparent; outline: none; width: 100%; margin-left: 10px; font-weight: 500; }
-
-        /* Color Visualizer Tab */
-        .visualizer-box { background: #fff; margin: 15px; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid #eee; }
-        .color-dot { width: 40px; height: 40px; border-radius: 50%; display: inline-block; margin: 5px; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-
-        /* Process Timeline */
-        .timeline { display: flex; overflow-x: auto; padding: 10px 0; gap: 20px; scrollbar-width: none; }
-        .step { min-width: 120px; text-align: center; font-size: 0.75rem; color: #8e8e93; }
-        .step i { font-size: 1.2rem; color: var(--p); display: block; margin-bottom: 8px; }
-
-        /* Product Cards */
-        .p-card { background: #fff; margin-bottom: 12px; padding: 18px; border-radius: 20px; display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #f0f0f0; transition: 0.3s; }
-        .p-img { width: 50px; height: 50px; background: #f2f2f7; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 900; color: #666; }
-        .info { flex: 1; padding-left: 15px; }
-        .warranty { font-size: 10px; background: #f0ebf9; color: var(--p); padding: 3px 8px; border-radius: 6px; font-weight: 700; display: inline-block; margin-top: 5px; }
-        .p-btn { background: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; }
-
-        /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; z-index: 5000; }
-        .nav-item { color: #8e8e93; font-size: 10px; font-weight: 600; text-align: center; cursor: pointer; }
+        :root { --p: #673ab7; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 90px; }
+        .app-header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 2000; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
+        .logo { font-weight: 900; font-size: 1.3rem; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #ddd; z-index: 5000; }
+        .nav-item { text-align: center; color: #8e8e93; font-size: 10px; cursor: pointer; flex: 1; font-weight: 600; }
         .nav-item.active { color: var(--p); }
-
-        .section { display: none; padding: 10px 20px; }
+        .section { display: none; padding: 15px; }
         .section.active { display: block; }
+        .p-card { background: white; padding: 15px; border-radius: 16px; display: flex; align-items: center; margin-bottom: 12px; border: 1px solid #eee; }
+        .info { flex: 1; padding-left: 15px; }
+        .info h4 { margin: 0; font-size: 0.95rem; }
+        .btn-book { background: var(--p); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
+        .calc-box { background: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 20px; border: 1px solid #eee; }
+        .calc-box select { width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; background: #f2f2f7; border: none; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<div class="header">
+<div class="app-header">
     <div class="logo">Urban<span style="color:var(--p);">PaintPro</span></div>
-    <div id="auth-status" style="font-size: 0.75rem; font-weight: 700; color: var(--p);">● LIVE</div>
+    <div id="auth-status" style="font-size:0.7rem; font-weight:700;">● Online</div>
 </div>
 
 <div id="home" class="section active">
-    <div class="search-container">
-        <div class="search-bar"><i class="fa fa-search"></i><input type="text" id="p-search" placeholder="Search Royale, Apex, Damp Proof..." onkeyup="filter()"></div>
+    <div class="calc-box">
+        <h4 style="margin:0;">Estimate Calculator</h4>
+        <select id="size" onchange="runCalc()">
+            <option value="400">1 BHK (Standard)</option>
+            <option value="950">2 BHK (Standard)</option>
+            <option value="1500">3 BHK (Standard)</option>
+        </select>
+        <select id="type" onchange="runCalc()">
+            <option value="1">Repaint (Purana Ghar)</option>
+            <option value="2.6">Fresh Paint (Naya Ghar)</option>
+        </select>
+        <h2 id="total-res" style="margin:15px 0; color:var(--p);">₹ 16,800</h2>
+        <button onclick="nav('settings', document.getElementById('acc-nav'))" style="width:100%; padding:12px; background:black; color:white; border-radius:10px; border:none; font-weight:bold;">Book Now</button>
     </div>
 
-    <div style="padding: 10px 5px;">
-        <h5 style="margin: 0 0 15px;">Painting Process Timeline</h5>
-        <div class="timeline">
-            <div class="step"><i class="fa fa-ruler-combined"></i>Measurement</div>
-            <div class="step"><i class="fa fa-tools"></i>Site Prep</div>
-            <div class="step"><i class="fa fa-layer-group"></i>Putty & Sanding</div>
-            <div class="step"><i class="fa fa-paint-roller"></i>Primer & Painting</div>
-            <div class="step"><i class="fa fa-check-circle"></i>Final Handover</div>
-        </div>
-    </div>
-
-    <div class="visualizer-box">
-        <h5 style="margin:0 0 10px;">Virtual Room Visualizer</h5>
-        <div id="preview-wall" style="width:100%; height:80px; background:#e0e0e0; border-radius:12px; margin-bottom:10px; transition:0.5s;"></div>
-        <div class="color-dot" style="background:#f5f5dc;" onclick="viz('#f5f5dc')"></div>
-        <div class="color-dot" style="background:#e6e6fa;" onclick="viz('#e6e6fa')"></div>
-        <div class="color-dot" style="background:#f0fff0;" onclick="viz('#f0fff0')"></div>
-        <div class="color-dot" style="background:#fff5ee;" onclick="viz('#fff5ee')"></div>
-    </div>
-
+    <h4 style="margin-left:5px; color:#666;">Asian Paints Range</h4>
     <div id="catalog"></div>
 </div>
 
 <div id="orders" class="section">
-    <h3>Project Tracker</h3>
-    <div id="order-list" style="text-align:center; color:#8e8e93; padding-top:100px;">Login to track your home painting project.</div>
+    <h3>My Projects</h3>
+    <div id="orders-list" style="text-align:center; padding-top:50px; color:#8e8e93;">Login to track your orders.</div>
 </div>
 
 <div id="settings" class="section">
-    <div style="background:white; padding:30px; border-radius:24px; text-align:center;">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="80">
-        <h4 id="u-mail">Guest Account</h4>
-        <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
-            <button class="p-btn" style="background:var(--p);" onclick="alert('Profile Saved')">Save Profile</button>
-            <button class="p-btn" style="background:#eee; color:#000;" onclick="auth.signOut().then(()=>location.reload())">Logout</button>
-        </div>
+    <div style="text-align:center; padding: 20px 0;">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="70">
+        <h4 id="user-email">Guest User</h4>
     </div>
-    
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
-        <div style="background:white; padding:20px; border-radius:15px; text-align:center;" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366; font-size:1.5rem;"></i><br>Help</div>
-        <div style="background:white; padding:20px; border-radius:15px; text-align:center;" onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')"><i class="far fa-envelope" style="color:#ea4335; font-size:1.5rem;"></i><br>Mail</div>
+    <div style="background:white; border-radius:15px; padding:15px; border:1px solid #eee;">
+        <p>Mobile: <input type="tel" placeholder="Add Number" style="border:none; text-align:right; float:right;"></p>
+        <hr style="border:0; border-top:1px solid #eee;">
+        <p>Bank A/C: <input type="text" placeholder="Add A/C No." style="border:none; text-align:right; float:right;"></p>
     </div>
+    <button onclick="auth.signOut().then(()=>location.reload())" style="width:100%; margin-top:20px; padding:15px; border-radius:12px; border:1px solid #ddd; background:white; font-weight:bold;">Logout</button>
 </div>
 
 <div class="bottom-nav">
-    <div class="nav-item active" onclick="nav('home', this)"><i class="fas fa-home" style="font-size:1.4rem;"></i><br>Home</div>
-    <div class="nav-item" onclick="nav('orders', this)"><i class="fas fa-briefcase" style="font-size:1.4rem;"></i><br>Orders</div>
-    <div class="nav-item" onclick="nav('settings', this)"><i class="fas fa-user-circle" style="font-size:1.4rem;"></i><br>Account</div>
+    <div class="nav-item active" onclick="nav('home', this)"><i class="fas fa-home" style="font-size:1.5rem;"></i><br>Home</div>
+    <div class="nav-item" onclick="nav('orders', this)"><i class="fas fa-tasks" style="font-size:1.5rem;"></i><br>Orders</div>
+    <div class="nav-item" id="acc-nav" onclick="nav('settings', this)"><i class="fas fa-user-circle" style="font-size:1.5rem;"></i><br>Account</div>
 </div>
 
 <script>
-    const firebaseConfig = { apiKey: "AIzaSy...", ... }; // Your config
+    // Firebase Config (Original)
+    const firebaseConfig = { apiKey: "AIzaSy...", ... };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    const luxuryCatalog = {
-        "Luxury Interior": [
-            {n:"Royale Aspira", p:60, w:"10yr Shield"}, {n:"Royale Glitz Shyne", p:45, w:"8yr Finish"}, {n:"Royale Luxury Shyne", p:42, w:"5yr Warranty"}
-        ],
-        "Anti-Bacterial & Health": [
-            {n:"Health Shield Safe", p:48, w:"Anti-Viral Certified"}, {n:"Royale Atmos (Air Purifying)", p:52, w:"Carbon-Free"}
-        ],
-        "Exterior & Weatherproof": [
-            {n:"Apex Ultima Protek", p:68, w:"15yr Protection"}, {n:"Apex Dust Proof", p:28, w:"5yr Finish"}
-        ],
-        "Premium Enamels & Duco": [
-            {n:"PU Italian Polish", p:450, w:"Ultra Gloss"}, {n:"Duco High Gloss", p:260, w:"Premium Metal/Wood"}
-        ],
-        "SmartCare Waterproofing": [
-            {n:"SmartCare Damp Proof", p:75, w:"8yr Leakage Warranty"}, {n:"Vital Crack Fill", p:25, w:"Long Lasting"}
-        ]
-    };
-
-    function load() {
-        let h = "";
-        for (let cat in luxuryCatalog) {
-            h += `<h6 style="text-transform:uppercase; color:#8e8e93; letter-spacing:1px; margin:25px 0 10px;">${cat}</h6>`;
-            luxuryCatalog[cat].forEach(p => {
-                h += `<div class="p-card">
-                    <div class="p-img">PAINT</div>
-                    <div class="info">
-                        <h4>${p.n}</h4>
-                        <span class="warranty"><i class="fa fa-award"></i> ${p.w}</span><br>
-                        <span style="font-size:1.1rem; font-weight:800; color:var(--p);">₹${p.p}/sqft</span>
-                    </div>
-                    <button class="p-btn" onclick="nav('settings', document.getElementById('set-btn'))">Book</button>
-                </div>`;
-            });
-        }
-        document.getElementById('catalog').innerHTML = h;
-    }
-
-    function filter() {
-        let val = document.getElementById('p-search').value.toLowerCase();
-        let cards = document.getElementsByClassName('p-card');
-        for(let i=0; i<cards.length; i++){
-            cards[i].style.display = cards[i].innerText.toLowerCase().includes(val) ? "flex" : "none";
-        }
-    }
-
-    function viz(c) { document.getElementById('preview-wall').style.background = c; }
+    const paints = [
+        {n: "Royale Aspira", p: 60}, {n: "Royale Luxury", p: 42}, {n: "Apex Ultima", p: 45}, {n: "Damp Proof", p: 75}, {n: "Tractor Emulsion", p: 16}
+    ];
 
     function nav(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -169,8 +96,26 @@
         window.scrollTo(0,0);
     }
 
-    auth.onAuthStateChanged(user => { if(user) document.getElementById('u-mail').innerText = user.email; });
-    window.onload = () => { load(); };
+    function runCalc() {
+        let res = Math.round(document.getElementById('size').value * document.getElementById('type').value * 42);
+        document.getElementById('total-res').innerText = "₹ " + res.toLocaleString('en-IN');
+    }
+
+    auth.onAuthStateChanged(user => {
+        if(user) {
+            document.getElementById('user-email').innerText = user.email;
+            document.getElementById('auth-status').innerText = "● " + user.email.split('@')[0];
+        }
+    });
+
+    window.onload = () => {
+        let h = "";
+        paints.forEach(p => {
+            h += `<div class="p-card"><div class="info"><h4>${p.n}</h4><span style="color:var(--p); font-weight:800;">₹${p.p}/sqft</span></div><button class="btn-book">Book</button></div>`;
+        });
+        document.getElementById('catalog').innerHTML = h;
+        runCalc();
+    };
 </script>
 </body>
 </html>
