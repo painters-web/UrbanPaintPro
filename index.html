@@ -3,164 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Professional Painting</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <title>UrbanPaintPro | Official AI App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --p: #673ab7; --bg: #ffffff; --grey: #f5f5f7; --success: #00c853; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; color: #1d1d1f; }
+        :root { --p: #673ab7; --bg: #ffffff; --card: #f8f9fa; --success: #34c759; --text-dark: #1d1d1f; }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text-dark); padding-bottom: 90px; }
         
-        /* Header */
-        .header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 1000; }
+        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 2000; border-bottom: 1px solid #eee; }
         .logo { font-weight: 900; font-size: 1.3rem; }
-        #auth-status { font-size: 10px; font-weight: 800; color: var(--p); border: 1.5px solid var(--p); padding: 4px 10px; border-radius: 8px; cursor: pointer; }
-
-        /* Sections */
-        .section { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Category Grid */
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .cat-card { background: var(--grey); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #eee; cursor: pointer; }
-        .cat-card i { font-size: 1.8rem; color: var(--p); margin-bottom: 8px; display: block; }
+        .search-icon { font-size: 1.2rem; color: var(--p); cursor: pointer; }
         
-        /* Product Cards */
-        .p-card { border: 1px solid #eee; border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; background: white; }
-        .p-img { width: 60px; height: 60px; background: #eee; border-radius: 10px; overflow: hidden; }
-        .p-img img { width: 100%; height: 100%; object-fit: cover; }
-        .price { color: var(--p); font-weight: 800; font-size: 1.1rem; }
+        #search-container { display: none; padding: 10px 20px; background: white; border-bottom: 1px solid #eee; }
+        #search-box { width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 12px; outline: none; font-size: 1rem; }
 
-        /* Booking Tracking */
-        .track-box { border-left: 5px solid var(--p); background: #fafafa; padding: 20px; border-radius: 12px; margin-top: 10px; }
-        .progress-bar { height: 8px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .progress-fill { height: 100%; width: 40%; background: var(--p); }
+        .section { display: none; padding: 20px; animation: slideUp 0.4s ease; }
+        .section.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Support Grid */
-        .support-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; text-align: center; }
-        .support-btn { background: white; padding: 15px 5px; border-radius: 12px; border: 1px solid #eee; cursor: pointer; }
-        .support-btn i { font-size: 1.4rem; display: block; margin-bottom: 5px; }
+        /* Search Results Top Area */
+        #search-results-area { margin-bottom: 20px; border-bottom: 2px dashed #eee; display: none; }
 
-        /* Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; padding: 12px 0; z-index: 2000; }
-        .nav-item { flex: 1; text-align: center; font-size: 10px; color: #757575; font-weight: 600; cursor: pointer; }
-        .nav-item.active { color: var(--p); }
+        .folder { background: var(--card); border-radius: 18px; padding: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #eee; font-weight: 700; transition: 0.3s; }
+        .folder-list { display: none; padding: 5px 0 15px; }
+
+        .p-card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 12px; display: flex; align-items: center; border: 1px solid #eee; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .p-info { flex: 1; }
+        .p-info h4 { margin: 0; font-size: 0.95rem; font-weight: 800; }
+        .price-tag { color: var(--p); font-weight: 800; font-size: 1.1rem; }
+        .book-btn { background: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+
+        /* Advanced 100+ Shades Visualizer */
+        .viz-box { background: white; border-radius: 24px; padding: 20px; margin: 25px 0; border: 1.5px solid #eee; }
+        .wall { width: 100%; height: 180px; border-radius: 20px; background: #f5f5dc; margin-bottom: 15px; transition: 0.5s; border: 4px solid #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .color-palette { display: flex; overflow-x: auto; gap: 10px; padding: 10px 0; scrollbar-width: none; }
+        .color-dot { min-width: 35px; height: 35px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; flex-shrink: 0; }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; padding: 12px 0; border-top: 1px solid #eee; z-index: 5000; }
+        .nav-item { flex: 1; text-align: center; color: #8e8e93; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .nav-item.active { color: #000; }
+        .nav-item i { font-size: 1.4rem; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="logo">Urban<span style="color:var(--p)">PaintPro</span></div>
-    <div id="auth-status" onclick="alert('Firebase Login Ready!')">● LOGIN</div>
+    <div class="search-icon" onclick="toggleSearch()"><i class="fa fa-search"></i></div>
 </div>
+<div id="search-container"><input type="text" id="search-box" placeholder="Search paints..." onkeyup="smartSearch()"></div>
 
 <div id="home" class="section active">
-    <h3>Professional Painting</h3>
-    <p style="font-size: 0.8rem; color: #666; margin-top: -10px;">Asian Paints Expert Service • No GST</p>
-    
-    <div class="cat-grid">
-        <div class="cat-card" onclick="render('Interior')"><i class="fa fa-home"></i><span>Interior</span></div>
-        <div class="cat-card" onclick="render('Exterior')"><i class="fa fa-sun"></i><span>Exterior</span></div>
-        <div class="cat-card" onclick="render('Waterproofing')"><i class="fa fa-tint"></i><span>Waterproof</span></div>
-        <div class="cat-card" onclick="render('Polish')"><i class="fa fa-brush"></i><span>Wood Polish</span></div>
+    <div id="search-results-area">
+        <h5 style="margin: 0 0 10px; color: var(--p);">Found Results:</h5>
+        <div id="search-append"></div>
     </div>
 
-    <div id="product-list" style="margin-top:25px;"></div>
+    <h3 style="margin-bottom: 20px; font-weight: 900;">Choose Your Finish</h3>
+    
+    <div id="folders">
+        <div class="folder" onclick="toggleFolder('int-list')">Interior Painting <i class="fa fa-chevron-down"></i></div>
+        <div id="int-list" class="folder-list"></div>
+
+        <div class="folder" onclick="toggleFolder('ext-list')">Exterior Painting <i class="fa fa-chevron-down"></i></div>
+        <div id="ext-list" class="folder-list"></div>
+
+        <div class="folder" onclick="toggleFolder('wp-list')">Waterproofing <i class="fa fa-chevron-down"></i></div>
+        <div id="wp-list" class="folder-list"></div>
+    </div>
+
+    <div class="viz-box">
+        <h4 style="margin: 0 0 10px; font-weight: 800;">100+ Premium Shades Visualizer</h4>
+        <div id="preview" class="wall"></div>
+        <div class="color-palette" id="shade-container">
+            </div>
+        <p style="text-align:center; font-size:0.7rem; color:#888; margin-top:10px;">Scroll to explore the full Asian Paints Color Spectrum</p>
+    </div>
 </div>
 
-<div id="bookings" class="section">
-    <h3>Project Tracking</h3>
-    <div id="order-card" style="display:none;">
-        <div class="track-box">
-            <div style="display:flex; justify-content:space-between;"><b>Measurement #UPP-786</b><small>ACTIVE</small></div>
-            <div class="progress-bar"><div class="progress-fill"></div></div>
-            <p style="font-size:0.8rem; color:#666;">Status: Expert assigned for tomorrow 10:00 AM.</p>
-            <button onclick="confirmCancel()" style="background:none; border:none; color:red; font-size:0.8rem; font-weight:800; padding:0;">Cancel Project</button>
-        </div>
-    </div>
-    <p id="no-order" style="text-align:center; color:#888; margin-top:50px;">Koi active order nahi hai.</p>
+<div id="orders" class="section">
+    <h3>Live Tracking</h3>
+    <div id="order-card-box"></div>
 </div>
 
 <div id="account" class="section">
-    <div style="background: #1a1a1a; color: white; padding: 25px; border-radius: 20px; margin-bottom: 25px;">
-        <small style="opacity:0.7;">REFERRAL CASH</small>
-        <h2 style="margin:5px 0;">₹ 150.00</h2>
-        <div style="font-size:0.7rem; color:var(--success); font-weight:800;">1% CASH ON EVERY ORDER</div>
-    </div>
-
-    <h4>Team Support</h4>
-    <div class="support-grid">
-        <div class="support-btn" onclick="alert('Robot: Hello Arbaj! Main aapki kya madad karoon?')"><i class="fa fa-robot" style="color:var(--p)"></i>AI Robot</div>
-        <div class="support-btn" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366"></i>WhatsApp</div>
-        <div class="support-btn" onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')"><i class="fa fa-envelope" style="color:#ea4335"></i>Email</div>
-    </div>
+    <div style="font-size: 1.4rem; font-weight: 800; font-style: italic; margin-bottom: 25px;">Profile</div>
+    <button style="background: var(--p); color: white; padding: 16px 28px; border-radius: 12px; border: none; font-weight: 600; width:100%; cursor:pointer;">Log in or sign up</button>
+    <div style="height: 8px; background: #f4f4f4; margin: 25px -20px;"></div>
+    
+    <div class="folder" onclick="window.open('https://wa.me/919711904092')">WhatsApp Support <i class="fab fa-whatsapp"></i></div>
+    <div class="folder" onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')">Email: urbanpaintpro.inbox@gmail.com <i class="fa fa-envelope"></i></div>
 </div>
 
 <div class="bottom-nav">
-    <div class="nav-item active" onclick="nav('home', this)"><i class="fa fa-search"></i>Explore</div>
-    <div class="nav-item" onclick="nav('bookings', this)"><i class="fa fa-calendar-check"></i>Bookings</div>
+    <div class="nav-item active" onclick="nav('home', this)"><i class="fa fa-compass"></i>Explore</div>
+    <div class="nav-item" onclick="nav('orders', this)"><i class="fa fa-stream"></i>Bookings</div>
     <div class="nav-item" onclick="nav('account', this)"><i class="fa fa-user-circle"></i>Profile</div>
 </div>
 
 <script>
-    const asianPaints = {
-        'Interior': [
-            {n:"Royale Aspira", p:65, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/interior-walls-royale-aspira-asian-paints.png"},
-            {n:"Royale Luxury", p:42, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/interior-walls-royale-luxury-emulsion-asian-paints.png"},
-            {n:"Tractor Emulsion", p:18, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/interior-walls-tractor-emulsion-asian-paints.png"}
+    const catalog = {
+        "int-list": [
+            {n:"Royale Aspira", p:65, d:"Top Luxury, 10yr Warranty"},
+            {n:"Royale Shyne", p:48, d:"High Gloss Premium"},
+            {n:"Royale Matt", p:52, d:"Velvet Matt Luxury"},
+            {n:"Apcolite All Protek", p:40, d:"Dust Resistance"},
+            {n:"Apcolite Advanced", p:34, d:"Rich Look & Washable"},
+            {n:"Apcolite Premium", p:28, d:"Tough & Long Lasting"},
+            {n:"Tractor Emulsion Aqualock", p:22, d:"Water Resistance"},
+            {n:"Tractor Emulsion Shyne", p:20, d:"High Shine Budget"},
+            {n:"Tractor Emulsion Sparc", p:16, d:"Affordable Choice"}
         ],
-        'Exterior': [
-            {n:"Apex Ultima Protek", p:75, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/exterior-walls-apex-ultima-protek-asian-paints.png"},
-            {n:"Ace Exterior", p:18, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/exterior-walls-ace-exterior-emulsion-asian-paints.png"}
+        "ext-list": [
+            {n:"Apex Protek Duralife", p:95, d:"Ultra Luxury, 15yr Warranty"},
+            {n:"Apex Ultima", p:60, d:"Top Quality Exterior"},
+            {n:"Apex Advanced", p:45, d:"Weatherproof Shine"},
+            {n:"Ace Exterior Emulsion", p:22, d:"Budget Friendly Exterior"}
         ],
-        'Waterproofing': [
-            {n:"SmartCare Damp Proof", p:85, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/waterproofing-smartcare-damp-proof-asian-paints.png"},
-            {n:"Damp Sheath", p:45, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/waterproofing-smartcare-damp-sheath-v2-asian-paints.png"}
-        ],
-        'Polish': [
-            {n:"PU Luxury Polish", p:450, img:"https://www.asianpaints.com/content/dam/asian_paints/products/pack-shots/wood-finishes-pu-luxury-italian-wood-finish-asian-paints.png"}
+        "wp-list": [
+            {n:"SmartCare Damp Proof", p:85, d:"Terrace Expert"},
+            {n:"Damp Sheath", p:45, d:"Wall Sillan Fix"}
         ]
     };
 
-    function render(cat) {
-        let html = `<h4>${cat} Catalog</h4>`;
-        asianPaints[cat].forEach(p => {
-            html += `<div class="p-card">
-                <div class="p-img"><img src="${p.img}" alt="Paint"></div>
-                <div style="flex:1; padding-left:15px;">
-                    <b style="font-size:0.95rem;">${p.n}</b><br>
-                    <span class="price">₹${p.p}/sqft</span>
-                </div>
-                <button onclick="bookOrder('${p.n}')" style="background:var(--p); color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold;">Book</button>
-            </div>`;
-        });
-        document.getElementById('product-list').innerHTML = html;
-        window.scrollTo(0, 400);
-    }
-
-    function bookOrder(name) {
-        alert("Success! " + name + " Measurement Book ho gaya hai.");
-        document.getElementById('no-order').style.display = 'none';
-        document.getElementById('order-card').style.display = 'block';
-        nav('bookings', document.querySelectorAll('.nav-item')[1]);
-    }
-
-    function confirmCancel() {
-        if(confirm("Kya aap sach mein cancel karna chahte hain?")) {
-            document.getElementById('order-card').style.display = 'none';
-            document.getElementById('no-order').style.display = 'block';
+    function render() {
+        for(let key in catalog) {
+            let html = "";
+            catalog[key].forEach(p => {
+                html += `<div class="p-card"><div class="p-info"><h4>${p.n}</h4><small>${p.d}</small><br><span class="price-tag">₹${p.p}/sqft</span></div><button class="book-btn" onclick="book('${p.n}')">Book</button></div>`;
+            });
+            document.getElementById(key).innerHTML = html;
         }
     }
 
+    // Smart Search Logic - Results appear on top
+    function smartSearch() {
+        let val = document.getElementById('search-box').value.toLowerCase();
+        let resArea = document.getElementById('search-results-area');
+        let appendBox = document.getElementById('search-append');
+        
+        if(val.length < 2) { resArea.style.display = 'none'; return; }
+        
+        let found = [];
+        for(let cat in catalog) {
+            catalog[cat].forEach(p => {
+                if(p.n.toLowerCase().includes(val)) found.push(p);
+            });
+        }
+        
+        if(found.length > 0) {
+            resArea.style.display = 'block';
+            appendBox.innerHTML = found.map(p => `<div class="p-card"><div class="p-info"><h4>${p.n}</h4><span class="price-tag">₹${p.p}/sqft</span></div><button class="book-btn" onclick="book('${p.n}')">Book</button></div>`).join('');
+            window.scrollTo(0,0);
+        } else {
+            resArea.style.display = 'none';
+        }
+    }
+
+    function toggleSearch() {
+        let sc = document.getElementById('search-container');
+        sc.style.display = (sc.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function toggleFolder(id) {
+        let el = document.getElementById(id);
+        let isOpen = el.style.display === "block";
+        document.querySelectorAll('.folder-list').forEach(f => f.style.display = 'none');
+        el.style.display = isOpen ? "none" : "block";
+    }
+
+    // Generating 100+ shades
+    function generateShades() {
+        let container = document.getElementById('shade-container');
+        let colors = [];
+        // Generating a spectrum of colors
+        for(let i=0; i<360; i+=3.5) {
+            colors.push(`hsl(${i}, 70%, 85%)`);
+        }
+        container.innerHTML = colors.map(c => `<div class="color-dot" style="background:${c};" onclick="viz('${c}')"></div>`).join('');
+    }
+
+    function viz(c) { document.getElementById('preview').style.background = c; }
+    
     function nav(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        el.classList.add('active');
+        if(el) el.classList.add('active');
     }
 
-    window.onload = () => render('Interior');
+    function book(name) {
+        alert(name + " Booked! Expert will visit soon.");
+        nav('orders', document.querySelectorAll('.nav-item')[1]);
+    }
+
+    window.onload = () => { render(); generateShades(); };
 </script>
 </body>
 </html>
