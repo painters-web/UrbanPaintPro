@@ -9,35 +9,52 @@
         :root { --p: #673ab7; --bg: #ffffff; --card: #f8f9fa; --success: #34c759; --text-dark: #1d1d1f; }
         body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text-dark); padding-bottom: 90px; }
         
+        /* Header & Search */
         .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 2000; border-bottom: 1px solid #eee; }
         .logo { font-weight: 900; font-size: 1.3rem; }
         .search-icon { font-size: 1.2rem; color: var(--p); cursor: pointer; }
-        
-        #search-container { display: none; padding: 10px 20px; background: white; border-bottom: 1px solid #eee; }
-        #search-box { width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 12px; outline: none; font-size: 1rem; }
+        #search-box { display: none; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-top: 10px; outline: none; }
 
+        /* Sections */
         .section { display: none; padding: 20px; animation: slideUp 0.4s ease; }
         .section.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Search Results Top Area */
-        #search-results-area { margin-bottom: 20px; border-bottom: 2px dashed #eee; display: none; }
+        /* Viz Card */
+        .viz-box { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 25px; border: 1px solid #f0f0f0; }
+        .wall { width: 100%; height: 150px; border-radius: 20px; background: #f5f5dc; margin-bottom: 15px; transition: 0.8s; border: 4px solid #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .color-palette { display: flex; overflow-x: auto; gap: 12px; padding: 10px 0; scrollbar-width: none; }
+        .color-dot { min-width: 40px; height: 40px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); cursor: pointer; flex-shrink: 0; }
 
-        .folder { background: var(--card); border-radius: 18px; padding: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #eee; font-weight: 700; transition: 0.3s; }
-        .folder-list { display: none; padding: 5px 0 15px; }
+        /* Folders */
+        .folder { background: var(--card); border-radius: 18px; padding: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #eee; font-weight: 700; }
+        .folder-list { display: none; padding: 10px 5px; }
 
-        .p-card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 12px; display: flex; align-items: center; border: 1px solid #eee; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        /* Product Cards */
+        .p-card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 12px; display: flex; align-items: center; border: 1px solid #eee; }
         .p-info { flex: 1; }
         .p-info h4 { margin: 0; font-size: 0.95rem; font-weight: 800; }
         .price-tag { color: var(--p); font-weight: 800; font-size: 1.1rem; }
         .book-btn { background: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; }
 
-        /* Advanced 100+ Shades Visualizer */
-        .viz-box { background: white; border-radius: 24px; padding: 20px; margin: 25px 0; border: 1.5px solid #eee; }
-        .wall { width: 100%; height: 180px; border-radius: 20px; background: #f5f5dc; margin-bottom: 15px; transition: 0.5s; border: 4px solid #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .color-palette { display: flex; overflow-x: auto; gap: 10px; padding: 10px 0; scrollbar-width: none; }
-        .color-dot { min-width: 35px; height: 35px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; flex-shrink: 0; }
+        /* Tracking */
+        .order-card { background: #fff; border-radius: 24px; padding: 20px; border: 1px solid #eee; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .stage-bar { display: flex; justify-content: space-between; margin: 20px 0; position: relative; }
+        .stage-point { width: 12px; height: 12px; background: #eee; border-radius: 50%; z-index: 2; transition: 0.5s; }
+        .stage-point.active { background: var(--p); box-shadow: 0 0 0 5px rgba(103,58,183,0.1); }
+        .stage-line { position: absolute; top: 5px; left: 0; width: 100%; height: 2px; background: #eee; z-index: 1; }
 
+        /* Profile UI */
+        .profile-title { font-size: 1.4rem; font-weight: 800; font-style: italic; margin-bottom: 25px; }
+        .login-btn { background: var(--p); color: white; padding: 16px 28px; border-radius: 12px; border: none; font-weight: 600; font-size: 1rem; cursor: pointer; }
+        .section-divider { height: 8px; background: #f4f4f4; margin: 25px -20px; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid #eee; cursor: pointer; }
+        
+        /* Support Icons */
+        .support-row { display: flex; gap: 15px; margin-top: 20px; }
+        .support-icon { flex: 1; text-align: center; padding: 15px; background: var(--card); border-radius: 15px; border: 1px solid #eee; }
+
+        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; padding: 12px 0; border-top: 1px solid #eee; z-index: 5000; }
         .nav-item { flex: 1; text-align: center; color: #8e8e93; font-size: 11px; font-weight: 700; cursor: pointer; }
         .nav-item.active { color: #000; }
@@ -50,78 +67,114 @@
     <div class="logo">Urban<span style="color:var(--p)">PaintPro</span></div>
     <div class="search-icon" onclick="toggleSearch()"><i class="fa fa-search"></i></div>
 </div>
-<div id="search-container"><input type="text" id="search-box" placeholder="Search paints..." onkeyup="smartSearch()"></div>
+<div style="padding: 0 20px;"><input type="text" id="search-box" placeholder="Search paints, services..." onkeyup="searchPaint()"></div>
 
 <div id="home" class="section active">
-    <div id="search-results-area">
-        <h5 style="margin: 0 0 10px; color: var(--p);">Found Results:</h5>
-        <div id="search-append"></div>
-    </div>
-
-    <h3 style="margin-bottom: 20px; font-weight: 900;">Choose Your Finish</h3>
-    
-    <div id="folders">
-        <div class="folder" onclick="toggleFolder('int-list')">Interior Painting <i class="fa fa-chevron-down"></i></div>
-        <div id="int-list" class="folder-list"></div>
-
-        <div class="folder" onclick="toggleFolder('ext-list')">Exterior Painting <i class="fa fa-chevron-down"></i></div>
-        <div id="ext-list" class="folder-list"></div>
-
-        <div class="folder" onclick="toggleFolder('wp-list')">Waterproofing <i class="fa fa-chevron-down"></i></div>
-        <div id="wp-list" class="folder-list"></div>
-    </div>
-
     <div class="viz-box">
-        <h4 style="margin: 0 0 10px; font-weight: 800;">100+ Premium Shades Visualizer</h4>
         <div id="preview" class="wall"></div>
-        <div class="color-palette" id="shade-container">
-            </div>
-        <p style="text-align:center; font-size:0.7rem; color:#888; margin-top:10px;">Scroll to explore the full Asian Paints Color Spectrum</p>
+        <div class="color-palette">
+            <div class="color-dot" style="background:#f5f5dc;" onclick="viz('#f5f5dc')"></div>
+            <div class="color-dot" style="background:#e6e6fa;" onclick="viz('#e6e6fa')"></div>
+            <div class="color-dot" style="background:#fdf5e6;" onclick="viz('#fdf5e6')"></div>
+            <div class="color-dot" style="background:#d1eaf0;" onclick="viz('#d1eaf0')"></div>
+            <div class="color-dot" style="background:#ffe4e1;" onclick="viz('#ffe4e1')"></div>
+            <div class="color-dot" style="background:#f0fff0;" onclick="viz('#f0fff0')"></div>
+            <div class="color-dot" style="background:#fafad2;" onclick="viz('#fafad2')"></div>
+        </div>
     </div>
+
+    <div class="folder" onclick="toggleFolder('int-list')">Interior Painting <i class="fa fa-chevron-down"></i></div>
+    <div id="int-list" class="folder-list"></div>
+
+    <div class="folder" onclick="toggleFolder('ext-list')">Exterior Painting <i class="fa fa-chevron-down"></i></div>
+    <div id="ext-list" class="folder-list"></div>
 </div>
 
 <div id="orders" class="section">
     <h3>Live Tracking</h3>
-    <div id="order-card-box"></div>
+    <div class="order-card">
+        <div style="display:flex; justify-content:space-between;"><b><span id="ai-status">Ready</span></b><small>#ORD-2026</small></div>
+        <div class="stage-bar">
+            <div class="stage-line"></div>
+            <div class="stage-point" id="st-1"></div>
+            <div class="stage-point" id="st-2"></div>
+            <div class="stage-point" id="st-3"></div>
+            <div class="stage-point" id="st-4"></div>
+        </div>
+        <p id="ai-msg" style="font-size:0.85rem; color:#666;">AI Robot: Waiting for your first booking...</p>
+    </div>
 </div>
 
 <div id="account" class="section">
-    <div style="font-size: 1.4rem; font-weight: 800; font-style: italic; margin-bottom: 25px;">Profile</div>
-    <button style="background: var(--p); color: white; padding: 16px 28px; border-radius: 12px; border: none; font-weight: 600; width:100%; cursor:pointer;">Log in or sign up</button>
-    <div style="height: 8px; background: #f4f4f4; margin: 25px -20px;"></div>
+    <div class="profile-title">Profile</div>
+    <button class="login-btn" onclick="alert('Login Opening...')">Log in or sign up</button>
     
-    <div class="folder" onclick="window.open('https://wa.me/919711904092')">WhatsApp Support <i class="fab fa-whatsapp"></i></div>
-    <div class="folder" onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')">Email: urbanpaintpro.inbox@gmail.com <i class="fa fa-envelope"></i></div>
+    <div class="section-divider"></div>
+
+    <div class="menu-item" onclick="nav('about', this)">
+        <div style="display:flex; align-items:center; gap:15px;"><i class="fa fa-info-circle"></i><span>About Us</span></div>
+        <i class="fa fa-chevron-right"></i>
+    </div>
+
+    <div class="menu-item" onclick="nav('terms', this)">
+        <div style="display:flex; align-items:center; gap:15px;"><i class="fa fa-file-contract"></i><span>Terms & Conditions</span></div>
+        <i class="fa fa-chevron-right"></i>
+    </div>
+
+    <div class="menu-item" onclick="openAIHelp()">
+        <div style="display:flex; align-items:center; gap:15px;"><i class="fa fa-robot"></i><span>Help Center (AI)</span></div>
+        <i class="fa fa-chevron-right"></i>
+    </div>
+
+    <div class="support-row">
+        <div class="support-icon" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366; font-size:1.5rem;"></i><br><small>WhatsApp</small></div>
+        <div class="support-icon" onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')"><i class="fa fa-envelope" style="color:#ea4335; font-size:1.5rem;"></i><br><small>Email</small></div>
+    </div>
+</div>
+
+<div id="about" class="section">
+    <h3 onclick="nav('account', this)"><i class="fa fa-arrow-left"></i> About UrbanPaintPro</h3>
+    <p><b>UrbanPaintPro</b> is Bharat's leading tech-enabled painting service platform. We bring the professionalism of Urban Company to the painting industry, offering 100% transparent pricing and Asian Paints quality. Our mission is to transform your spaces using AI-guided color selection and certified master painters, ensuring a mess-free and stress-free experience for every home.</p>
+</div>
+
+<div id="terms" class="section">
+    <h3 onclick="nav('account', this)"><i class="fa fa-arrow-left"></i> Terms & Conditions</h3>
+    <ol style="font-size: 0.85rem; line-height: 1.6;">
+        <li>All estimates are subject to final site measurement.</li>
+        <li>1% Cash Referral is applicable only after project completion.</li>
+        <li>UrbanPaintPro uses 100% genuine Asian Paints products.</li>
+        <li>50% advance is required to initiate the material procurement.</li>
+        <li>Standard warranty is provided as per the paint manufacturer's policy.</li>
+        <li>Project timelines may vary based on weather and wall conditions.</li>
+        <li>The client is responsible for moving small valuables before work starts.</li>
+        <li>Any additional work outside the quote will be charged extra.</li>
+        <li>Cancellation after material arrival will incur a 20% service fee.</li>
+        <li>All disputes are subject to local jurisdiction only.</li>
+    </ol>
 </div>
 
 <div class="bottom-nav">
     <div class="nav-item active" onclick="nav('home', this)"><i class="fa fa-compass"></i>Explore</div>
     <div class="nav-item" onclick="nav('orders', this)"><i class="fa fa-stream"></i>Bookings</div>
-    <div class="nav-item" onclick="nav('account', this)"><i class="fa fa-user-circle"></i>Profile</div>
+    <div class="nav-item" id="acc-tab" onclick="nav('account', this)"><i class="fa fa-user-circle"></i>Account</div>
 </div>
 
 <script>
     const catalog = {
         "int-list": [
             {n:"Royale Aspira", p:65, d:"Top Luxury, 10yr Warranty"},
-            {n:"Royale Shyne", p:48, d:"High Gloss Premium"},
-            {n:"Royale Matt", p:52, d:"Velvet Matt Luxury"},
-            {n:"Apcolite All Protek", p:40, d:"Dust Resistance"},
-            {n:"Apcolite Advanced", p:34, d:"Rich Look & Washable"},
-            {n:"Apcolite Premium", p:28, d:"Tough & Long Lasting"},
-            {n:"Tractor Emulsion Aqualock", p:22, d:"Water Resistance"},
-            {n:"Tractor Emulsion Shyne", p:20, d:"High Shine Budget"},
-            {n:"Tractor Emulsion Sparc", p:16, d:"Affordable Choice"}
+            {n:"Royale Shyne", p:48, d:"High Gloss Premium Finish"},
+            {n:"Royale Matt", p:52, d:"Velvet Matt Luxury Finish"},
+            {n:"Apcolite All Protek Matt/Shyne", p:40, d:"Advanced Dust Resistance"},
+            {n:"Apcolite Advanced Matt/Shyne", p:34, d:"Rich Look & Washable"},
+            {n:"Apcolite Premium Emulsion", p:28, d:"Tough & Long Lasting Matt"},
+            {n:"Tractor Emulsion Aqualock", p:22, d:"Water Resistance Economy"},
+            {n:"Tractor Emulsion Shyne", p:20, d:"High Shine Budget Paint"},
+            {n:"Tractor Emulsion Sparc", p:16, d:"Most Affordable Option"}
         ],
         "ext-list": [
-            {n:"Apex Protek Duralife", p:95, d:"Ultra Luxury, 15yr Warranty"},
-            {n:"Apex Ultima", p:60, d:"Top Quality Exterior"},
-            {n:"Apex Advanced", p:45, d:"Weatherproof Shine"},
-            {n:"Ace Exterior Emulsion", p:22, d:"Budget Friendly Exterior"}
-        ],
-        "wp-list": [
-            {n:"SmartCare Damp Proof", p:85, d:"Terrace Expert"},
-            {n:"Damp Sheath", p:45, d:"Wall Sillan Fix"}
+            {n:"Apex Ultima Protek", p:75, d:"Lamination for Walls"},
+            {n:"Apex Shyne", p:32, d:"Premium Exterior Shine"}
         ]
     };
 
@@ -129,39 +182,33 @@
         for(let key in catalog) {
             let html = "";
             catalog[key].forEach(p => {
-                html += `<div class="p-card"><div class="p-info"><h4>${p.n}</h4><small>${p.d}</small><br><span class="price-tag">₹${p.p}/sqft</span></div><button class="book-btn" onclick="book('${p.n}')">Book</button></div>`;
+                html += `<div class="p-card item"><div class="p-info"><h4>${p.n}</h4><small>${p.d}</small><br><span class="price-tag">₹${p.p}/sqft</span></div><button class="book-btn" onclick="book('${p.n}')">Book</button></div>`;
             });
             document.getElementById(key).innerHTML = html;
         }
     }
 
-    // Smart Search Logic - Results appear on top
-    function smartSearch() {
-        let val = document.getElementById('search-box').value.toLowerCase();
-        let resArea = document.getElementById('search-results-area');
-        let appendBox = document.getElementById('search-append');
-        
-        if(val.length < 2) { resArea.style.display = 'none'; return; }
-        
-        let found = [];
-        for(let cat in catalog) {
-            catalog[cat].forEach(p => {
-                if(p.n.toLowerCase().includes(val)) found.push(p);
-            });
-        }
-        
-        if(found.length > 0) {
-            resArea.style.display = 'block';
-            appendBox.innerHTML = found.map(p => `<div class="p-card"><div class="p-info"><h4>${p.n}</h4><span class="price-tag">₹${p.p}/sqft</span></div><button class="book-btn" onclick="book('${p.n}')">Book</button></div>`).join('');
-            window.scrollTo(0,0);
-        } else {
-            resArea.style.display = 'none';
-        }
+    function toggleSearch() {
+        let box = document.getElementById('search-box');
+        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+        box.focus();
     }
 
-    function toggleSearch() {
-        let sc = document.getElementById('search-container');
-        sc.style.display = (sc.style.display === 'block') ? 'none' : 'block';
+    function searchPaint() {
+        let val = document.getElementById('search-box').value.toLowerCase();
+        let items = document.querySelectorAll('.item');
+        items.forEach(i => {
+            i.style.display = i.innerText.toLowerCase().includes(val) ? "flex" : "none";
+        });
+    }
+
+    function openAIHelp() {
+        let ques = prompt("UrbanPaint AI: How can I help you today?\n(e.g., Prices, Warranty, Materials)");
+        if(ques) {
+            if(ques.toLowerCase().includes("price")) alert("AI: Our prices start from ₹16/sqft for Tractor Sparc up to ₹65/sqft for Royale Aspira.");
+            else if(ques.toLowerCase().includes("warranty")) alert("AI: We provide up to 10 years of warranty on luxury products like Royale Aspira.");
+            else alert("AI: That's a great question! Our expert will call you on 9711904092 to explain in detail.");
+        }
     }
 
     function toggleFolder(id) {
@@ -171,32 +218,34 @@
         el.style.display = isOpen ? "none" : "block";
     }
 
-    // Generating 100+ shades
-    function generateShades() {
-        let container = document.getElementById('shade-container');
-        let colors = [];
-        // Generating a spectrum of colors
-        for(let i=0; i<360; i+=3.5) {
-            colors.push(`hsl(${i}, 70%, 85%)`);
-        }
-        container.innerHTML = colors.map(c => `<div class="color-dot" style="background:${c};" onclick="viz('${c}')"></div>`).join('');
+    function book(name) {
+        alert(name + " booked! AI Robot is analyzing your walls...");
+        nav('orders', document.querySelectorAll('.nav-item')[1]);
+        startAI();
+    }
+
+    function startAI() {
+        const stages = ["Expert Assigned", "Measurement Done", "Materials Shipped", "Work Started"];
+        let i = 0;
+        const interval = setInterval(() => {
+            if(i < stages.length) {
+                document.getElementById('ai-status').innerText = stages[i];
+                document.getElementById('st-' + (i+1)).classList.add('active');
+                document.getElementById('ai-msg').innerText = "AI Robot: Step " + (i+1) + " completed successfully.";
+                i++;
+            } else { clearInterval(interval); }
+        }, 4000);
     }
 
     function viz(c) { document.getElementById('preview').style.background = c; }
-    
     function nav(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(el) el.classList.add('active');
+        if(el.classList) el.classList.add('active');
     }
 
-    function book(name) {
-        alert(name + " Booked! Expert will visit soon.");
-        nav('orders', document.querySelectorAll('.nav-item')[1]);
-    }
-
-    window.onload = () => { render(); generateShades(); };
+    window.onload = render;
 </script>
 </body>
 </html>
