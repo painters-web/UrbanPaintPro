@@ -3,111 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Official Mega App</title>
+    <title>UrbanPaintPro | Super-App</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --p: #673ab7; --bg: #f5f5f7; --text: #1d1d1f; }
+        :root { --p: #673ab7; --bg: #f5f5f7; --success: #34c759; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 90px; }
 
-        /* Header */
+        /* Header & Nav */
         .header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 2000; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
-        .logo { font-weight: 900; font-size: 1.3rem; }
-        .logo span { color: var(--p); }
-
-        /* Sections */
-        .section { display: none; padding: 15px; }
-        .section.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Home UI */
-        .hero-banner { background: linear-gradient(to right, #673ab7, #9c27b0); color: white; padding: 25px; border-radius: 24px; margin-bottom: 20px; }
-        .hero-banner h2 { margin: 0; font-size: 1.4rem; }
-        
-        /* Category Grid */
-        .cat-row { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
-        .cat-pill { background: white; padding: 8px 18px; border-radius: 50px; font-size: 0.8rem; font-weight: 700; white-space: nowrap; border: 1px solid #ddd; cursor: pointer; }
-        .cat-active { background: var(--p); color: white; border-color: var(--p); }
-
-        /* Product Cards */
-        .p-card { background: white; padding: 18px; border-radius: 20px; display: flex; align-items: center; margin-bottom: 12px; border: 1px solid #eee; }
-        .info { flex: 1; padding-left: 15px; }
-        .info h4 { margin: 0; font-size: 0.9rem; }
-        .info span { color: var(--p); font-weight: 800; }
-        .p-btn { background: var(--p); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
-
-        /* Tracking (Amazon Style) */
-        .order-box { background: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #eee; }
-        .prog-bar { height: 6px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .prog-fill { height: 100%; background: var(--p); width: 35%; }
-
-        /* Settings */
-        .group { background: white; border-radius: 15px; margin-top: 15px; overflow: hidden; border: 1px solid #eee; }
-        .row { padding: 16px; border-bottom: 1px solid #f2f2f7; display: flex; justify-content: space-between; align-items: center; }
-        .row input, .row select { border: none; text-align: right; font-weight: 600; color: var(--p); outline: none; background: none; }
-
-        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #ddd; z-index: 5000; }
         .nav-item { text-align: center; color: #8e8e93; font-size: 10px; cursor: pointer; flex: 1; font-weight: 600; }
         .nav-item.active { color: var(--p); }
         .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+
+        .section { display: none; padding: 15px; }
+        .section.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Auth Modal UI */
+        #auth-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9000; display: none; align-items: center; justify-content: center; }
+        .auth-box { background: white; width: 85%; padding: 25px; border-radius: 24px; text-align: center; }
+        .auth-input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; outline: none; box-sizing: border-box; }
+        .auth-btn { width: 100%; padding: 14px; background: var(--p); color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; }
+
+        /* Home Components */
+        .banner { background: linear-gradient(135deg, #673ab7, #9c27b0); color: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; }
+        .cat-pill { background: white; padding: 8px 15px; border-radius: 50px; font-size: 0.8rem; font-weight: 700; border: 1px solid #ddd; margin-right: 5px; white-space: nowrap; cursor: pointer; }
+        .cat-active { background: var(--p); color: white; border-color: var(--p); }
+        
+        /* Product Cards */
+        .p-card { background: white; padding: 15px; border-radius: 20px; display: flex; align-items: center; margin-bottom: 12px; border: 1px solid #eee; }
+        .p-info { flex: 1; padding-left: 15px; }
+        .p-info span { color: var(--p); font-weight: 800; font-size: 1.1rem; }
+        .p-btn { background: var(--p); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
+
+        /* Order Box */
+        .order-box { background: white; padding: 20px; border-radius: 20px; border-left: 5px solid var(--p); margin-bottom: 15px; }
+        .bar { height: 6px; background: #eee; border-radius: 10px; margin: 15px 0; position: relative; }
+        .fill { height: 100%; background: var(--p); width: 40%; }
+
+        /* Settings Grid */
+        .group { background: white; border-radius: 15px; margin-top: 15px; overflow: hidden; border: 1px solid #eee; }
+        .row { padding: 16px; border-bottom: 1px solid #f2f2f7; display: flex; justify-content: space-between; align-items: center; }
+        .row input, .row select { border: none; text-align: right; color: var(--p); font-weight: 600; outline: none; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div class="logo">Urban<span>PaintPro</span></div>
-    <div id="status" style="font-size: 0.7rem; font-weight: 800; color: green;">● SYSTEM READY</div>
+    <div style="font-weight:900; font-size:1.3rem;">Urban<span style="color:var(--p);">PaintPro</span></div>
+    <div id="auth-tag" onclick="showAuth()" style="font-size:0.75rem; font-weight:800; color:var(--p);">● LOGIN</div>
+</div>
+
+<div id="auth-modal">
+    <div class="auth-box">
+        <h3 id="auth-title">Welcome Back</h3>
+        <input type="email" id="email" class="auth-input" placeholder="Email Address">
+        <input type="password" id="pass" class="auth-input" placeholder="Password">
+        <button class="auth-btn" onclick="handleAuth()">Continue</button>
+        <p style="font-size:0.8rem; margin-top:15px; color:#666;" onclick="toggleAuth()">Naya account banayein? <b>Register</b></p>
+    </div>
 </div>
 
 <div id="home" class="section active">
-    <div class="hero-banner">
-        <h2>Expert Home Painting</h2>
-        <p style="font-size: 0.8rem; margin: 5px 0 0;">Asian Paints Certified Professionals</p>
+    <div class="banner">
+        <h3>Refer & Earn 1% Cash</h3>
+        <p>Apne doston ko refer karein aur 1% payout paayein.</p>
     </div>
 
-    <div class="cat-row">
-        <div class="cat-pill cat-active" onclick="filter('all')">All Products</div>
-        <div class="cat-pill" onclick="filter('Interior')">Interior</div>
-        <div class="cat-pill" onclick="filter('Exterior')">Exterior</div>
-        <div class="cat-pill" onclick="filter('Waterproofing')">Waterproofing</div>
-        <div class="cat-pill" onclick="filter('Wood')">Wood & Metal</div>
+    <div style="display:flex; overflow-x:auto; padding-bottom:10px; scrollbar-width:none;">
+        <div class="cat-pill cat-active" onclick="filter('all', this)">All</div>
+        <div class="cat-pill" onclick="filter('Interior', this)">Interior</div>
+        <div class="cat-pill" onclick="filter('Exterior', this)">Exterior</div>
+        <div class="cat-pill" onclick="filter('Waterproofing', this)">Waterproofing</div>
+        <div class="cat-pill" onclick="filter('Wood', this)">Enamel/PU</div>
     </div>
 
-    <div id="full-catalog" style="margin-top:10px;"></div>
+    <div id="catalog"></div>
 </div>
 
 <div id="orders" class="section">
-    <h3>Track Order #UPP880</h3>
+    <h3>Active Tracking</h3>
     <div class="order-box">
         <b>Measurement & Inspection</b>
-        <p style="font-size:0.8rem; color:#666; margin:5px 0;">Banda ghar aa raha hai inspect karne.</p>
-        <div class="prog-bar"><div class="prog-fill"></div></div>
-        <div style="display:flex; justify-content:space-between; font-size:0.7rem; font-weight:bold;">
-            <span>BOOKED</span><span style="color:var(--p)">INSPECTION</span><span>PAINTING</span>
-        </div>
+        <div class="bar"><div class="fill"></div></div>
+        <p style="font-size:0.8rem; color:#666;">Status: <b style="color:var(--p);">Banda raste mein hai...</b></p>
     </div>
 </div>
 
 <div id="settings" class="section">
-    <div style="text-align:center; padding-bottom:20px;">
+    <div style="text-align:center; padding:10px 0 20px;">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="70">
-        <h4 id="u-mail" style="margin:10px 0;">Guest User</h4>
+        <h4 id="u-mail">Guest User</h4>
     </div>
 
     <div class="group">
-        <div class="row"><span>Mobile Number</span><input type="tel" placeholder="Add No."></div>
-        <div class="row"><span>Bank A/C No.</span><input type="text" placeholder="Add Bank Detail"></div>
+        <div class="row"><span>Mobile No.</span><input type="tel" placeholder="Add Number"></div>
+        <div class="row"><span>Bank Account</span><input type="text" placeholder="Add A/C"></div>
         <div class="row"><span>Language</span><select><option>Hindi</option><option>English</option></select></div>
-        <div class="row" style="color:green;"><span>Referral Bonus (1%)</span><b>₹ 0.00</b></div>
+        <div class="row" style="color:var(--success)"><span>Referral Bonus</span><b>₹ 0.00</b></div>
     </div>
 
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
-        <div class="order-box" style="text-align:center; padding:15px;" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366; font-size:1.5rem;"></i><br><small>Help</small></div>
-        <div class="order-box" style="text-align:center; padding:15px;" onclick="alert('AI Robot is thinking...')"><i class="fas fa-robot" style="color:var(--p); font-size:1.5rem;"></i><br><small>AI Support</small></div>
+        <div class="order-box" style="text-align:center; padding:15px;" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366; font-size:1.5rem;"></i><br>Help</div>
+        <div class="order-box" style="text-align:center; padding:15px;" onclick="alert('Robot Active')"><i class="fas fa-robot" style="color:var(--p); font-size:1.5rem;"></i><br>AI Chat</div>
     </div>
+    
+    <button onclick="auth.signOut().then(()=>location.reload())" style="width:100%; margin-top:20px; padding:15px; border-radius:15px; background:white; border:1px solid #ddd; font-weight:bold;">Logout</button>
 </div>
 
 <div class="bottom-nav">
@@ -117,32 +122,47 @@
 </div>
 
 <script>
-    const catalog = [
-        {n: "Royale Aspira", p: 60, c: "Interior"},
-        {n: "Royale Luxury Shyne", p: 42, c: "Interior"},
-        {n: "Tractor Emulsion", p: 16, c: "Interior"},
-        {n: "Apex Ultima Protek", p: 68, c: "Exterior"},
-        {n: "Apex Dust Proof", p: 28, c: "Exterior"},
-        {n: "SmartCare Damp Proof", p: 75, c: "Waterproofing"},
-        {n: "Damp Sheath Exterior", p: 55, c: "Waterproofing"},
-        {n: "PU Luxury Italian", p: 450, c: "Wood"},
-        {n: "Duco High Gloss", p: 260, c: "Wood"},
-        {n: "Premium Satin Enamel", p: 48, c: "Wood"}
+    const firebaseConfig = { apiKey: "AIzaSy...", ... }; // Your config
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const paints = [
+        {n:"Royale Aspira", p:60, c:"Interior"}, {n:"Royale Luxury", p:42, c:"Interior"}, {n:"Tractor Emulsion", p:16, c:"Interior"},
+        {n:"Apex Ultima Protek", p:68, c:"Exterior"}, {n:"Ace Exterior", p:18, c:"Exterior"},
+        {n:"SmartCare Damp Proof", p:75, c:"Waterproofing"}, {n:"Crack Fill", p:25, c:"Waterproofing"},
+        {n:"PU Luxury Polish", p:450, c:"Wood"}, {n:"Duco Gloss", p:260, c:"Wood"}
     ];
+
+    let isLogin = true;
+    function showAuth() { document.getElementById('auth-modal').style.display = 'flex'; }
+    function toggleAuth() { 
+        isLogin = !isLogin; 
+        document.getElementById('auth-title').innerText = isLogin ? "Welcome Back" : "Create Account";
+    }
+
+    function handleAuth() {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('pass').value;
+        if(isLogin) {
+            auth.signInWithEmailAndPassword(email, pass).then(()=>location.reload()).catch(e=>alert(e.message));
+        } else {
+            auth.createUserWithEmailAndPassword(email, pass).then(()=>location.reload()).catch(e=>alert(e.message));
+        }
+    }
 
     function load(cat = 'all') {
         let h = "";
-        catalog.forEach(p => {
+        paints.forEach(p => {
             if(cat === 'all' || p.c === cat) {
-                h += `<div class="p-card"><div class="info"><h4>${p.n}</h4><small>${p.c}</small><br><span>₹${p.p}/sqft</span></div><button class="p-btn">Book</button></div>`;
+                h += `<div class="p-card"><div class="p-info"><h4>${p.n}</h4><small>${p.c}</small><br><span>₹${p.p}/sqft</span></div><button class="p-btn" onclick="nav('orders', document.querySelectorAll('.nav-item')[1])">Book</button></div>`;
             }
         });
-        document.getElementById('full-catalog').innerHTML = h;
+        document.getElementById('catalog').innerHTML = h;
     }
 
-    function filter(cat) {
-        document.querySelectorAll('.cat-pill').forEach(el => el.classList.remove('cat-active'));
-        event.target.classList.add('cat-active');
+    function filter(cat, el) {
+        document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('cat-active'));
+        el.classList.add('cat-active');
         load(cat);
     }
 
@@ -151,7 +171,16 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         el.classList.add('active');
+        document.getElementById('auth-modal').style.display = 'none';
     }
+
+    auth.onAuthStateChanged(u => {
+        if(u) {
+            document.getElementById('auth-tag').innerText = "● " + u.email.split('@')[0];
+            document.getElementById('u-mail').innerText = u.email;
+            document.getElementById('auth-modal').style.display = 'none';
+        }
+    });
 
     window.onload = () => load();
 </script>
