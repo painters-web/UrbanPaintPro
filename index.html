@@ -1,178 +1,124 @@
-                <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Official Mega App</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <title>UrbanPaintPro | Final Functional App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --p: #673ab7; --bg: #f5f5f7; --gold: #d4af37; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 90px; }
-
-        /* Apple Style Header & Search */
-        .app-header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 2000; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
-        .search-container { padding: 10px 15px; background: white; }
-        .apple-search { background: #e5e5ea; border-radius: 12px; display: flex; align-items: center; padding: 10px 15px; }
-        .apple-search input { border: none; background: transparent; outline: none; width: 100%; margin-left: 10px; font-weight: 500; }
-
-        /* Section Visibility */
+        :root { --p: #673ab7; --bg: #f5f5f7; }
+        body { font-family: sans-serif; margin: 0; background: var(--bg); padding-bottom: 90px; }
+        .header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 2000; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
+        .search-bar { margin: 15px; background: #e5e5ea; border-radius: 12px; display: flex; align-items: center; padding: 12px 15px; }
+        .search-bar input { border: none; background: transparent; outline: none; width: 100%; margin-left: 10px; }
         .section { display: none; padding: 15px; }
-        .section.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Color Visualizer */
-        .viz-box { background: white; padding: 20px; border-radius: 20px; margin: 10px 0; text-align: center; border: 1px solid #eee; }
-        .wall-preview { width: 100%; height: 100px; border-radius: 15px; margin-bottom: 12px; transition: 0.5s; background: #eee; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+        .section.active { display: block; }
+        .calc-box { background: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .calc-box select { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #ddd; background: #f9f9f9; font-weight: bold; }
+        .viz-box { background: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 20px; }
+        .wall { width: 100%; height: 100px; border-radius: 15px; background: #eee; margin-bottom: 15px; transition: 0.5s; border: 1px solid #ddd; }
         .dot { width: 35px; height: 35px; border-radius: 50%; display: inline-block; margin: 5px; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-
-        /* Product Cards */
-        .p-card { background: white; padding: 15px; border-radius: 20px; display: flex; align-items: center; margin-bottom: 12px; border: 1px solid #eee; }
-        .p-info { flex: 1; padding-left: 15px; }
-        .warranty { font-size: 9px; background: #f0ebf9; color: var(--p); padding: 2px 6px; border-radius: 5px; font-weight: 800; }
-        .p-btn { background: var(--p); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; }
-
-        /* Auth Modal */
-        #auth-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .auth-box { background: white; width: 85%; padding: 25px; border-radius: 25px; text-align: center; }
-        .auth-box input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; outline: none; box-sizing: border-box; }
-
-        /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; z-index: 5000; }
-        .nav-item { text-align: center; color: #8e8e93; font-size: 10px; cursor: pointer; flex: 1; font-weight: 700; }
+        .p-card { background: white; padding: 15px; border-radius: 16px; display: flex; align-items: center; margin-bottom: 12px; border: 1px solid #eee; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #ddd; z-index: 5000; }
+        .nav-item { text-align: center; color: #8e8e93; font-size: 10px; cursor: pointer; flex: 1; }
         .nav-item.active { color: var(--p); }
-        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-<div class="app-header">
-    <div style="font-weight:900; font-size:1.3rem;">Urban<span style="color:var(--p);">PaintPro</span></div>
-    <div id="auth-status" onclick="showAuth()" style="font-size:0.75rem; font-weight:800; color:var(--p);">● LOGIN</div>
-</div>
-
-<div id="auth-modal">
-    <div class="auth-box">
-        <h3 id="auth-title">Welcome Back</h3>
-        <input type="email" id="email" placeholder="Email Address">
-        <input type="password" id="pass" placeholder="Password">
-        <button onclick="handleAuth()" style="width:100%; padding:14px; background:var(--p); color:white; border:none; border-radius:12px; font-weight:bold; margin-top:10px;">Continue</button>
-        <p style="font-size:0.8rem; margin-top:15px;" onclick="toggleAuth()">Naya account? <b>Register</b></p>
-    </div>
+<div class="header">
+    <div style="font-weight:900;">Urban<span style="color:var(--p);">PaintPro</span></div>
+    <div onclick="nav('settings', document.getElementById('acc-btn'))" style="color:var(--p); font-weight:bold; font-size:0.8rem; cursor:pointer;">● ACCOUNT</div>
 </div>
 
 <div id="home" class="section active">
-    <div class="search-container">
-        <div class="apple-search"><i class="fa fa-search" style="color:#8e8e93;"></i><input type="text" id="p-search" placeholder="Search Royale, Apex, Polish..." onkeyup="filter()"></div>
+    <div class="search-bar"><i class="fa fa-search"></i><input type="text" id="p-search" placeholder="Search paints..." onkeyup="filter()"></div>
+
+    <div class="calc-box">
+        <h4 style="margin:0 0 10px;">Instant Estimate</h4>
+        <select id="bhk" onchange="runCalc()">
+            <option value="400">1 BHK (400 sqft)</option>
+            <option value="950">2 BHK (950 sqft)</option>
+            <option value="1500">3 BHK (1500 sqft)</option>
+        </select>
+        <select id="ptype" onchange="runCalc()">
+            <option value="16">Tractor Emulsion (Budget)</option>
+            <option value="42">Royale Luxury (Premium)</option>
+            <option value="60">Royale Aspira (Luxury)</option>
+        </select>
+        <h2 id="total" style="color:var(--p); margin:10px 0;">₹ 6,400</h2>
     </div>
 
     <div class="viz-box">
-        <h5 style="margin:0 0 10px;">Virtual Color Visualizer</h5>
-        <div id="wall" class="wall-preview"></div>
+        <div id="wall-preview" class="wall"></div>
         <div class="dot" style="background:#f5f5dc;" onclick="viz('#f5f5dc')"></div>
         <div class="dot" style="background:#e6e6fa;" onclick="viz('#e6e6fa')"></div>
+        <div class="dot" style="background:#fdf5e6;" onclick="viz('#fdf5e6')"></div>
         <div class="dot" style="background:#f0fff0;" onclick="viz('#f0fff0')"></div>
-        <div class="dot" style="background:#fff5ee;" onclick="viz('#fff5ee')"></div>
     </div>
-
-    <div style="background: linear-gradient(135deg, #673ab7, #9c27b0); color:white; padding:15px; border-radius:18px; margin:10px 0 20px;">
-        <h4 style="margin:0;">Refer & Earn 1% Cash</h4>
-        <p style="font-size:0.75rem; margin:5px 0 0;">Har referral par paayein direct cash payout.</p>
-    </div>
-
+    
     <div id="catalog"></div>
 </div>
 
 <div id="orders" class="section">
-    <h3>My Projects Tracking</h3>
-    <div style="background:white; padding:20px; border-radius:20px; border-left:5px solid var(--p);">
-        <b>Asian Paints Royale Project</b>
-        <div style="height:6px; background:#eee; border-radius:10px; margin:15px 0; position:relative;">
-            <div style="height:100%; background:var(--p); width:35%; border-radius:10px;"></div>
-        </div>
-        <div style="display:flex; justify-content:space-between; font-size:0.65rem; font-weight:bold; color:#888;">
-            <span>BOOKED</span><span style="color:var(--p)">INSPECTION</span><span>PAINTING</span>
-        </div>
-        <p style="font-size:0.8rem; color:#666; margin-top:15px;"><i class="fa fa-info-circle"></i> Banda kal subah 10 baje measurement ke liye aayega.</p>
+    <h3>Tracking Order #UPP-402</h3>
+    <div style="background:white; padding:20px; border-radius:15px; border-left:5px solid var(--p);">
+        <b>Status: <span style="color:orange;">Measurement Scheduled</span></b>
+        <p style="font-size:0.8rem; color:#666;">Banda kal subah 10 baje aayega.</p>
     </div>
 </div>
 
 <div id="settings" class="section">
-    <div style="text-align:center; padding: 20px 0;">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="80" style="border:3px solid white; box-shadow:0 4px 10px rgba(0,0,0,0.1); border-radius:50%;">
-        <h4 id="u-mail">Guest Account</h4>
+    <h3>My Account</h3>
+    <div style="background:white; padding:15px; border-radius:15px; border:1px solid #ddd;">
+        <p><b>Referral Earnings:</b> ₹ 0.00 (1%)</p>
+        <p><b>Bank A/C:</b> <input type="text" placeholder="Add A/C No." style="border:none; text-align:right; float:right;"></p>
     </div>
-    <div style="background:white; border-radius:15px; overflow:hidden; border:1px solid #eee;">
-        <div style="padding:15px; border-bottom:1px solid #f2f2f7; display:flex; justify-content:space-between;"><span>Mobile No.</span><input type="tel" placeholder="Add Number" style="border:none; text-align:right; font-weight:600; color:var(--p); outline:none;"></div>
-        <div style="padding:15px; border-bottom:1px solid #f2f2f7; display:flex; justify-content:space-between;"><span>Bank Account</span><input type="text" placeholder="Add A/C No." style="border:none; text-align:right; font-weight:600; color:var(--p); outline:none;"></div>
-        <div style="padding:15px; display:flex; justify-content:space-between;"><span>Language</span><select style="border:none; color:var(--p); font-weight:600;"><option>Hindi</option><option>English</option></select></div>
-    </div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
-        <div style="background:white; padding:15px; border-radius:15px; text-align:center;" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366; font-size:1.5rem;"></i><br><small>Support</small></div>
-        <div style="background:white; padding:15px; border-radius:15px; text-align:center;" onclick="alert('Robot Active')"><i class="fas fa-robot" style="color:var(--p); font-size:1.5rem;"></i><br><small>AI Chat</small></div>
-    </div>
-    <button onclick="auth.signOut().then(()=>location.reload())" style="width:100%; margin-top:20px; padding:15px; border-radius:15px; background:white; border:1px solid #ddd; font-weight:bold;">Logout Account</button>
 </div>
 
 <div class="bottom-nav">
-    <div class="nav-item active" onclick="nav('home', this)"><i class="fas fa-home"></i>Home</div>
-    <div class="nav-item" onclick="nav('orders', this)"><i class="fas fa-box-open"></i>Orders</div>
-    <div class="nav-item" onclick="nav('settings', this)"><i class="fas fa-user-circle"></i>Account</div>
+    <div class="nav-item active" onclick="nav('home', this)"><i class="fa fa-home" style="font-size:1.5rem;"></i><br>Home</div>
+    <div class="nav-item" onclick="nav('orders', this)"><i class="fa fa-box" style="font-size:1.5rem;"></i><br>Orders</div>
+    <div class="nav-item" id="acc-btn" onclick="nav('settings', this)"><i class="fa fa-user-circle" style="font-size:1.5rem;"></i><br>Account</div>
 </div>
 
 <script>
-    // Firebase Config (Yahan apna real config paste karein)
-    const firebaseConfig = { apiKey: "AIzaSy...", authDomain: "...", projectId: "...", ... };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    const paints = [
+        {n:"Royale Aspira", p:60, c:"Interior"}, {n:"Royale Luxury", p:42, c:"Interior"},
+        {n:"Apex Ultima", p:68, c:"Exterior"}, {n:"Damp Proof", p:75, c:"Waterproofing"}
+    ];
 
-    const catalogData = {
-        "Interior Luxury": [{n:"Royale Aspira", p:60, w:"10yr"}, {n:"Royale Luxury", p:42, w:"5yr"}],
-        "Exterior Weather": [{n:"Apex Ultima Protek", p:68, w:"15yr"}, {n:"Apex Shyne", p:34, w:"5yr"}],
-        "Waterproofing": [{n:"SmartCare Damp Proof", p:75, w:"8yr"}, {n:"Crack Fill", p:25, w:"N/A"}],
-        "Wood & Metal": [{n:"PU Luxury Polish", p:450, w:"Premium"}, {n:"Duco Gloss", p:260, w:"Italian"}]
-    };
-
-    function loadCatalog() {
+    function load() {
         let h = "";
-        for (let cat in catalogData) {
-            h += `<h6 style="color:#8e8e93; margin:20px 0 10px 5px; text-transform:uppercase; letter-spacing:1px; font-size:0.7rem;">${cat}</h6>`;
-            catalogData[cat].forEach(p => {
-                h += `<div class="p-card"><div style="width:50px; height:50px; background:#f0ebf9; border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--p);"><i class="fa fa-paint-roller"></i></div><div class="p-info"><h4>${p.n}</h4><span class="warranty">${p.w} Warranty</span><br><span>₹${p.p}/sqft</span></div><button class="p-btn" onclick="nav('orders', document.querySelectorAll('.nav-item')[1])">Book</button></div>`;
-            });
-        }
+        paints.forEach(p => {
+            h += `<div class="p-card"><div style="flex:1;"><h4>${p.n}</h4><span>₹${p.p}/sqft</span></div><button style="background:var(--p); color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold;">Book</button></div>`;
+        });
         document.getElementById('catalog').innerHTML = h;
     }
 
-    let isL = true;
-    function showAuth() { document.getElementById('auth-modal').style.display='flex'; }
-    function toggleAuth() { isL=!isL; document.getElementById('auth-title').innerText=isL?"Welcome Back":"Create Account"; }
-    function handleAuth() {
-        const e=document.getElementById('email').value, p=document.getElementById('pass').value;
-        if(isL) auth.signInWithEmailAndPassword(e,p).then(()=>location.reload()).catch(err=>alert(err.message));
-        else auth.createUserWithEmailAndPassword(e,p).then(()=>location.reload()).catch(err=>alert(err.message));
+    function runCalc() {
+        let sq = document.getElementById('bhk').value;
+        let pr = document.getElementById('ptype').value;
+        document.getElementById('total').innerText = "₹ " + (sq * pr).toLocaleString('en-IN');
     }
 
-    function viz(c) { document.getElementById('wall').style.background = c; }
     function filter() {
         let val = document.getElementById('p-search').value.toLowerCase();
         let cards = document.getElementsByClassName('p-card');
         for(let i=0; i<cards.length; i++) cards[i].style.display = cards[i].innerText.toLowerCase().includes(val) ? "flex" : "none";
     }
 
+    function viz(c) { document.getElementById('wall-preview').style.background = c; }
+
     function nav(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         el.classList.add('active');
-        document.getElementById('auth-modal').style.display='none';
         window.scrollTo(0,0);
     }
 
-    auth.onAuthStateChanged(u => { if(u){ document.getElementById('auth-status').innerText="● "+u.email.split('@')[0]; document.getElementById('u-mail').innerText=u.email; }});
-    window.onload = loadCatalog;
+    window.onload = () => { load(); runCalc(); };
 </script>
 </body>
 </html>
