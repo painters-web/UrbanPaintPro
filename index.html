@@ -9,109 +9,117 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --p: #673ab7; --bg: #ffffff; --card: #f8f9fa; --success: #34c759; --text-dark: #1d1d1f; }
-        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text-dark); padding-bottom: 90px; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text-dark); padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
         
         /* Header */
         .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 2000; border-bottom: 1px solid #eee; }
         .logo { font-weight: 900; font-size: 1.3rem; }
 
-        /* Real AI Chat UI */
-        #robot-modal { position: fixed; bottom: -100%; left: 0; width: 100%; height: 80%; background: white; z-index: 10000; border-radius: 30px 30px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.15); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
-        #robot-modal.show { bottom: 0; }
-        .chat-header { background: var(--p); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 30px 30px 0 0; }
-        .chat-body { flex: 1; padding: 20px; overflow-y: auto; background: #fdfdfd; display: flex; flex-direction: column; gap: 12px; }
-        .bot-msg { background: #e9e9e9; padding: 12px 18px; border-radius: 18px 18px 18px 0; max-width: 85%; font-size: 0.9rem; align-self: flex-start; line-height: 1.4; }
-        .user-msg { background: var(--p); color: white; padding: 12px 18px; border-radius: 18px 18px 0 18px; max-width: 85%; font-size: 0.9rem; align-self: flex-end; }
+        /* Navigation Logic */
+        .section { display: none; padding: 20px; animation: slideUp 0.3s ease; }
+        .section.active { display: block; }
 
-        /* Auth UI */
+        /* Auth Overlay */
         #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 11000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .auth-card { background: white; width: 85%; padding: 30px; border-radius: 30px; text-align: center; }
-        .auth-card input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1.5px solid #eee; box-sizing: border-box; outline: none; font-size: 1rem; }
+        .auth-card input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1.5px solid #eee; box-sizing: border-box; outline: none; }
 
-        /* Folders & Cards */
-        .folder { background: var(--card); border-radius: 18px; padding: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #eee; font-weight: 700; }
-        .p-card { background: white; border-radius: 22px; padding: 18px; margin-bottom: 15px; display: flex; align-items: center; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-        .book-btn { background: #000; color: #fff; border: none; padding: 10px 22px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+        /* Robot Chat */
+        #robot-modal { position: fixed; bottom: -100%; left: 0; width: 100%; height: 75%; background: white; z-index: 10000; border-radius: 30px 30px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); transition: 0.5s; display: flex; flex-direction: column; }
+        #robot-modal.show { bottom: 0; }
+        .chat-body { flex: 1; padding: 20px; overflow-y: auto; background: #fafafa; display: flex; flex-direction: column; gap: 10px; }
+        .bot-msg { background: #eee; padding: 12px; border-radius: 15px 15px 15px 0; max-width: 80%; align-self: flex-start; font-size: 0.9rem; }
+        .user-msg { background: var(--p); color: white; padding: 12px; border-radius: 15px 15px 0 15px; max-width: 80%; align-self: flex-end; font-size: 0.9rem; }
+
+        /* Cards & Tracking */
+        .p-card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 12px; display: flex; align-items: center; border: 1px solid #eee; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .track-card { background: white; border-radius: 20px; padding: 20px; border: 1px solid #eee; margin-top: 10px; border-left: 6px solid var(--p); }
+        .progress-bar { height: 8px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .progress-fill { height: 100%; width: 35%; background: var(--p); border-radius: 10px; }
 
         /* Payment Sheet */
-        #pay-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: white; z-index: 10500; border-radius: 35px 35px 0 0; padding: 30px; box-sizing: border-box; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); transition: 0.4s; text-align: center; }
+        #pay-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: white; z-index: 10500; border-radius: 35px 35px 0 0; padding: 30px; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); transition: 0.4s; text-align: center; }
         #pay-sheet.show { bottom: 0; }
 
-        /* Navigation */
+        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; padding: 12px 0; border-top: 1px solid #eee; z-index: 5000; }
         .nav-item { flex: 1; text-align: center; color: #8e8e93; font-size: 11px; font-weight: 700; cursor: pointer; }
         .nav-item.active { color: #000; }
         .nav-item i { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+        
+        .btn-purple { background: var(--p); color: white; padding: 16px; border-radius: 12px; border: none; font-weight: 800; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="robot-modal">
-    <div class="chat-header">
+    <div style="background:var(--p); color:white; padding:20px; border-radius:30px 30px 0 0; display:flex; justify-content:space-between;">
         <span><i class="fa fa-robot"></i> UrbanPaint AI</span>
         <i class="fa fa-times" onclick="toggleRobot(false)"></i>
     </div>
     <div class="chat-body" id="chat-content">
-        <div class="bot-msg">Namaste! Main UrbanPaint AI hoon. Main aapki rates, booking ya color selection mein madad kar sakta hoon.</div>
+        <div class="bot-msg">Namaste! Main aapki help kaise kar sakta hoon?</div>
     </div>
-    <div style="padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; background: #fff;">
-        <input type="text" id="bot-input" placeholder="Price ya Service ke baare mein puchein..." style="flex:1; border:none; outline:none; background:#f0f0f0; padding:12px; border-radius:15px;">
-        <button onclick="askAI()" style="background:var(--p); color:white; border:none; border-radius:50%; width:45px; height:45px;"><i class="fa fa-paper-plane"></i></button>
+    <div style="padding: 15px; display: flex; gap: 10px;">
+        <input type="text" id="bot-input" placeholder="Price ya rates puchein..." style="flex:1; border:none; background:#f0f0f0; padding:12px; border-radius:15px; outline:none;">
+        <button onclick="askAI()" style="background:var(--p); color:white; border:none; border-radius:50%; width:45px;"><i class="fa fa-paper-plane"></i></button>
     </div>
 </div>
 
 <div id="auth-overlay">
     <div class="auth-card">
-        <h2 style="margin-top:0; font-style: italic;">Log in or sign up</h2>
-        <p style="font-size:0.8rem; color:#666;">Enter details to manage your painting projects.</p>
-        <input type="email" id="user-email" placeholder="Email Address">
-        <input type="password" id="user-pass" placeholder="Password (Min 6 char)">
-        <button onclick="processAuth()" style="width:100%; padding:16px; background:var(--p); color:white; border:none; border-radius:15px; font-weight:800; margin-top:10px;">Continue</button>
-        <p onclick="toggleAuth(false)" style="color:red; font-size:0.75rem; margin-top:15px; cursor:pointer;">Maybe Later</p>
+        <h2 style="font-style: italic; margin-top:0;">Profile Login</h2>
+        <input type="email" id="u-email" placeholder="Email Address">
+        <input type="password" id="u-pass" placeholder="Password">
+        <button onclick="loginUser()" class="btn-purple">Continue</button>
+        <p onclick="toggleAuth(false)" style="color:red; font-size:0.8rem; margin-top:15px;">Close</p>
     </div>
 </div>
 
 <div id="pay-sheet">
     <div style="width:40px; height:5px; background:#eee; border-radius:10px; margin: 0 auto 20px;"></div>
-    <h3 style="margin:0;">Secure Booking</h3>
-    <p id="pay-desc" style="color:#666; font-size:0.85rem; margin:10px 0;"></p>
-    <a href="#" id="upi-link" style="background:#000; color:#fff; display:flex; align-items:center; justify-content:center; gap:12px; padding:20px; border-radius:18px; text-decoration:none; font-weight:800; font-size:1.1rem;" onclick="finalizeBooking()">
-        <i class="fab fa-google-pay"></i> Pay & Book Now
+    <h3 id="pay-title">Confirm Booking</h3>
+    <a href="#" id="upi-link" style="background:#000; color:#fff; display:flex; align-items:center; justify-content:center; gap:12px; padding:20px; border-radius:18px; text-decoration:none; font-weight:800; margin-top:15px;" onclick="finalize()">
+        <i class="fab fa-google-pay"></i> Pay via UPI App
     </a>
-    <p style="font-size:0.65rem; color:#888; margin-top:15px;">Safe direct payment to kingkhan33648@okicici</p>
-    <button onclick="togglePay(false)" style="background:none; border:none; color:red; font-weight:800; margin-top:15px;">Cancel</button>
+    <p style="font-size:0.7rem; color:#888; margin-top:15px;">Direct payment to kingkhan33648@okicici</p>
+    <button onclick="togglePay(false)" style="border:none; background:none; color:red; margin-top:10px; font-weight:bold;">Cancel</button>
 </div>
 
 <div class="header">
     <div class="logo">Urban<span style="color:var(--p)">PaintPro</span></div>
-    <div onclick="toggleRobot(true)" style="background: #f0ebf9; color: var(--p); padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800;"><i class="fa fa-robot"></i> AI HELP</div>
+    <div onclick="toggleRobot(true)" style="background:#f0ebf9; color:var(--p); padding:6px 12px; border-radius:20px; font-size:0.7rem; font-weight:800;"><i class="fa fa-robot"></i> AI HELP</div>
 </div>
 
 <div id="home" class="section active">
-    <h3 style="font-weight: 900; margin-bottom: 20px;">Expert Services</h3>
-    <div class="folder" onclick="toggleFolder('int-list')">Interior Catalog <i class="fa fa-chevron-down"></i></div>
-    <div id="int-list" style="display:none; padding-bottom:15px;"></div>
-    
-    <div style="background:linear-gradient(135deg, #673ab7, #9c27b0); color:white; padding:25px; border-radius:25px; margin-top:20px;">
-        <h4 style="margin:0;">Refer & Earn</h4>
-        <p style="font-size:0.8rem; margin:5px 0 0;">Har successful referral par ₹150/- direct cash.</p>
-    </div>
+    <h3 style="font-weight: 900; margin-bottom: 20px;">Our Services</h3>
+    <div id="paint-list"></div>
 </div>
 
 <div id="orders" class="section">
-    <h3 style="font-weight: 900;">Active Bookings</h3>
-    <div id="order-container">
-        <p style="text-align:center; color:#888; margin-top:50px;">Koi order nahi mila.</p>
+    <h3 style="font-weight: 900;">Active Trackers</h3>
+    <div id="tracking-list">
+        <p style="text-align:center; color:#888; margin-top:50px;">Abhi koi active booking nahi hai.</p>
     </div>
 </div>
 
 <div id="account" class="section">
     <div style="font-size: 1.5rem; font-weight: 800; font-style: italic; margin-bottom: 25px;">Profile</div>
-    <div id="profile-status">
-        <button class="book-btn" style="width:100%; background:var(--p); padding:18px;" onclick="toggleAuth(true)">Log in or sign up</button>
+    <div id="profile-box">
+        <button class="btn-purple" onclick="toggleAuth(true)">Log in or sign up</button>
     </div>
+    
     <div style="height:8px; background:#f4f4f4; margin:25px -20px;"></div>
-    <div class="folder" onclick="window.open('https://wa.me/919711904092')">WhatsApp Support <i class="fab fa-whatsapp" style="color:#25d366;"></i></div>
+    
+    <div style="padding:15px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;" onclick="window.open('https://wa.me/919711904092')">
+        <div style="display:flex; align-items:center; gap:15px;"><i class="fab fa-whatsapp" style="color:#25d366; font-size:1.3rem;"></i><span>WhatsApp: 9711904092</span></div>
+        <i class="fa fa-chevron-right" style="color:#ccc;"></i>
+    </div>
+    
+    <div style="padding:15px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;" onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')">
+        <div style="display:flex; align-items:center; gap:15px;"><i class="fa fa-envelope" style="color:#ea4335;"></i><span>Email: urbanpaintpro.inbox@gmail.com</span></div>
+        <i class="fa fa-chevron-right" style="color:#ccc;"></i>
+    </div>
 </div>
 
 <div class="bottom-nav">
@@ -121,33 +129,73 @@
 </div>
 
 <script>
-    // Config Placeholder
-    const firebaseConfig = { apiKey: "AIza-REPLACE-WITH-YOUR-KEY", authDomain: "upp.firebaseapp.com", projectId: "upp-pro" };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
     const paints = [
         {n:"Royale Aspira", p:65, d:"10yr Warranty, Luxury"},
         {n:"Royale Shyne", p:48, d:"Premium High Gloss"},
         {n:"Tractor Emulsion", p:16, d:"Budget Friendly"}
     ];
-
+    
     let user = JSON.parse(localStorage.getItem('upp_user')) || null;
-    let selectedPaint = null;
+    let selected = null;
 
-    // AI BRAIN: Actual Responses
+    function render() {
+        document.getElementById('paint-list').innerHTML = paints.map(p => `
+            <div class="p-card">
+                <div style="flex:1;"><h4>${p.n}</h4><small>${p.d}</small><br><b style="color:var(--p);">₹${p.p}/sqft</b></div>
+                <button class="btn-purple" style="width:auto; padding:10px 20px;" onclick="book('${p.n}')">Book</button>
+            </div>
+        `).join('');
+    }
+
+    function book(n) {
+        if(!user) { toggleAuth(true); return; }
+        selected = n;
+        document.getElementById('pay-title').innerText = "Booking: " + n;
+        document.getElementById('upi-link').href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaintPro&am=1&cu=INR`;
+        togglePay(true);
+    }
+
+    function finalize() {
+        setTimeout(() => {
+            let h = JSON.parse(localStorage.getItem('upp_h') || "[]");
+            h.push({n: selected, id: Math.floor(Math.random()*9000), date: new Date().toLocaleDateString()});
+            localStorage.setItem('upp_h', JSON.stringify(h));
+            togglePay(false);
+            alert("Booking Saved! Track status in Orders tab.");
+            updateOrders();
+            nav('orders', document.querySelectorAll('.nav-item')[1]);
+        }, 2000);
+    }
+
+    function updateOrders() {
+        const hist = JSON.parse(localStorage.getItem('upp_h') || "[]");
+        if(hist.length > 0) {
+            document.getElementById('tracking-list').innerHTML = hist.reverse().map(o => `
+                <div class="track-card">
+                    <div style="display:flex; justify-content:space-between;"><b>${o.n}</b><small>#ORD-${o.id}</small></div>
+                    <div class="progress-bar"><div class="progress-fill"></div></div>
+                    <p style="font-size:0.75rem; color:#666; margin:0;">Status: Professional measurement agent arriving tomorrow.</p>
+                </div>
+            `).join('');
+        }
+    }
+
+    function loginUser() {
+        const e = document.getElementById('u-email').value;
+        if(e.includes('@')) {
+            user = {email: e};
+            localStorage.setItem('upp_user', JSON.stringify(user));
+            location.reload();
+        }
+    }
+
     function askAI() {
         const input = document.getElementById('bot-input');
         const box = document.getElementById('chat-content');
         if(!input.value) return;
-        
         box.innerHTML += `<div class="user-msg">${input.value}</div>`;
-        let reply = "Theek hai Arbaj, main aapki enquiry hamare expert ko bhej raha hoon. Wo aapko 9711904092 se call karenge.";
-        
-        const q = input.value.toLowerCase();
-        if(q.includes("price") || q.includes("rate")) reply = "Interior rates ₹16/sqft (Tractor) se ₹65/sqft (Aspira) tak hain. Aap 'Explore' mein poori list dekh sakte hain.";
-        else if(q.includes("warranty")) reply = "Luxury paints par 10 saal tak ki official Asian Paints warranty milti hai.";
-        
+        let reply = "Theek hai, main aapki enquiry hamare expert ko bhej raha hoon. Wo aapko jald call karenge.";
+        if(input.value.toLowerCase().includes("price")) reply = "Interior prices ₹16/sqft se shuru hote hain.";
         setTimeout(() => {
             box.innerHTML += `<div class="bot-msg">${reply}</div>`;
             box.scrollTop = box.scrollHeight;
@@ -155,79 +203,21 @@
         input.value = "";
     }
 
-    // REAL AUTH PROCESS
-    function processAuth() {
-        const e = document.getElementById('user-email').value;
-        const p = document.getElementById('user-pass').value;
-        if(e.includes('@') && p.length >= 6) {
-            user = { email: e, name: e.split('@')[0] };
-            localStorage.setItem('upp_user', JSON.stringify(user));
-            location.reload();
-        } else { alert("Sahi Email aur 6-digit Password daalein."); }
-    }
-
-    // REAL BOOKING LOGIC
-    function initBook(name, price) {
-        if(!user) { toggleAuth(true); return; }
-        selectedPaint = name;
-        document.getElementById('pay-desc').innerText = `${name} Expert Measurement Booking`;
-        const upi = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaintPro&am=1&cu=INR&tn=Booking_${name.replace(/ /g,'_')}`;
-        document.getElementById('upi-link').href = upi;
-        togglePay(true);
-    }
-
-    function finalizeBooking() {
-        setTimeout(() => {
-            let history = JSON.parse(localStorage.getItem('upp_history') || "[]");
-            history.push({ name: selectedPaint, id: Math.floor(Math.random()*9000)+1000, date: new Date().toLocaleDateString() });
-            localStorage.setItem('upp_history', JSON.stringify(history));
-            togglePay(false);
-            alert("Payment Request Sent! Order confirm hone par aapko SMS mil jayega.");
-            updateHistoryUI();
-            nav('orders', document.querySelectorAll('.nav-item')[1]);
-        }, 2000);
-    }
-
-    // UI UPDATES
-    function updateHistoryUI() {
-        const cont = document.getElementById('order-container');
-        const history = JSON.parse(localStorage.getItem('upp_history') || "[]");
-        if(history.length > 0) {
-            cont.innerHTML = history.reverse().map(o => `
-                <div class="p-card" style="border-left:5px solid var(--p);">
-                    <div style="flex:1;"><h4>${o.name}</h4><small>ID: #ORD-${o.id} | Status: <b style="color:var(--success);">CONFIRMED</b></small></div>
-                </div>
-            `).join('');
-        }
-    }
-
-    function checkUser() {
-        if(user) {
-            document.getElementById('profile-status').innerHTML = `<h4>Namaste, ${user.name}</h4><p style="font-size:0.8rem; color:#666;">${user.email}</p><button onclick="localStorage.removeItem('upp_user');location.reload();" style="color:red; background:none; border:none; padding:0; font-weight:bold;">Sign Out</button>`;
-        }
-    }
-
-    function render() {
-        document.getElementById('int-list').innerHTML = paints.map(p => `
-            <div class="p-card">
-                <div style="flex:1;"><h4>${p.n}</h4><small>${p.d}</small><br><b style="color:var(--p);">₹${p.p}/sqft</b></div>
-                <button class="book-btn" onclick="initBook('${p.n}', ${p.p})">Book</button>
-            </div>
-        `).join('');
-    }
-
     function toggleRobot(s) { document.getElementById('robot-modal').classList.toggle('show', s); }
     function toggleAuth(s) { document.getElementById('auth-overlay').style.display = s ? 'flex' : 'none'; }
     function togglePay(s) { document.getElementById('pay-sheet').classList.toggle('show', s); }
-    function toggleFolder(id) { const el = document.getElementById(id); el.style.display = el.style.display === 'none' ? 'block' : 'none'; }
     function nav(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(el.classList) el.classList.add('active');
+        el.classList.add('active');
     }
 
-    window.onload = () => { render(); checkUser(); updateHistoryUI(); };
+    window.onload = () => {
+        render();
+        updateOrders();
+        if(user) document.getElementById('profile-box').innerHTML = `<h4>Hello, ${user.email.split('@')[0]}</h4><p style="font-size:0.8rem; color:#888;">${user.email}</p><button onclick="localStorage.removeItem('upp_user');location.reload();" style="color:red; background:none; border:none; padding:0; font-weight:bold;">Sign Out</button>`;
+    };
 </script>
 </body>
 </html>
