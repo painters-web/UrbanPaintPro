@@ -1,169 +1,163 @@
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Super-App</title>
+    <title>UrbanPaintPro | Official Mega App</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --p: #673ab7; --bg: #f5f5f7; --success: #34c759; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 90px; }
+        :root { --p: #673ab7; --bg: #f5f5f7; --gold: #d4af37; --success: #34c759; }
+        body { font-family: 'SF Pro Display', sans-serif; margin: 0; background: var(--bg); color: #1d1d1f; padding-bottom: 90px; }
 
-        /* Header & Nav */
-        .header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 2000; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #ddd; z-index: 5000; }
-        .nav-item { text-align: center; color: #8e8e93; font-size: 10px; cursor: pointer; flex: 1; font-weight: 600; }
-        .nav-item.active { color: var(--p); }
-        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+        /* Header & Search */
+        .app-header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 2000; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
+        .search-area { padding: 10px 15px; background: white; }
+        .apple-search { background: #e5e5ea; border-radius: 12px; display: flex; align-items: center; padding: 10px 15px; border: none; }
+        .apple-search input { border: none; background: transparent; outline: none; width: 100%; margin-left: 10px; font-weight: 500; }
 
+        /* Sections Visibility */
         .section { display: none; padding: 15px; }
-        .section.active { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Auth Modal UI */
-        #auth-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9000; display: none; align-items: center; justify-content: center; }
-        .auth-box { background: white; width: 85%; padding: 25px; border-radius: 24px; text-align: center; }
-        .auth-input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; outline: none; box-sizing: border-box; }
-        .auth-btn { width: 100%; padding: 14px; background: var(--p); color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; }
+        /* Color Visualizer */
+        .viz-box { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #eee; text-align: center; }
+        .wall-preview { width: 100%; height: 100px; border-radius: 15px; margin-bottom: 12px; transition: 0.5s; border: 2px solid #fff; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+        .dot { width: 35px; height: 35px; border-radius: 50%; display: inline-block; margin: 5px; cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        /* Home Components */
-        .banner { background: linear-gradient(135deg, #673ab7, #9c27b0); color: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; }
-        .cat-pill { background: white; padding: 8px 15px; border-radius: 50px; font-size: 0.8rem; font-weight: 700; border: 1px solid #ddd; margin-right: 5px; white-space: nowrap; cursor: pointer; }
-        .cat-active { background: var(--p); color: white; border-color: var(--p); }
-        
         /* Product Cards */
         .p-card { background: white; padding: 15px; border-radius: 20px; display: flex; align-items: center; margin-bottom: 12px; border: 1px solid #eee; }
-        .p-info { flex: 1; padding-left: 15px; }
-        .p-info span { color: var(--p); font-weight: 800; font-size: 1.1rem; }
-        .p-btn { background: var(--p); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; }
+        .info { flex: 1; padding-left: 15px; }
+        .info h4 { margin: 0; font-size: 0.9rem; }
+        .warranty { font-size: 9px; background: #f0ebf9; color: var(--p); padding: 2px 6px; border-radius: 5px; font-weight: 800; }
+        .p-btn { background: var(--p); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: bold; }
 
-        /* Order Box */
-        .order-box { background: white; padding: 20px; border-radius: 20px; border-left: 5px solid var(--p); margin-bottom: 15px; }
-        .bar { height: 6px; background: #eee; border-radius: 10px; margin: 15px 0; position: relative; }
-        .fill { height: 100%; background: var(--p); width: 40%; }
+        /* Auth Modal */
+        #auth-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .auth-box { background: white; width: 85%; padding: 25px; border-radius: 25px; text-align: center; }
+        .auth-box input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
 
-        /* Settings Grid */
-        .group { background: white; border-radius: 15px; margin-top: 15px; overflow: hidden; border: 1px solid #eee; }
-        .row { padding: 16px; border-bottom: 1px solid #f2f2f7; display: flex; justify-content: space-between; align-items: center; }
-        .row input, .row select { border: none; text-align: right; color: var(--p); font-weight: 600; outline: none; }
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; z-index: 5000; }
+        .nav-item { text-align: center; color: #8e8e93; font-size: 10px; cursor: pointer; flex: 1; font-weight: 700; }
+        .nav-item.active { color: var(--p); }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-<div class="header">
+<div class="app-header">
     <div style="font-weight:900; font-size:1.3rem;">Urban<span style="color:var(--p);">PaintPro</span></div>
     <div id="auth-tag" onclick="showAuth()" style="font-size:0.75rem; font-weight:800; color:var(--p);">● LOGIN</div>
 </div>
 
 <div id="auth-modal">
     <div class="auth-box">
-        <h3 id="auth-title">Welcome Back</h3>
-        <input type="email" id="email" class="auth-input" placeholder="Email Address">
-        <input type="password" id="pass" class="auth-input" placeholder="Password">
-        <button class="auth-btn" onclick="handleAuth()">Continue</button>
-        <p style="font-size:0.8rem; margin-top:15px; color:#666;" onclick="toggleAuth()">Naya account banayein? <b>Register</b></p>
+        <h3 id="auth-title">Welcome</h3>
+        <input type="email" id="email" placeholder="Email Address">
+        <input type="password" id="pass" placeholder="Password">
+        <button onclick="handleAuth()" style="width:100%; padding:14px; background:var(--p); color:white; border:none; border-radius:12px; font-weight:bold; margin-top:10px;">Continue</button>
+        <p style="font-size:0.8rem; margin-top:15px;" onclick="toggleAuth()">Naya account? <b>Register</b></p>
     </div>
 </div>
 
 <div id="home" class="section active">
-    <div class="banner">
-        <h3>Refer & Earn 1% Cash</h3>
-        <p>Apne doston ko refer karein aur 1% payout paayein.</p>
+    <div class="apple-search">
+        <i class="fa fa-search" style="color:#8e8e93;"></i>
+        <input type="text" id="p-search" placeholder="Search Royale, Apex, Polish..." onkeyup="filter()">
     </div>
 
-    <div style="display:flex; overflow-x:auto; padding-bottom:10px; scrollbar-width:none;">
-        <div class="cat-pill cat-active" onclick="filter('all', this)">All</div>
-        <div class="cat-pill" onclick="filter('Interior', this)">Interior</div>
-        <div class="cat-pill" onclick="filter('Exterior', this)">Exterior</div>
-        <div class="cat-pill" onclick="filter('Waterproofing', this)">Waterproofing</div>
-        <div class="cat-pill" onclick="filter('Wood', this)">Enamel/PU</div>
+    <div class="viz-box">
+        <h5 style="margin:0 0 10px;">Virtual Wall Preview</h5>
+        <div id="wall" class="wall-preview" style="background:#f5f5f7;"></div>
+        <div class="dot" style="background:#f5f5dc;" onclick="viz('#f5f5dc')"></div>
+        <div class="dot" style="background:#e6e6fa;" onclick="viz('#e6e6fa')"></div>
+        <div class="dot" style="background:#fdf5e6;" onclick="viz('#fdf5e6')"></div>
+        <div class="dot" style="background:#f0fff0;" onclick="viz('#f0fff0')"></div>
+    </div>
+
+    <div style="background: linear-gradient(135deg, #673ab7, #9c27b0); color:white; padding:15px; border-radius:18px; margin-bottom:20px;">
+        <h4 style="margin:0;">Refer & Earn 1% Cash</h4>
+        <p style="font-size:0.75rem; margin:5px 0 0;">Har successful booking par paayein 1% direct cash.</p>
     </div>
 
     <div id="catalog"></div>
 </div>
 
 <div id="orders" class="section">
-    <h3>Active Tracking</h3>
-    <div class="order-box">
-        <b>Measurement & Inspection</b>
-        <div class="bar"><div class="fill"></div></div>
-        <p style="font-size:0.8rem; color:#666;">Status: <b style="color:var(--p);">Banda raste mein hai...</b></p>
+    <h3>Project Tracking</h3>
+    <div style="background:white; padding:20px; border-radius:20px; border-left:5px solid var(--p);">
+        <b>Asian Paints Royale Project</b>
+        <div style="height:6px; background:#eee; border-radius:10px; margin:15px 0; position:relative;">
+            <div style="height:100%; background:var(--p); width:35%; border-radius:10px;"></div>
+        </div>
+        <p style="font-size:0.8rem; color:#666;">Status: <b style="color:var(--p);">Measurement Scheduled</b></p>
     </div>
 </div>
 
 <div id="settings" class="section">
-    <div style="text-align:center; padding:10px 0 20px;">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="70">
-        <h4 id="u-mail">Guest User</h4>
+    <div style="text-align:center; padding-bottom:20px;">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="80" style="border:3px solid white; box-shadow:0 4px 10px rgba(0,0,0,0.1); border-radius:50%;">
+        <h4 id="u-mail">Guest Account</h4>
     </div>
-
-    <div class="group">
-        <div class="row"><span>Mobile No.</span><input type="tel" placeholder="Add Number"></div>
-        <div class="row"><span>Bank Account</span><input type="text" placeholder="Add A/C"></div>
-        <div class="row"><span>Language</span><select><option>Hindi</option><option>English</option></select></div>
-        <div class="row" style="color:var(--success)"><span>Referral Bonus</span><b>₹ 0.00</b></div>
+    <div style="background:white; border-radius:15px; overflow:hidden; border:1px solid #eee;">
+        <div style="padding:15px; border-bottom:1px solid #f2f2f7; display:flex; justify-content:space-between;"><span>Mobile No.</span><input type="tel" placeholder="Add Number" style="border:none; text-align:right; font-weight:600; color:var(--p); outline:none;"></div>
+        <div style="padding:15px; border-bottom:1px solid #f2f2f7; display:flex; justify-content:space-between;"><span>Bank Account</span><input type="text" placeholder="Add A/C Details" style="border:none; text-align:right; font-weight:600; color:var(--p); outline:none;"></div>
+        <div style="padding:15px; display:flex; justify-content:space-between;"><span>Language</span><select style="border:none; color:var(--p); font-weight:600;"><option>Hindi</option><option>English</option></select></div>
     </div>
-
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;">
-        <div class="order-box" style="text-align:center; padding:15px;" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366; font-size:1.5rem;"></i><br>Help</div>
-        <div class="order-box" style="text-align:center; padding:15px;" onclick="alert('Robot Active')"><i class="fas fa-robot" style="color:var(--p); font-size:1.5rem;"></i><br>AI Chat</div>
-    </div>
-    
-    <button onclick="auth.signOut().then(()=>location.reload())" style="width:100%; margin-top:20px; padding:15px; border-radius:15px; background:white; border:1px solid #ddd; font-weight:bold;">Logout</button>
+    <button onclick="auth.signOut().then(()=>location.reload())" style="width:100%; margin-top:20px; padding:15px; border-radius:15px; background:white; border:1px solid #ddd; font-weight:bold;">Logout Account</button>
 </div>
 
 <div class="bottom-nav">
     <div class="nav-item active" onclick="nav('home', this)"><i class="fas fa-home"></i>Home</div>
-    <div class="nav-item" onclick="nav('orders', this)"><i class="fas fa-truck-fast"></i>Orders</div>
+    <div class="nav-item" onclick="nav('orders', this)"><i class="fas fa-shopping-bag"></i>Orders</div>
     <div class="nav-item" onclick="nav('settings', this)"><i class="fas fa-user-circle"></i>Account</div>
 </div>
 
 <script>
-    const firebaseConfig = { apiKey: "AIzaSy...", ... }; // Your config
+    const firebaseConfig = { apiKey: "AIzaSy...", ... }; // Original config here
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    const paints = [
-        {n:"Royale Aspira", p:60, c:"Interior"}, {n:"Royale Luxury", p:42, c:"Interior"}, {n:"Tractor Emulsion", p:16, c:"Interior"},
-        {n:"Apex Ultima Protek", p:68, c:"Exterior"}, {n:"Ace Exterior", p:18, c:"Exterior"},
-        {n:"SmartCare Damp Proof", p:75, c:"Waterproofing"}, {n:"Crack Fill", p:25, c:"Waterproofing"},
-        {n:"PU Luxury Polish", p:450, c:"Wood"}, {n:"Duco Gloss", p:260, c:"Wood"}
-    ];
+    const catalogData = {
+        "Interior Luxury": [{n:"Royale Aspira", p:60, w:"10yr"}, {n:"Royale Glitz", p:45, w:"8yr"}],
+        "Economy Range": [{n:"Tractor Emulsion", p:16, w:"3yr"}, {n:"Apcolite Premium", p:28, w:"4yr"}],
+        "Exterior & WP": [{n:"Apex Ultima Protek", p:68, w:"15yr"}, {n:"Damp Proof", p:75, w:"8yr"}],
+        "Polish & Enamel": [{n:"PU Luxury Polish", p:450, w:"N/A"}, {n:"Duco Gloss", p:260, w:"N/A"}]
+    };
 
-    let isLogin = true;
-    function showAuth() { document.getElementById('auth-modal').style.display = 'flex'; }
-    function toggleAuth() { 
-        isLogin = !isLogin; 
-        document.getElementById('auth-title').innerText = isLogin ? "Welcome Back" : "Create Account";
-    }
-
-    function handleAuth() {
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('pass').value;
-        if(isLogin) {
-            auth.signInWithEmailAndPassword(email, pass).then(()=>location.reload()).catch(e=>alert(e.message));
-        } else {
-            auth.createUserWithEmailAndPassword(email, pass).then(()=>location.reload()).catch(e=>alert(e.message));
-        }
-    }
-
-    function load(cat = 'all') {
+    function loadCatalog() {
         let h = "";
-        paints.forEach(p => {
-            if(cat === 'all' || p.c === cat) {
-                h += `<div class="p-card"><div class="p-info"><h4>${p.n}</h4><small>${p.c}</small><br><span>₹${p.p}/sqft</span></div><button class="p-btn" onclick="nav('orders', document.querySelectorAll('.nav-item')[1])">Book</button></div>`;
-            }
-        });
+        for (let cat in catalogData) {
+            h += `<h6 style="color:#8e8e93; margin:20px 0 10px 5px; text-transform:uppercase; letter-spacing:1px;">${cat}</h6>`;
+            catalogData[cat].forEach(p => {
+                h += `<div class="p-card">
+                    <div style="width:50px; height:50px; background:#f0ebf9; border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--p);"><i class="fa fa-paint-roller"></i></div>
+                    <div class="info"><h4>${p.n}</h4><span class="warranty">${p.w} Warranty</span><br><span>₹${p.p}/sqft</span></div>
+                    <button class="p-btn" onclick="nav('orders', document.querySelectorAll('.nav-item')[1])">Book</button>
+                </div>`;
+            });
+        }
         document.getElementById('catalog').innerHTML = h;
     }
 
-    function filter(cat, el) {
-        document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('cat-active'));
-        el.classList.add('cat-active');
-        load(cat);
+    let isL = true;
+    function showAuth() { document.getElementById('auth-modal').style.display='flex'; }
+    function toggleAuth() { isL=!isL; document.getElementById('auth-title').innerText=isL?"Welcome":"Register"; }
+    function handleAuth() {
+        const e=document.getElementById('email').value, p=document.getElementById('pass').value;
+        if(isL) auth.signInWithEmailAndPassword(e,p).then(()=>location.reload()).catch(err=>alert(err.message));
+        else auth.createUserWithEmailAndPassword(e,p).then(()=>location.reload()).catch(err=>alert(err.message));
+    }
+
+    function viz(c) { document.getElementById('wall').style.background = c; }
+    function filter() {
+        let val = document.getElementById('p-search').value.toLowerCase();
+        let cards = document.getElementsByClassName('p-card');
+        for(let i=0; i<cards.length; i++) cards[i].style.display = cards[i].innerText.toLowerCase().includes(val) ? "flex" : "none";
     }
 
     function nav(id, el) {
@@ -171,18 +165,11 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         el.classList.add('active');
-        document.getElementById('auth-modal').style.display = 'none';
+        document.getElementById('auth-modal').style.display='none';
     }
 
-    auth.onAuthStateChanged(u => {
-        if(u) {
-            document.getElementById('auth-tag').innerText = "● " + u.email.split('@')[0];
-            document.getElementById('u-mail').innerText = u.email;
-            document.getElementById('auth-modal').style.display = 'none';
-        }
-    });
-
-    window.onload = () => load();
+    auth.onAuthStateChanged(u => { if(u){ document.getElementById('auth-tag').innerText="● "+u.email.split('@')[0]; document.getElementById('u-mail').innerText=u.email; }});
+    window.onload = loadCatalog;
 </script>
 </body>
 </html>
