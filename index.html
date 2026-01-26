@@ -3,85 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Official</title>
+    <title>UrbanPaintPro | Professional Home Painting</title>
+    
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+
     <style>
-        :root { --p: #673ab7; --bg: #ffffff; --text: #212121; --light: #f5f5f5; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
-        .header { background: white; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .logo { font-weight: 800; font-size: 1.5rem; }
+        :root {
+            --p: #673ab7;
+            --p-light: #f0ebf9;
+            --text: #212121;
+            --gray: #757575;
+            --white: #ffffff;
+            --border: #eeeeee;
+            --bg-body: #f8f9fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-body); color: var(--text); line-height: 1.6; }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .logo { font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px; }
         .logo span { color: var(--p); }
-        .section { display: none; padding: 20px; animation: fadeIn 0.4s ease; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
-        .cat-btn { background: #f0f0f0; padding: 10px 20px; border-radius: 20px; border: none; font-weight: 700; white-space: nowrap; cursor: pointer; }
-        .cat-btn.active { background: var(--p); color: white; }
-        .p-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: white; border-radius: 16px; margin-bottom: 15px; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .p-price { font-weight: 800; font-size: 1.1rem; color: #000; margin-top: 8px; }
-        .add-btn { background: white; color: var(--p); border: 1.5px solid var(--p); padding: 8px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #eee; padding: 10px 0; }
-        .nav-item { text-align: center; color: #9e9e9e; cursor: pointer; font-size: 0.75rem; font-weight: 600; flex: 1; }
-        .nav-item.active { color: #000; }
-        #bot-window { position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; background: white; z-index: 2000; transition: 0.5s; border-radius: 24px 24px 0 0; display: flex; flex-direction: column; }
-        #bot-window.open { bottom: 0; }
-        #admin-panel { display: none; background: #fdfdfd; border: 2px solid #000; padding: 15px; border-radius: 16px; margin-top: 20px; }
+
+        /* Main Sections */
+        .page { display: none; padding: 20px; min-height: 100vh; animation: pageFade 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes pageFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Banner */
+        .hero-banner {
+            background: #111;
+            color: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            background-image: linear-gradient(45deg, #111, #333);
+            position: relative;
+        }
+        .hero-banner h2 { font-size: 1.6rem; margin-bottom: 8px; }
+        .hero-banner p { font-size: 0.9rem; opacity: 0.8; }
+
+        /* Category Filter */
+        .filter-nav {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            scrollbar-width: none;
+        }
+        .filter-nav::-webkit-scrollbar { display: none; }
+        .filter-btn {
+            background: var(--white);
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .filter-btn.active { background: var(--text); color: var(--white); border-color: var(--text); }
+
+        /* Service Cards */
+        .service-list { display: grid; gap: 16px; }
+        .s-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: 0.3s;
+        }
+        .s-info { flex: 1; }
+        .s-info .brand { font-size: 0.65rem; font-weight: 800; color: var(--p); text-transform: uppercase; margin-bottom: 4px; display: block; }
+        .s-info h4 { font-size: 1.1rem; margin-bottom: 6px; font-weight: 700; }
+        .s-info p { font-size: 0.8rem; color: var(--gray); margin-bottom: 12px; }
+        .s-info .price { font-weight: 800; font-size: 1.1rem; }
+
+        .book-btn {
+            background: var(--white);
+            color: var(--p);
+            border: 1.5px solid var(--p);
+            padding: 8px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .book-btn:active { background: var(--p); color: var(--white); }
+
+        /* Auth UI */
+        .auth-box { max-width: 400px; margin: 40px auto; background: var(--white); padding: 30px; border-radius: 24px; border: 1px solid var(--border); }
+        .input-wrap { margin-bottom: 16px; }
+        .input-wrap label { font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 6px; }
+        .input-wrap input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            outline: none;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        .input-wrap input:focus { border-color: var(--p); box-shadow: 0 0 0 3px var(--p-light); }
+        .primary-btn {
+            background: var(--text);
+            color: var(--white);
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: var(--white);
+            display: flex;
+            border-top: 1px solid var(--border);
+            padding: 10px 0 25px;
+            z-index: 1000;
+        }
+        .nav-link { flex: 1; text-align: center; color: var(--gray); font-size: 0.7rem; font-weight: 600; text-decoration: none; cursor: pointer; }
+        .nav-link.active { color: var(--text); }
+        .nav-link i { display: block; font-size: 1.3rem; margin-bottom: 4px; }
+
+        /* Admin Dashboard */
+        .admin-wrap { display: none; margin-top: 20px; background: #fff; border: 2px solid #000; border-radius: 20px; padding: 20px; }
+        .admin-item { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.85rem; }
+        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; background: var(--p-light); color: var(--p); }
+
+        /* AI Chat Window */
+        #chat-modal {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 80%;
+            background: var(--white);
+            z-index: 2000;
+            transition: 0.5s cubic-bezier(0, 1, 0.5, 1);
+            border-radius: 24px 24px 0 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+        }
+        #chat-modal.active { bottom: 0; }
+        .chat-h { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #fdfdfd; }
+        .msg { padding: 12px 16px; border-radius: 14px; max-width: 80%; font-size: 0.95rem; }
+        .msg.bot { background: var(--light); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #eee; }
+        .msg.user { background: var(--p); color: var(--white); align-self: flex-end; border-bottom-right-radius: 2px; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="logo">Urban<span>PaintPro</span></div>
-    <div onclick="toggleBot(true)" style="padding:10px; font-size:1.2rem;"><i class="fa-solid fa-robot"></i></div>
+    <div onclick="toggleChat(true)"><i class="fa-regular fa-comment-dots" style="font-size: 1.4rem;"></i></div>
 </div>
 
-<div id="explore" class="section active">
-    <div class="cat-scroll">
-        <button class="cat-btn active" onclick="filterBrand('all', this)">All Brands</button>
-        <button class="cat-btn" onclick="filterBrand('asian', this)">Asian Paints</button>
-        <button class="cat-btn" onclick="filterBrand('berger', this)">Berger Paints</button>
+<div id="explore" class="page active">
+    <div class="hero-banner">
+        <h2>Professional Painting</h2>
+        <p>100% genuine Asian & Berger paints with expert application</p>
     </div>
-    <div id="product-list"></div>
-</div>
 
-<div id="orders" class="section">
-    <h2 style="font-weight: 800;">My Projects</h2>
-    <div id="order-list"></div>
-</div>
-
-<div id="account" class="section">
-    <div id="auth-area" style="text-align:center; padding-top:50px;">
-        <h2 id="auth-title">Login / Sign Up</h2>
-        <input type="email" id="user-email" placeholder="Email" style="width:100%; padding:15px; margin:10px 0; border-radius:12px; border:1px solid #ddd;">
-        <input type="password" id="user-pass" placeholder="Password (Min 6 chars)" style="width:100%; padding:15px; margin:10px 0; border-radius:12px; border:1px solid #ddd;">
-        <button onclick="handleAuth()" id="auth-btn" style="background:#000; color:white; padding:15px; border-radius:12px; width:100%; border:none; cursor:pointer;">Proceed</button>
+    <div class="filter-nav">
+        <button class="filter-btn active" onclick="filterData('all', this)">All Services</button>
+        <button class="filter-btn" onclick="filterData('asian', this)">Asian Paints</button>
+        <button class="filter-btn" onclick="filterData('berger', this)">Berger Paints</button>
+        <button class="filter-btn" onclick="filterData('wp', this)">Waterproofing</button>
     </div>
-    <div id="profile-area" style="display:none; text-align:center;">
-        <h3 id="display-user" onclick="adminCheck()">User</h3>
-        <button onclick="logout()" style="color:red; border:none; background:none; font-weight:700;">Logout</button>
-        <div id="admin-panel">
-            <h4 style="color:var(--p);">Cloud Admin Dashboard</h4>
-            <div id="admin-orders-list">Fetching orders...</div>
+
+    <div id="service-grid" class="service-list">
+        </div>
+</div>
+
+<div id="bookings" class="page">
+    <h2 style="font-weight: 800; margin-bottom: 20px;">My Bookings</h2>
+    <div id="user-orders-list"></div>
+</div>
+
+<div id="profile" class="page">
+    <div id="auth-ui">
+        <div class="auth-box">
+            <h2 id="auth-title" style="margin-bottom: 25px; font-weight: 800;">Log in</h2>
+            <div class="input-wrap">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="e.g. name@example.com">
+            </div>
+            <div class="input-wrap">
+                <label>Password</label>
+                <input type="password" id="pass" placeholder="At least 6 characters">
+            </div>
+            <button class="primary-btn" onclick="handleAuth()" id="auth-btn">Proceed</button>
+            <p onclick="toggleAuthMode()" id="auth-toggle" style="text-align:center; margin-top:20px; font-weight:600; color:var(--p); cursor:pointer;">New here? Create account</p>
+        </div>
+    </div>
+
+    <div id="profile-ui" style="display: none;">
+        <div style="background: var(--white); padding: 30px; border-radius: 24px; text-align: center; border: 1px solid var(--border);">
+            <div style="width: 80px; height: 80px; background: var(--p-light); color: var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2rem; font-weight: 800;" id="user-initial">A</div>
+            <h3 id="user-name" style="font-weight: 800;">Username</h3>
+            <p id="user-email-text" style="color: var(--gray); font-size: 0.9rem; margin-bottom: 20px;">email@test.com</p>
+            <button onclick="logout()" style="color: red; border: none; background: none; font-weight: 700; cursor: pointer;">Sign Out</button>
+        </div>
+
+        <div style="margin-top: 25px;" onclick="adminUnlock()">
+            <h4 style="font-weight: 800; margin-bottom: 15px;">Account Settings</h4>
+            <div style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;" onclick="window.open('https://wa.me/919711904092')">
+                <span>WhatsApp Help Center</span>
+                <i class="fa-solid fa-chevron-right" style="color: #ccc;"></i>
+            </div>
+        </div>
+
+        <div id="admin-panel" class="admin-wrap">
+            <h3 style="color: var(--p); margin-bottom: 15px;">Admin Dashboard</h3>
+            <div id="all-cloud-orders"></div>
         </div>
     </div>
 </div>
 
-<div id="bot-window">
-    <div style="padding: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee;"><b>Paint AI</b><i class="fa fa-xmark" onclick="toggleBot(false)"></i></div>
-    <div id="chat-box" style="flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;"></div>
-    <div style="padding:15px; display:flex; gap:10px; border-top:1px solid #eee;"><input type="text" id="bot-input" style="flex:1; padding:12px; border-radius:10px; border:1px solid #ddd;"><button onclick="askBot()" style="background:var(--p); color:white; border:none; border-radius:50%; width:40px;">></button></div>
+<div id="chat-modal">
+    <div class="chat-h">
+        <b style="font-size: 1.1rem;">Assistant</b>
+        <i class="fa-solid fa-xmark" onclick="toggleChat(false)" style="cursor:pointer; font-size: 1.2rem;"></i>
+    </div>
+    <div class="chat-messages" id="chat-box">
+        <div class="msg bot">Namaste Arbaj! Main aapka UrbanPaint assistant hoon. Main aapki kya sahayata kar sakta hoon?</div>
+    </div>
+    <div style="padding: 15px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px;">
+        <input type="text" id="chat-input" placeholder="Ask anything about paints..." style="flex:1; padding:12px; border:none; background:var(--bg-body); border-radius:12px; outline:none;">
+        <button onclick="sendMessage()" style="background: var(--text); color: white; border: none; width: 45px; height: 45px; border-radius: 50%;"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
 </div>
 
 <div class="bottom-nav">
-    <div class="nav-item active" onclick="nav('explore', this)"><i class="fa-solid fa-house"></i>Home</div>
-    <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-clipboard-list"></i>Orders</div>
-    <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-user"></i>Account</div>
+    <div class="nav-link active" onclick="nav('explore', this)"><i class="fa-solid fa-magnifying-glass"></i>Explore</div>
+    <div class="nav-link" onclick="nav('bookings', this)"><i class="fa-solid fa-file-invoice"></i>Bookings</div>
+    <div class="nav-link" onclick="nav('profile', this)"><i class="fa-solid fa-circle-user"></i>Account</div>
 </div>
 
 <script>
+    // Arbaj, Ye aapki Firebase Config hai
     const firebaseConfig = {
       apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
       authDomain: "professionalpainters-28488.firebaseapp.com",
@@ -91,115 +280,158 @@
       messagingSenderId: "233510965012",
       appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
     };
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
-    let clicks = 0;
 
-    const products = [
-        { brand: 'asian', n: 'Royale Aspira', p: 68, d: 'Luxury Teflon Finish' },
-        { brand: 'asian', n: 'Tractor Emulsion', p: 16, d: 'Budget Smooth' },
-        { brand: 'berger', n: 'Silk Glamor', p: 65, d: 'Crystal Sheen' },
-        { brand: 'berger', n: 'Bison Emulsion', p: 18, d: 'Economy Budget' }
+    let isLoginMode = true;
+    let adminClicks = 0;
+
+    const catalog = [
+        { brand: 'asian', n: 'Royale Aspira', p: 68, d: 'Teflon coating, 5yr warranty, ultra-luxury finish.', cat: 'asian' },
+        { brand: 'asian', n: 'Royale Matt', p: 54, d: 'Luxury velvet touch, high washability.', cat: 'asian' },
+        { brand: 'asian', n: 'Apcolite Premium Emulsion', p: 32, d: 'Durable finish, easy to maintain.', cat: 'asian' },
+        { brand: 'asian', n: 'Tractor Emulsion', p: 16, d: 'Smooth finish for budget homes.', cat: 'asian' },
+        { brand: 'asian', n: 'Apex Protek Duralife', p: 95, d: 'Self-cleaning, 15yr warranty external.', cat: 'asian' },
+        { brand: 'berger', n: 'Silk Glamor', p: 65, d: 'Crystal sheen, ultra-smooth silk finish.', cat: 'berger' },
+        { brand: 'berger', n: 'Silk Breathe Easy', p: 62, d: 'Anti-bacterial, eco-friendly luxury.', cat: 'berger' },
+        { brand: 'berger', n: 'Bison Emulsion', p: 18, d: 'Good coverage, budget-friendly.', cat: 'berger' },
+        { brand: 'berger', n: 'Weathercoat Anti Dust', p: 72, d: 'Dust guard tech for external walls.', cat: 'berger' },
+        { brand: 'wp', n: 'Damp Proof Duralife', p: 115, d: 'Fibre-reinforced roof waterproofing.', cat: 'wp' },
+        { brand: 'wp', n: 'SmartCare Damp Proof', p: 85, d: 'Severe dampness protection.', cat: 'wp' }
     ];
 
-    function renderProducts(filter = 'all') {
-        const list = document.getElementById('product-list');
-        const filtered = filter === 'all' ? products : products.filter(p => p.brand === filter);
-        list.innerHTML = filtered.map(p => `
-            <div class="p-item">
-                <div class="p-info"><h4>${p.n}</h4><p>${p.d}</p><div class="p-price">₹${p.p}/sqft</div></div>
-                <button class="add-btn" onclick="buy('${p.n}', ${p.p})">Book</button>
-            </div>`).join('');
+    function renderCatalog(brand = 'all') {
+        const grid = document.getElementById('service-grid');
+        const data = brand === 'all' ? catalog : catalog.filter(x => x.cat === brand);
+        grid.innerHTML = data.map(p => `
+            <div class="s-card">
+                <div class="s-info">
+                    <span class="brand">${p.brand}</span>
+                    <h4>${p.n}</h4>
+                    <p>${p.d}</p>
+                    <div class="price">₹${p.p}/sqft</div>
+                </div>
+                <button class="book-btn" onclick="initBooking('${p.n}', ${p.p})">Add</button>
+            </div>
+        `).join('');
     }
 
-    function handleAuth() {
-        const e = document.getElementById('user-email').value;
-        const p = document.getElementById('user-pass').value;
-        if(!e || p.length < 6) return alert("Sahi details daalein.");
-        
-        auth.signInWithEmailAndPassword(e, p)
-            .then(() => location.reload())
-            .catch(() => {
-                auth.createUserWithEmailAndPassword(e, p)
-                    .then(() => location.reload())
-                    .catch(err => alert(err.message));
-            });
+    function filterData(cat, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderCatalog(cat);
     }
 
-    function logout() { auth.signOut().then(() => location.reload()); }
-
-    function buy(n, p) {
-        if(!auth.currentUser) return nav('account', document.querySelectorAll('.nav-item')[2]);
-        let area = prompt("Area (sqft):", "100");
-        if(area) {
-            let total = area * p;
-            let orderId = Date.now();
-            db.ref('orders/' + orderId).set({ id: orderId, n, total, date: new Date().toLocaleDateString(), status: "Expert Assigned", user: auth.currentUser.email })
-            .then(() => window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaintPro&am=${total}&cu=INR`);
-        }
-    }
-
-    function adminCheck() {
-        clicks++;
-        if(clicks >= 10) {
-            let pass = prompt("Admin Password:");
-            if(pass === "Arbaj@786") {
-                document.getElementById('admin-panel').style.display = 'block';
-                db.ref('orders').on('value', snap => {
-                    let html = "";
-                    if(snap.val()) Object.values(snap.val()).reverse().forEach(o => {
-                        html += `<div style="padding:10px; border-bottom:1px solid #eee;">${o.user}: ${o.n}<br>
-                        <select onchange="db.ref('orders/${o.id}').update({status:this.value})">
-                            <option value="${o.status}">${o.status}</option>
-                            <option value="Work Started">Work Started</option>
-                            <option value="Finished">Finished</option>
-                        </select></div>`;
-                    });
-                    document.getElementById('admin-orders-list').innerHTML = html;
-                });
-            }
-            clicks = 0;
-        }
-    }
-
+    // AUTH ENGINE
     auth.onAuthStateChanged(user => {
-        if(user) {
-            document.getElementById('auth-area').style.display = 'none';
-            document.getElementById('profile-area').style.display = 'block';
-            document.getElementById('display-user').innerText = user.email;
+        if (user) {
+            document.getElementById('auth-ui').style.display = 'none';
+            document.getElementById('profile-ui').style.display = 'block';
+            document.getElementById('user-name').innerText = user.email.split('@')[0].toUpperCase();
+            document.getElementById('user-email-text').innerText = user.email;
+            document.getElementById('user-initial').innerText = user.email.charAt(0).toUpperCase();
+        } else {
+            document.getElementById('auth-ui').style.display = 'block';
+            document.getElementById('profile-ui').style.display = 'none';
         }
     });
 
-    function filterBrand(brand, btn) {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active'); renderProducts(brand);
+    function toggleAuthMode() {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-title').innerText = isLoginMode ? "Log in" : "Create account";
+        document.getElementById('auth-btn').innerText = isLoginMode ? "Proceed" : "Create Account";
+        document.getElementById('auth-toggle').innerText = isLoginMode ? "New here? Create account" : "Already have an account? Log in";
     }
-    function toggleBot(s) { document.getElementById('bot-window').classList.toggle('open', s); }
-    function nav(id, el) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(id).classList.add('active'); el.classList.add('active');
-        if(id==='orders') renderOrders();
+
+    function handleAuth() {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('pass').value;
+        if(!email || pass.length < 6) return alert("Sahi email aur 6-digit password dalein.");
+        
+        if(isLoginMode) {
+            auth.signInWithEmailAndPassword(email, pass).catch(e => alert(e.message));
+        } else {
+            auth.createUserWithEmailAndPassword(email, pass).catch(e => alert(e.message));
+        }
     }
-    function renderOrders() {
+
+    function logout() { auth.signOut(); }
+
+    // BOOKING SYSTEM
+    function initBooking(name, price) {
+        if(!auth.currentUser) {
+            nav('profile', document.querySelectorAll('.nav-link')[2]);
+            return;
+        }
+        const area = prompt("Deewar ka Area (sqft) dalein:", "100");
+        if(area && !isNaN(area)) {
+            const total = area * price;
+            const orderId = Date.now();
+            db.ref('orders/' + orderId).set({
+                id: orderId,
+                item: name,
+                amt: total,
+                user: auth.currentUser.email,
+                date: new Date().toLocaleDateString(),
+                status: "Expert Assigned"
+            }).then(() => {
+                window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaintPro&am=${total}&cu=INR`;
+            });
+        }
+    }
+
+    function fetchBookings() {
         if(!auth.currentUser) return;
         db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
-            let html = "";
-            if(snap.val()) Object.values(snap.val()).reverse().forEach(o => {
-                html += `<div class="p-item" style="border-left:5px solid var(--p);"><div><h4>${o.n}</h4><p>Status: <b>${o.status}</b></p><b>₹${o.total}</b></div></div>`;
-            });
-            document.getElementById('order-list').innerHTML = html || "No projects.";
+            const list = document.getElementById('user-orders-list');
+            if(!snap.val()) {
+                list.innerHTML = `<div style="text-align:center; margin-top:50px; color:#888;">Koi booking nahi mili.</div>`;
+                return;
+            }
+            list.innerHTML = Object.values(snap.val()).reverse().map(o => `
+                <div style="background:white; padding:20px; border-radius:20px; border:1px solid #eee; margin-bottom:15px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <h4 style="font-weight:700;">${o.item}</h4>
+                        <span class="status-badge">${o.status}</span>
+                    </div>
+                    <div style="font-size:0.85rem; color:#666;">Total Paid: <b>₹${o.amt}</b></div>
+                    <div style="font-size:0.75rem; color:#999; margin-top:5px;">Date: ${o.date}</div>
+                </div>
+            `).join('');
         });
     }
-    function askBot() {
-        const i = document.getElementById('bot-input'), c = document.getElementById('chat-box');
-        if(!i.value) return;
-        c.innerHTML += `<div style="background:var(--p); color:white; padding:10px; border-radius:10px; align-self:flex-end;">${i.value}</div>`;
-        setTimeout(() => { c.innerHTML += `<div style="background:#eee; padding:10px; border-radius:10px; align-self:flex-start;">Call 9711904092 for help.</div>`; c.scrollTop = c.scrollHeight; }, 600);
-        i.value = "";
+
+    // ADMIN UNLOCK
+    function adminUnlock() {
+        adminClicks++;
+        if(adminClicks >= 10) {
+            const pin = prompt("Admin Password:");
+            if(pin === "Arbaj@786") {
+                document.getElementById('admin-panel').style.display = 'block';
+                loadAdminData();
+            }
+            adminClicks = 0;
+        }
     }
-    window.onload = () => renderProducts();
-</script>
-</body>
-</html>
+
+    function loadAdminData() {
+        db.ref('orders').on('value', snap => {
+            const area = document.getElementById('all-cloud-orders');
+            if(!snap.val()) return area.innerText = "No cloud data.";
+            area.innerHTML = Object.values(snap.val()).reverse().map(o => `
+                <div class="admin-item">
+                    <b>${o.user.split('@')[0]}</b>: ${o.item} (₹${o.amt})<br>
+                    <select onchange="updateStatusCloud('${o.id}', this.value)" style="margin-top:5px; font-size:0.7rem;">
+                        <option value="${o.status}">${o.status}</option>
+                        <option value="Material Delivered">Material Delivered</option>
+                        <option value="Work Started">Work Started</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+            `).join('');
+        });
+    }
+
+    function updateStatusCloud(id, s) { db.ref('orders/' + id).update({ 
