@@ -1,15 +1,15 @@
-<!DOCTYPE html>
+       <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Official Pro Build</title>
+    <title>UrbanPaintPro | Asian Paints Expert</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <style>
-        :root { --primary: #673ab7; --gold: #d4af37; --bg: #ffffff; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: #fdfdfd; padding-bottom: 100px; }
-        .navbar { display: flex; justify-content: space-between; padding: 15px 5%; border-bottom: 2px solid var(--gold); position: sticky; top: 0; background: white; z-index: 2000; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        :root { --primary: #673ab7; --gold: #d4af37; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #fdfdfd; padding-bottom: 100px; }
+        .navbar { display: flex; justify-content: space-between; padding: 15px 5%; border-bottom: 2px solid var(--gold); position: sticky; top: 0; background: white; z-index: 2000; align-items: center; }
         .logo { font-weight: 900; font-size: 1.3rem; }
         #auth-status { font-weight:bold; color:var(--primary); border:2.5px solid; padding:5px 15px; border-radius:8px; cursor:pointer; }
 
@@ -19,17 +19,17 @@
         .modal-content input { width:90%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ddd; outline:none; }
         .modal-btn { background:var(--primary); color:white; border:none; width:100%; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; }
 
-        /* Calculator Section */
+        /* Calculator */
         .calc-section { background: #f3effb; margin: 15px 5%; padding: 20px; border-radius: 20px; border: 1.5px solid var(--gold); text-align: center; }
         .calc-section select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 10px; background: white; }
         .est-price { font-size: 1.4rem; font-weight: 900; color: var(--primary); background: white; padding: 12px; border-radius: 12px; display: inline-block; width: 85%; border: 2.2px solid var(--gold); }
 
-        /* Category Tabs */
+        /* Tabs */
         .category-scroll { display: flex; gap: 10px; padding: 15px 5%; overflow-x: auto; scrollbar-width: none; background: white; position: sticky; top: 62px; z-index: 1000; border-bottom: 1px solid #eee; }
         .cat-chip { background: #f2f2f2; padding: 10px 20px; border-radius: 30px; font-size: 0.75rem; white-space: nowrap; cursor: pointer; font-weight: 600; }
         .active-chip { background: var(--primary); color: white; }
 
-        /* Cards */
+        /* Bucket Cards */
         .card { display: flex; padding: 18px; margin: 15px 5%; border-radius: 20px; background: white; box-shadow: 0 8px 20px rgba(0,0,0,0.06); align-items: center; border: 1px solid #f0f0f0; }
         .bucket-ui { width: 65px; height: 65px; background: #f3effb; border: 2px solid #e0d5f5; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         .bucket-text { font-size: 6px; font-weight: 900; color: #444; text-align: center; margin-top: 15px; }
@@ -37,8 +37,8 @@
         .info { flex: 1; padding-left: 15px; }
         .add-btn { background: var(--primary); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; }
 
-        /* Real AI Chatbot Interface */
-        #chat-window { display: none; position: fixed; bottom: 100px; right: 20px; width: 320px; max-width: 85%; height: 420px; background: white; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 6000; flex-direction: column; overflow: hidden; border: 1px solid #eee; }
+        /* AI Chatbot */
+        #chat-window { display: none; position: fixed; bottom: 100px; right: 20px; width: 320px; max-width: 85%; height: 400px; background: white; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 6000; flex-direction: column; overflow: hidden; border: 1px solid #eee; }
         #chat-messages { flex: 1; padding: 15px; overflow-y: auto; background: #f9f9f9; font-size: 0.9rem; }
         .chat-input-area { display: flex; padding: 10px; background: white; border-top: 1px solid #eee; }
         .chat-input-area input { flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 20px; outline: none; }
@@ -61,28 +61,30 @@
         <h3 id="modal-title">Welcome</h3>
         <input type="email" id="email" placeholder="Email Address">
         <input type="password" id="password" placeholder="Password">
-        <button class="modal-btn" id="main-auth-btn" onclick="handleAuth()">Login</button>
-        <p onclick="toggleMode()" style="font-size:0.8rem; margin-top:15px; color:#666; cursor:pointer;">New account? Signup</p>
+        <button class="modal-btn" onclick="handleAuth()">Submit</button>
+        <p onclick="toggleMode()" style="font-size:0.8rem; margin-top:15px; color:#666; cursor:pointer;">Signup/Login Toggle</p>
         <button onclick="closeAuth()" style="color:red; background:none; border:none; margin-top:10px; cursor:pointer;">Cancel</button>
     </div>
 </div>
 
 <div class="calc-section">
-    <p style="margin-bottom:10px; font-weight:bold;">Paint Budget Estimator</p>
+    <p style="margin-bottom:10px; font-weight:bold;">Budget Calculator (Including Labour)</p>
     <select id="t" onchange="runCalc()">
-        <option value="1">Repaint (Direct)</option>
-        <option value="1.3">Repaint + Primer</option>
-        <option value="1.8">Fresh Paint (New Wall)</option>
+        <option value="1">Repaint (1 Coat Touchup)</option>
+        <option value="1.4">Repaint (2 Coats + Minor Putty)</option>
+        <option value="2.2">Fresh Paint (Putty + Primer + 2 Coats)</option>
     </select>
     <select id="p" onchange="runCalc()">
         <option value="15">Tractor Emulsion (₹15)</option>
-        <option value="35" selected>Royale Luxury (₹35)</option>
-        <option value="200">Duco Polish (₹200)</option>
+        <option value="25">Apcolite Premium (₹25)</option>
+        <option value="40">Royale Luxury (₹40)</option>
+        <option value="55">Royale Aspira (₹55)</option>
+        <option value="250">Duco Polish (₹250)</option>
     </select>
     <select id="s" onchange="runCalc()">
-        <option value="400">1 BHK</option>
-        <option value="900">2 BHK</option>
-        <option value="1400">3 BHK</option>
+        <option value="400">1 BHK (Standard)</option>
+        <option value="950">2 BHK (Standard)</option>
+        <option value="1500">3 BHK (Standard)</option>
     </select>
     <div class="est-price" id="res">Est: ₹ 14,000</div>
 </div>
@@ -90,7 +92,7 @@
 <div class="category-scroll">
     <div class="cat-chip active-chip" onclick="filter('int', this)">Interior</div>
     <div class="cat-chip" onclick="filter('ext', this)">Exterior</div>
-    <div class="cat-chip" onclick="filter('duco', this)">Duco Polish</div>
+    <div class="cat-chip" onclick="filter('duco', this)">Duco/PU</div>
     <div class="cat-chip" onclick="filter('wood', this)">Wood/Metal</div>
 </div>
 
@@ -100,9 +102,9 @@
 <div id="wa-btn" class="float-btn" onclick="window.open('https://wa.me/919711904092')"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="35" style="filter:invert(1);"></div>
 
 <div id="chat-window">
-    <div style="background:var(--primary); color:white; padding:15px; font-weight:bold;">UrbanPaint AI Robot</div>
+    <div style="background:var(--primary); color:white; padding:15px; font-weight:bold;">UrbanPaint AI Assistant</div>
     <div id="chat-messages">
-        <p style="background:#eee; padding:8px; border-radius:10px; margin-bottom:10px;"><b>AI:</b> Namaste Arbaj! Main live hoon. Aap mujhse koi bhi paint ka sawal pooch sakte hain.</p>
+        <p style="background:#eee; padding:8px; border-radius:10px;"><b>AI:</b> Namaste Arbaj! Main live hoon. Asian Paints ki sari series yahan available hain. Kya sawal hai?</p>
     </div>
     <div class="chat-input-area">
         <input type="text" id="chat-input" placeholder="Type message...">
@@ -131,13 +133,11 @@
     async function handleAuth() {
         const e = document.getElementById('email').value, p = document.getElementById('password').value;
         try {
-            await auth.signInWithEmailAndPassword(e, p);
+            await auth.signInWithEmailAndPassword(e, p).catch(() => auth.createUserWithEmailAndPassword(e, p));
             closeAuth();
         } catch (err) { alert(err.message); }
     }
-    auth.onAuthStateChanged(u => {
-        document.getElementById('auth-status').innerText = u ? "Logout" : "LogIn";
-    });
+    auth.onAuthStateChanged(u => { document.getElementById('auth-status').innerText = u ? "Logout" : "LogIn"; });
 
     function toggleChat() {
         let w = document.getElementById('chat-window');
@@ -147,19 +147,32 @@
     function sendMessage() {
         let i = document.getElementById('chat-input'), m = document.getElementById('chat-messages');
         if(!i.value) return;
-        m.innerHTML += `<p style="text-align:right; margin-bottom:10px;"><b>Aap:</b> ${i.value}</p>`;
+        m.innerHTML += `<p style="text-align:right;"><b>Aap:</b> ${i.value}</p>`;
         setTimeout(() => {
-            m.innerHTML += `<p style="background:#e0d5f5; padding:8px; border-radius:10px; margin-bottom:10px;"><b>AI:</b> Ji Arbaj, main samajh gaya. Iska best rate ₹35/sqft hai.</p>`;
+            m.innerHTML += `<p style="background:#e0d5f5; padding:8px; border-radius:10px;"><b>AI:</b> Hamare pas Royale, Apcolite aur Tractor ki sari range hai. Best rate ke liye BOOK button dabayein.</p>`;
             m.scrollTop = m.scrollHeight;
         }, 800);
         i.value = "";
     }
 
     const data = {
-        int: [{n: "Royale Aspira", p: "55"}, {n: "Royale Luxury", p: "35"}, {n: "Apcolite Premium", p: "22"}, {n: "Tractor Emulsion", p: "15"}],
-        ext: [{n: "Apex Ultima Protek", p: "55"}, {n: "Apex Dust Proof", p: "28"}],
-        duco: [{n: "Duco High Gloss", p: "280"}, {n: "Duco Satin", p: "180"}],
-        wood: [{n: "PU Polish", p: "250"}, {n: "Satin Enamel", p: "35"}]
+        int: [
+            {n: "Royale Aspira", p: "55"}, {n: "Royale Shyne", p: "45"}, {n: "Royale Luxury", p: "38"}, {n: "Royale Matt", p: "36"},
+            {n: "Apcolite Advanced", p: "28"}, {n: "Apcolite Premium", p: "22"},
+            {n: "Tractor Emulsion", p: "16"}, {n: "Tractor Sparc", p: "12"}
+        ],
+        ext: [
+            {n: "Apex Ultima Protek", p: "65"}, {n: "Apex Ultima", p: "45"}, {n: "Apex Shyne", p: "35"},
+            {n: "Apex Dust Proof", p: "28"}, {n: "Ace Exterior", p: "18"}, {n: "Ace Sparc", p: "14"}
+        ],
+        duco: [
+            {n: "PU Luxury Italian", p: "450"}, {n: "PU Polish Gloss", p: "280"}, {n: "Duco High Gloss", p: "250"},
+            {n: "Duco Satin Finish", p: "180"}, {n: "Melamyne Gold", p: "110"}
+        ],
+        wood: [
+            {n: "Premium Satin Enamel", p: "45"}, {n: "Apcolite Gloss Enamel", p: "35"},
+            {n: "Wood Sealer", p: "65"}, {n: "Tractor Enamel", p: "25"}
+        ]
     };
 
     function filter(cat, btn) {
@@ -186,3 +199,4 @@
 </script>
 </body>
 </html>
+     
