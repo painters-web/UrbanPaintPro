@@ -3,145 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Official UC App</title>
+    <title>UrbanPaintPro | Super App</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --p: #673ab7; --bg: #ffffff; --grey: #f5f5f7; --success: #00c853; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; color: #1d1d1f; }
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
         
-        /* UC Premium Header */
-        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; background: white; z-index: 1000; }
-        .logo { font-weight: 800; font-size: 1.2rem; }
-        .non-gst { font-size: 10px; border: 1px solid #ddd; padding: 2px 6px; border-radius: 4px; color: #888; }
+        /* Header */
+        .header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 1000; }
+        .logo { font-weight: 900; font-size: 1.2rem; }
+        #auth-tag { font-size: 10px; font-weight: 800; color: var(--p); border: 1.5px solid var(--p); padding: 4px 10px; border-radius: 8px; cursor: pointer; }
 
+        /* Sections */
         .section { display: none; padding: 20px; }
         .section.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Category Grid */
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .cat-card { background: var(--grey); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #eee; cursor: pointer; }
-        .cat-card i { font-size: 1.8rem; color: var(--p); margin-bottom: 10px; display: block; }
-        .cat-card span { font-size: 0.85rem; font-weight: 700; }
+        /* Calculator Card */
+        .calc-card { background: var(--grey); border-radius: 20px; padding: 20px; text-align: center; border: 1px solid #eee; margin-bottom: 20px; }
+        select, input.edit-field { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #ddd; font-weight: 700; background: white; }
+        .price-big { font-size: 2.2rem; color: var(--p); font-weight: 900; margin: 5px 0; }
+        
+        /* Catalog UI */
+        .tabs { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 15px; scrollbar-width: none; }
+        .tab { padding: 8px 16px; border-radius: 50px; background: var(--grey); font-size: 0.8rem; font-weight: 700; white-space: nowrap; cursor: pointer; border: 1px solid #eee; }
+        .tab.active { background: var(--p); color: white; }
+        .p-card { border: 1px solid #eee; border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* Service Cards */
-        .service-card { border: 1px solid #eee; border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .price { color: var(--p); font-weight: 800; }
-        .tag { font-size: 9px; background: #f0ebf9; color: var(--p); padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-bottom: 5px; display: inline-block; }
-
-        /* Wallet & Tracking */
-        .wallet { background: #1d1d1f; color: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; }
+        /* Tracking & Wallet */
         .track-box { border-left: 5px solid var(--p); background: #fafafa; padding: 15px; border-radius: 12px; }
+        .wallet { background: #1a1a1a; color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; }
 
         /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; padding: 12px 0; z-index: 2000; }
-        .nav-item { flex: 1; text-align: center; font-size: 10px; color: #757575; cursor: pointer; }
-        .nav-item.active { color: var(--p); font-weight: 800; }
-        .nav-item i { font-size: 1.3rem; margin-bottom: 3px; }
+        .nav-item { flex: 1; text-align: center; font-size: 10px; color: #757575; font-weight: 600; cursor: pointer; }
+        .nav-item.active { color: var(--p); }
+        .nav-item i { font-size: 1.3rem; margin-bottom: 3px; display: block; }
+
+        /* Auth Modal */
+        #auth-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: none; align-items: center; justify-content: center; }
+        .auth-card { background: white; width: 85%; padding: 30px; border-radius: 24px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="logo">Urban<span style="color:var(--p)">PaintPro</span></div>
-    <div class="non-gst">NON-GST BILLING</div>
+    <div id="auth-tag" onclick="toggleModal(true)">● LOGIN / SIGNUP</div>
+</div>
+
+<div id="auth-modal">
+    <div class="auth-card">
+        <h3 id="auth-title">Welcome</h3>
+        <input type="email" id="email" placeholder="Email Address" class="edit-field">
+        <input type="password" id="pass" placeholder="Password" class="edit-field">
+        <button onclick="handleAuth()" style="width:100%; padding:14px; background:var(--p); color:white; border:none; border-radius:12px; font-weight:bold;">Continue</button>
+        <p style="font-size: 0.7rem; color: #888; margin-top: 15px;" onclick="toggleModal(false)">Cancel</p>
+    </div>
 </div>
 
 <div id="home" class="section active">
-    <h3 style="margin:0;">What are you looking for?</h3>
-    <p style="font-size:0.8rem; color:#666;">Professional painting at non-GST rates.</p>
-
-    <div class="cat-grid">
-        <div class="cat-card" onclick="showCategory('Interior')"><i class="fa fa-home"></i><span>Interior</span></div>
-        <div class="cat-card" onclick="showCategory('Exterior')"><i class="fa fa-sun"></i><span>Exterior</span></div>
-        <div class="cat-card" onclick="showCategory('Waterproofing')"><i class="fa fa-droplet"></i><span>Waterproof</span></div>
-        <div class="cat-card" onclick="showCategory('Polish')"><i class="fa fa-chair"></i><span>Wood Polish</span></div>
-    </div>
-
-    <div id="product-list" style="margin-top:25px; display:none;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h4 id="cat-title">Select Paint</h4>
-            <button onclick="hideCategory()" style="background:none; border:none; color:var(--p); font-weight:800;">Back</button>
+    <div class="calc-card">
+        <h4 style="margin:0 0 10px;">Smart Non-GST Estimator</h4>
+        <select id="calc-bhk" onchange="updateCalc()"><option value="450">1 BHK</option><option value="950">2 BHK</option><option value="1500">3 BHK</option></select>
+        <select id="calc-type" onchange="updateCalc()"><option value="0">Fresh Paint (with Primer)</option><option value="-5">Repaint (Touch-up)</option></select>
+        <select id="calc-paint" onchange="updateCalc()">
+            <option value="65">Royale Aspira (Luxury)</option>
+            <option value="42">Royale Luxury (Premium)</option>
+            <option value="18">Tractor Emulsion (Budget)</option>
+        </select>
+        <div class="price-big" id="total-price">₹ 8,100</div>
+        <div style="font-size: 0.7rem; color: var(--success); font-weight: 800; margin-bottom: 15px;">GST: 0% | INCLUDES LABOR + MATERIAL</div>
+        <div style="display:flex; gap:10px;">
+            <button onclick="alert('PDF Generated & Sent to WhatsApp!')" style="flex:1; padding:12px; border-radius:10px; border:none; background:#ddd; font-weight:bold;">Save PDF</button>
+            <button onclick="nav('orders', document.querySelectorAll('.nav-item')[1])" style="flex:1; padding:12px; border-radius:10px; border:none; background:var(--p); color:white; font-weight:bold;">Book Now</button>
         </div>
-        <div id="items"></div>
     </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="showCat('Interior', this)">Interior</div>
+        <div class="tab" onclick="showCat('Exterior', this)">Exterior</div>
+        <div class="tab" onclick="showCat('Waterproofing', this)">Waterproofing</div>
+        <div class="tab" onclick="showCat('Polish', this)">Wood Polish</div>
+    </div>
+    <div id="cat-list"></div>
 </div>
 
-<div id="bookings" class="section">
-    <h3>My Projects</h3>
+<div id="orders" class="section">
+    <h3>Project Tracking</h3>
+    
     <div class="track-box">
-        <div style="display:flex; justify-content:space-between;"><b>Measurement #772</b><small>ACTIVE</small></div>
-        <div style="height:6px; background:#eee; border-radius:10px; margin:15px 0; overflow:hidden;"><div style="width:30%; height:100%; background:var(--p);"></div></div>
-        <p style="font-size:0.75rem; color:#666;">Status: Agent assigned for tomorrow 10 AM.</p>
-        <button onclick="confirm('Cancel order?')" style="background:none; border:none; color:red; font-size:0.8rem; font-weight:700; margin-top:10px; padding:0;">Cancel Order</button>
+        <div style="display:flex; justify-content:space-between;"><b>Measurement #786</b><small>TODAY</small></div>
+        <div style="height:6px; background:#eee; border-radius:10px; margin:15px 0; overflow:hidden;"><div style="width:35%; height:100%; background:var(--p);"></div></div>
+        <p style="font-size:0.75rem; color:#666;">Status: Professional arriving tomorrow at 10 AM.</p>
+        <button onclick="confirm('Cancel Order?')" style="background:none; border:none; color:red; font-size:0.8rem; font-weight:700; padding:0; margin-top:10px;">Cancel Order</button>
     </div>
 </div>
 
 <div id="account" class="section">
     <div class="wallet">
-        <small>REFERRAL CASH BALANCE</small>
+        <small>REFERRAL CASH</small>
         <h2 style="margin:5px 0;">₹ 150.00</h2>
-        <div style="font-size:0.7rem; color:var(--success); font-weight:800;">1% CASH ON EVERY ORDER</div>
+        <div style="font-size:0.7rem; color:var(--success); font-weight:800;">1% CASH ON EVERY REFERRAL</div>
     </div>
     
-    <div style="background:white; border-radius:12px; border:1px solid #eee;">
-        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;" onclick="window.open('https://wa.me/919711904092')"><span>WhatsApp Support</span><i class="fab fa-whatsapp" style="color:#25d366"></i></div>
-        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;" onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')"><span>Email Support</span><i class="fa fa-envelope" style="color:#ea4335"></i></div>
-        <div style="padding:15px; display:flex; justify-content:space-between;"><span>Bank Details</span><i class="fa fa-bank" style="color:#ccc"></i></div>
+    <div style="background:white; border:1px solid #eee; border-radius:15px; overflow:hidden; margin-bottom:15px;">
+        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><span>Email</span><input type="text" value="arbaj@email.com" class="edit-field" style="width:50%; margin:0; padding:5px;"></div>
+        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><span>Mobile</span><input type="tel" value="9711904092" class="edit-field" style="width:50%; margin:0; padding:5px;"></div>
+        <div style="padding:15px; display:flex; justify-content:space-between;"><span>Bank Details</span><i class="fa fa-university" style="color:#ccc"></i></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; text-align:center;">
+        <div onclick="alert('AI Robot: Ready to help!')"><i class="fa fa-robot" style="color:var(--p); font-size:1.5rem;"></i><br><small>AI Help</small></div>
+        <div onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366; font-size:1.5rem;"></i><br><small>WhatsApp</small></div>
+        <div onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')"><i class="fa fa-envelope" style="color:#ea4335; font-size:1.5rem;"></i><br><small>Email</small></div>
     </div>
 </div>
 
 <div class="bottom-nav">
-    <div class="nav-item active" onclick="nav('home', this)"><i class="fa fa-search"></i><br>Explore</div>
-    <div class="nav-item" onclick="nav('bookings', this)"><i class="fa fa-calendar-check"></i><br>Bookings</div>
-    <div class="nav-item" onclick="nav('account', this)"><i class="fa fa-wallet"></i><br>Account</div>
+    <div class="nav-item active" onclick="nav('home', this)"><i class="fa fa-search"></i>Explore</div>
+    <div class="nav-item" onclick="nav('orders', this)"><i class="fa fa-calendar-check"></i>Orders</div>
+    <div class="nav-item" onclick="nav('account', this)"><i class="fa fa-user-circle"></i>Profile</div>
 </div>
 
 <script>
-    const products = {
-        'Interior': [
-            {n:"Royale Aspira", p:65, t:"10yr Warranty"},
-            {n:"Royale Luxury", p:42, t:"Premium Finish"},
-            {n:"Tractor Emulsion", p:18, t:"Economical"}
-        ],
-        'Exterior': [
-            {n:"Apex Ultima Protek", p:72, t:"15yr Warranty"},
-            {n:"Apex Shyne", p:35, t:"5yr Warranty"}
-        ],
-        'Waterproofing': [
-            {n:"Damp Proof Exterior", p:75, t:"Roof Expert"},
-            {n:"Damp Sheath Interior", p:45, t:"Wall Expert"}
-        ],
-        'Polish': [
-            {n:"PU Luxury Polish", p:450, t:"Italian Gloss"},
-            {n:"Duco High Shine", p:280, t:"Classic Wood"}
-        ]
+    const asianData = {
+        'Interior': [{n:"Royale Aspira", p:65, b:"LUXURY"}, {n:"Royale Luxury", p:42, b:"POPULAR"}, {n:"Tractor Emulsion", p:16, b:"BUDGET"}],
+        'Exterior': [{n:"Apex Ultima Protek", p:75, b:"TOP SHIELD"}, {n:"Ace Exterior", p:18, b:"BUDGET"}],
+        'Waterproofing': [{n:"Damp Proof", p:85, b:"8yr WARRANTY"}, {n:"Damp Sheath", p:45, b:"INTERIOR"}],
+        'Polish': [{n:"PU Wood Polish", p:450, b:"ELITE"}, {n:"Apcolite Enamel", p:38, b:"METAL/WOOD"}]
     };
 
-    function showCategory(cat) {
-        document.querySelector('.cat-grid').style.display = 'none';
-        document.getElementById('product-list').style.display = 'block';
-        document.getElementById('cat-title').innerText = cat + " Paints";
-        
-        let html = "";
-        products[cat].forEach(p => {
-            html += `<div class="service-card">
-                <div><span class="tag">${p.t}</span><br><b>${p.n}</b><br><small class="price">₹${p.p}/sqft (No GST)</small></div>
-                <button onclick="bookNow('${p.n}')" style="background:white; border:1.1px solid var(--p); color:var(--p); padding:6px 15px; border-radius:6px; font-weight:800;">Add</button>
-            </div>`;
+    function showCat(cat, el) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        let h = "";
+        asianData[cat].forEach(p => {
+            h += `<div class="p-card"><div><span style="font-size:9px; background:#f0ebf9; color:var(--p); padding:2px 6px; border-radius:4px; font-weight:800;">${p.b}</span><h4>${p.n}</h4><b style="color:var(--p)">₹${p.p}/sqft</b></div><button onclick="nav('orders', document.querySelectorAll('.nav-item')[1])" style="background:white; border:1.5px solid var(--p); color:var(--p); padding:6px 15px; border-radius:8px; font-weight:800;">Add</button></div>`;
         });
-        document.getElementById('items').innerHTML = html;
+        document.getElementById('cat-list').innerHTML = h;
     }
 
-    function hideCategory() {
-        document.querySelector('.cat-grid').style.display = 'grid';
-        document.getElementById('product-list').style.display = 'none';
-    }
-
-    function bookNow(name) {
-        if(confirm(`Book Measurement for ${name}?`)) {
-            nav('bookings', document.querySelectorAll('.nav-item')[1]);
-        }
+    function updateCalc() {
+        let res = (parseInt(document.getElementById('calc-bhk').value) * (parseInt(document.getElementById('calc-paint').value) + parseInt(document.getElementById('calc-type').value)));
+        document.getElementById('total-price').innerText = "₹ " + res.toLocaleString('en-IN');
     }
 
     function nav(id, el) {
@@ -150,6 +157,10 @@
         document.getElementById(id).classList.add('active');
         el.classList.add('active');
     }
+
+    function toggleModal(s) { document.getElementById('auth-modal').style.display = s ? 'flex' : 'none'; }
+
+    window.onload = () => { showCat('Interior', document.querySelector('.tab')); updateCalc(); };
 </script>
 </body>
 </html>
