@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Asian & Berger Official</title>
+    <title>UrbanPaintPro | Official Showroom</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --p: #673ab7; --bg: #ffffff; --text: #212121; --light: #f5f5f5; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 80px; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
         
         .header { background: white; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -1px; }
@@ -19,28 +22,26 @@
 
         .banner { background: #1a1a1a; color: white; padding: 25px; border-radius: 16px; margin-bottom: 25px; }
         
-        /* Category Tabs */
         .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
         .cat-btn { background: #f0f0f0; padding: 10px 20px; border-radius: 20px; border: none; font-weight: 700; white-space: nowrap; cursor: pointer; }
         .cat-btn.active { background: var(--p); color: white; }
 
-        /* Product List Style */
         .p-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: white; border-radius: 16px; margin-bottom: 15px; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         .p-info h4 { margin: 0 0 5px; font-size: 1.1rem; }
         .p-info p { margin: 0; font-size: 0.8rem; color: #757575; line-height: 1.4; }
         .p-price { font-weight: 800; font-size: 1.1rem; color: #000; margin-top: 8px; }
         .add-btn { background: white; color: var(--p); border: 1.5px solid var(--p); padding: 8px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
-        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #eee; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
         .nav-item { text-align: center; color: #9e9e9e; cursor: pointer; font-size: 0.75rem; font-weight: 600; flex: 1; }
         .nav-item.active { color: #000; }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
 
-        /* Bot Window */
-        #bot-window { position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; background: white; z-index: 2000; transition: 0.5s cubic-bezier(0, 1, 0.5, 1); border-radius: 24px 24px 0 0; display: flex; flex-direction: column; }
+        #bot-window { position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; background: white; z-index: 2000; transition: 0.5s; border-radius: 24px 24px 0 0; display: flex; flex-direction: column; }
         #bot-window.open { bottom: 0; }
         .chat-area { flex: 1; padding: 20px; overflow-y: auto; background: #fafafa; display: flex; flex-direction: column; gap: 15px; }
+
+        #admin-panel { display: none; background: #fdfdfd; border: 2px solid #000; padding: 15px; border-radius: 16px; margin-top: 20px; text-align: left; }
     </style>
 </head>
 <body>
@@ -52,74 +53,83 @@
 
 <div id="explore" class="section active">
     <div class="banner">
-        <h2>Premium Paint Services</h2>
-        <p>Expert application with genuine products</p>
+        <h2>Expert Paint Services</h2>
+        <p>Premium finish for your dream home</p>
     </div>
-
     <div class="cat-scroll">
-        <button class="cat-btn active" onclick="filterBrand('all', this)">All</button>
+        <button class="cat-btn active" onclick="filterBrand('all', this)">All Brands</button>
         <button class="cat-btn" onclick="filterBrand('asian', this)">Asian Paints</button>
         <button class="cat-btn" onclick="filterBrand('berger', this)">Berger Paints</button>
     </div>
-
     <div id="product-list"></div>
 </div>
 
 <div id="orders" class="section">
-    <h2 style="font-weight: 800;">My Bookings</h2>
+    <h2 style="font-weight: 800;">My Projects</h2>
     <div id="order-list"></div>
 </div>
 
 <div id="account" class="section">
-    <div id="auth-area" style="max-width:400px; margin:auto; text-align:center; padding-top:50px;">
-        <h2 id="auth-title" style="font-weight:800;">Login / Sign up</h2>
-        <input type="email" id="user-email" placeholder="Email" style="width:100%; padding:15px; margin:10px 0; border-radius:12px; border:1px solid #ddd; box-sizing:border-box;">
-        <input type="password" id="user-pass" placeholder="Password" style="width:100%; padding:15px; margin:10px 0; border-radius:12px; border:1px solid #ddd; box-sizing:border-box;">
-        <button onclick="handleAuth()" style="background:#000; color:#white; border:none; padding:16px; border-radius:12px; width:100%; color:white; font-weight:700; cursor:pointer;">Continue</button>
+    <div id="auth-area" style="text-align:center; padding-top:50px;">
+        <h2>Welcome</h2>
+        <input type="email" id="user-email" placeholder="Email" style="width:100%; padding:15px; margin:10px 0; border-radius:12px; border:1px solid #ddd;">
+        <button onclick="handleAuth()" style="background:#000; color:white; padding:15px; border-radius:12px; width:100%; border:none; cursor:pointer;">Continue</button>
     </div>
     <div id="profile-area" style="display:none; text-align:center;">
-        <h3 id="display-user">User</h3>
+        <h3 id="display-user" onclick="adminCheck()">User</h3>
         <button onclick="logout()" style="color:red; border:none; background:none; font-weight:700;">Logout</button>
+        
+        <div id="admin-panel">
+            <h3 style="color:var(--p);">Cloud Admin Dashboard</h3>
+            <div id="admin-orders-list">Fetching orders...</div>
+        </div>
     </div>
+    <div style="margin-top:30px;" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp"></i> WhatsApp: 9711904092</div>
 </div>
 
 <div id="bot-window">
     <div style="padding: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee;">
-        <b>Paint Expert Assistant</b>
+        <b>Paint Assistant</b>
         <i class="fa fa-xmark" onclick="toggleBot(false)"></i>
     </div>
-    <div class="chat-area" id="chat-box">
-        <div style="background:white; padding:12px; border-radius:12px; align-self:flex-start; border:1px solid #eee;">Namaste Arbaj! Asian ya Berger, kis paint ke bare mein janna hai?</div>
-    </div>
-    <div style="padding: 15px 20px; display: flex; gap: 12px; align-items: center; border-top: 1px solid #eee;">
-        <input type="text" id="bot-input" placeholder="Type here..." style="flex:1; background:#f0f0f0; padding:14px; border-radius:12px; border:none; outline:none;">
+    <div class="chat-area" id="chat-box"></div>
+    <div style="padding: 15px 20px; display: flex; gap: 12px; border-top: 1px solid #eee;">
+        <input type="text" id="bot-input" placeholder="Price ya brand puchein..." style="flex:1; background:#f0f0f0; padding:12px; border-radius:12px; border:none; outline:none;">
         <i class="fa fa-paper-plane" onclick="askBot()" style="color:var(--p); font-size:1.3rem;"></i>
     </div>
 </div>
 
 <div class="bottom-nav">
     <div class="nav-item active" onclick="nav('explore', this)"><i class="fa-solid fa-house"></i>Home</div>
-    <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-clipboard-list"></i>Bookings</div>
+    <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-clipboard-list"></i>Orders</div>
     <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-user"></i>Account</div>
 </div>
 
 <script>
-    const products = [
-        { brand: 'asian', n: 'Royale Aspira', p: 68, d: 'Luxury: Teflon coating, 5-year warranty, high sheen.' },
-        { brand: 'asian', n: 'Royale Matt', p: 54, d: 'Luxury: Elegant matt finish, smooth velvet feel.' },
-        { brand: 'asian', n: 'Apcolite Premium Emulsion', p: 32, d: 'Standard: Durable finish, easy to clean.' },
-        { brand: 'asian', n: 'Tractor Emulsion', p: 16, d: 'Economy: Basic smooth finish for budget homes.' },
-        { brand: 'asian', n: 'Apex Protek', p: 95, d: 'Exterior: Self-cleaning, 15yr warranty, anti-algal.' },
-        { brand: 'asian', n: 'Apex Ultima', p: 78, d: 'Exterior: High durability, weather-proof.' },
-        { brand: 'berger', n: 'Silk Glamor', p: 65, d: 'Luxury: Crystal sheen, ultra-smooth silk finish.' },
-        { brand: 'berger', n: 'Silk Breathe Easy', p: 62, d: 'Luxury: Anti-bacterial, eco-friendly, fresh air.' },
-        { brand: 'berger', n: 'Easy Clean Fresh', p: 35, d: 'Standard: Stain resistant, fresh fragrance.' },
-        { brand: 'berger', n: 'Bison Emulsion', p: 18, d: 'Economy: Good coverage, budget-friendly.' },
-        { brand: 'berger', n: 'Weathercoat Long Life', p: 88, d: 'Exterior: 10yr warranty, silicon protection.' },
-        { brand: 'berger', n: 'Weathercoat Anti Dust', p: 72, d: 'Exterior: Dust guard tech, keeps home new.' }
-    ];
-
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
+      authDomain: "professionalpainters-28488.firebaseapp.com",
+      projectId: "professionalpainters-28488",
+      databaseURL: "https://professionalpainters-28488-default-rtdb.firebaseio.com",
+      storageBucket: "professionalpainters-28488.firebasestorage.app",
+      messagingSenderId: "233510965012",
+      appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
     let currentUser = localStorage.getItem('user');
+    let clicks = 0;
+
+    const products = [
+        { brand: 'asian', n: 'Royale Aspira', p: 68, d: 'Ultra Luxury: Teflon finish, 10yr warranty.' },
+        { brand: 'asian', n: 'Royale Matt', p: 54, d: 'Luxury: Elegant velvet matt finish.' },
+        { brand: 'asian', n: 'Tractor Emulsion', p: 16, d: 'Economy: Smooth budget finish.' },
+        { brand: 'asian', n: 'Apex Protek', p: 95, d: 'Exterior: 15yr warranty, self-cleaning.' },
+        { brand: 'berger', n: 'Silk Glamor', p: 65, d: 'Luxury: Ultra-smooth crystal sheen.' },
+        { brand: 'berger', n: 'Easy Clean Fresh', p: 35, d: 'Standard: Stain resistant, fresh fragrance.' },
+        { brand: 'berger', n: 'Bison Emulsion', p: 18, d: 'Economy: Good coverage budget paint.' },
+        { brand: 'berger', n: 'Weathercoat Long Life', p: 88, d: 'Exterior: Silicon protection, 10yr warranty.' }
+    ];
 
     function renderProducts(filter = 'all') {
         const list = document.getElementById('product-list');
@@ -127,68 +137,87 @@
         list.innerHTML = filtered.map(p => `
             <div class="p-item">
                 <div class="p-info">
-                    <span style="font-size:0.6rem; color:var(--p); font-weight:900; text-transform:uppercase;">${p.brand}</span>
-                    <h4>${p.n}</h4>
-                    <p>${p.d}</p>
+                    <span style="font-size:0.6rem; color:var(--p); font-weight:900;">${p.brand.toUpperCase()}</span>
+                    <h4>${p.n}</h4><p>${p.d}</p>
                     <div class="p-price">₹${p.p}/sqft</div>
                 </div>
                 <button class="add-btn" onclick="buy('${p.n}', ${p.p})">Book</button>
-            </div>
-        `).join('');
+            </div>`).join('');
     }
-
-    function filterBrand(brand, btn) {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderProducts(brand);
-    }
-
-    function handleAuth() {
-        let e = document.getElementById('user-email').value;
-        if(e.includes('@')) { localStorage.setItem('user', e); location.reload(); }
-    }
-
-    function logout() { localStorage.removeItem('user'); location.reload(); }
 
     function buy(n, p) {
         if(!currentUser) return nav('account', document.querySelectorAll('.nav-item')[2]);
-        let area = prompt("Area (sqft) likhein:", "100");
+        let area = prompt("Area (sqft):", "100");
         if(area) {
             let total = area * p;
-            window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaintPro&am=${total}&cu=INR`;
-            let h = JSON.parse(localStorage.getItem('h') || "[]");
-            h.push({n, total, date: new Date().toLocaleDateString(), status: "Expert Assigned"});
-            localStorage.setItem('h', JSON.stringify(h));
+            let orderId = Date.now();
+            db.ref('orders/' + orderId).set({ id: orderId, n, total, date: new Date().toLocaleDateString(), status: "Expert Assigned", user: currentUser })
+            .then(() => window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaintPro&am=${total}&cu=INR`);
         }
     }
 
+    function adminCheck() {
+        clicks++;
+        if(clicks >= 10) {
+            let pass = prompt("Admin Password:");
+            if(pass === "Arbaj@786") {
+                document.getElementById('admin-panel').style.display = 'block';
+                db.ref('orders').on('value', snap => {
+                    let html = "";
+                    if(snap.val()) {
+                        Object.values(snap.val()).reverse().forEach(o => {
+                            html += `<div style="border-bottom:1px solid #eee; padding:10px; font-size:0.8rem;">
+                            ${o.user}: ${o.n} (₹${o.total})<br>
+                            Status: <select onchange="updateStatus('${o.id}', this.value)">
+                                <option value="${o.status}">${o.status}</option>
+                                <option value="Work Started">Work Started</option>
+                                <option value="Painting Done">Painting Done</option>
+                            </select></div>`;
+                        });
+                    }
+                    document.getElementById('admin-orders-list').innerHTML = html;
+                });
+            }
+            clicks = 0;
+        }
+    }
+
+    function updateStatus(id, s) { db.ref('orders/' + id).update({ status: s }).then(() => alert("Updated!")); }
+    function filterBrand(brand, btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active'); renderProducts(brand);
+    }
+    function handleAuth() { let e = document.getElementById('user-email').value; if(e.includes('@')) { localStorage.setItem('user', e); location.reload(); } }
+    function logout() { localStorage.removeItem('user'); location.reload(); }
+    function toggleBot(s) { document.getElementById('bot-window').classList.toggle('open', s); }
     function nav(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        el.classList.add('active');
+        document.getElementById(id).classList.add('active'); el.classList.add('active');
+        if(id==='orders') renderOrders();
     }
-
-    function toggleBot(s) { document.getElementById('bot-window').classList.toggle('open', s); }
-
+    function renderOrders() {
+        if(!currentUser) return;
+        db.ref('orders').orderByChild('user').equalTo(currentUser).on('value', snap => {
+            let html = "";
+            if(snap.val()) {
+                Object.values(snap.val()).reverse().forEach(o => {
+                    html += `<div class="p-item" style="border-left:5px solid var(--p);"><div><h4>${o.n}</h4><p>Status: <b>${o.status}</b></p><b>Paid: ₹${o.total}</b></div></div>`;
+                });
+            }
+            document.getElementById('order-list').innerHTML = html || "No projects found.";
+        });
+    }
     function askBot() {
         const i = document.getElementById('bot-input'), c = document.getElementById('chat-box');
         if(!i.value) return;
-        c.innerHTML += `<div style="background:var(--p); color:white; padding:12px; border-radius:12px; align-self:flex-end; max-width:80%;">${i.value}</div>`;
-        let q = i.value.toLowerCase(), r = "Theek hai, expert aapko 9711904092 se jald call karenge.";
-        if(q.includes("rate") || q.includes("asian")) r = "Asian Royale Aspira ₹68 aur Berger Silk Glamor ₹65 hai. Konsa pasand hai?";
-        setTimeout(() => { c.innerHTML += `<div style="background:white; padding:12px; border-radius:12px; align-self:flex-start; border:1px solid #eee;">${r}</div>`; c.scrollTop = c.scrollHeight; }, 600);
+        c.innerHTML += `<div style="background:var(--p); color:white; padding:12px; border-radius:12px; align-self:flex-end; max-width:80%; margin-bottom:10px;">${i.value}</div>`;
+        let q = i.value.toLowerCase(), r = "Expert 9711904092 se aapko jald call karenge.";
+        if(q.includes("rate") || q.includes("asian")) r = "Asian Royale Aspira ₹68 aur Berger Silk Glamor ₹65 hai.";
+        setTimeout(() => { c.innerHTML += `<div style="background:white; padding:12px; border-radius:12px; align-self:flex-start; border:1px solid #eee; margin-bottom:10px;">${r}</div>`; c.scrollTop = c.scrollHeight; }, 600);
         i.value = "";
     }
-
-    window.onload = () => {
-        renderProducts();
-        if(currentUser) {
-            document.getElementById('auth-area').style.display = 'none';
-            document.getElementById('profile-area').style.display = 'block';
-            document.getElementById('display-user').innerText = currentUser;
-        }
-    };
+    window.onload = () => { renderProducts(); if(currentUser) { document.getElementById('auth-area').style.display = 'none'; document.getElementById('profile-area').style.display = 'block'; document.getElementById('display-user').innerText = currentUser; } };
 </script>
 </body>
 </html>
