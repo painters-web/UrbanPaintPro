@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Professional Home Services</title>
+    <title>UrbanPaintPro | Asian & Berger Official</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --p: #673ab7; --bg: #ffffff; --text: #212121; --light: #f5f5f5; --success: #008a00; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
+        :root { --p: #673ab7; --bg: #ffffff; --text: #212121; --light: #f5f5f5; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 80px; }
         
-        /* UC Style Header */
         .header { background: white; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -1px; }
         .logo span { color: var(--p); }
@@ -18,94 +17,106 @@
         .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Brand Tabs Sticky */
-        .cat-box { position: sticky; top: 65px; background: white; z-index: 900; padding: 10px 0; }
-        .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 5px 20px; scrollbar-width: none; }
-        .cat-btn { background: #f0f0f0; padding: 10px 22px; border-radius: 25px; border: none; font-weight: 700; white-space: nowrap; cursor: pointer; transition: 0.3s; }
-        .cat-btn.active { background: #000; color: white; }
+        .banner { background: #1a1a1a; color: white; padding: 25px; border-radius: 16px; margin-bottom: 25px; }
+        
+        /* Category Tabs */
+        .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
+        .cat-btn { background: #f0f0f0; padding: 10px 20px; border-radius: 20px; border: none; font-weight: 700; white-space: nowrap; cursor: pointer; }
+        .cat-btn.active { background: var(--p); color: white; }
 
-        /* Product Cards */
-        .p-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: white; border-radius: 20px; margin-bottom: 15px; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .p-info h4 { margin: 0 0 4px; font-size: 1.1rem; font-weight: 800; }
-        .p-info p { margin: 0; font-size: 0.8rem; color: #757575; line-height: 1.4; max-width: 200px; }
-        .p-price { font-weight: 800; font-size: 1.1rem; color: #000; margin-top: 10px; }
-        .add-btn { background: white; color: var(--p); border: 1.5px solid var(--p); padding: 10px 24px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; }
-        .add-btn:active { transform: scale(0.95); background: var(--p); color: white; }
-
-        /* Account & Orders */
-        .card-flat { background: var(--light); padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #eee; }
-        .main-btn { background: #000; color: white; padding: 18px; border-radius: 15px; border: none; font-weight: 700; width: 100%; cursor: pointer; font-size: 1rem; }
+        /* Product List Style */
+        .p-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: white; border-radius: 16px; margin-bottom: 15px; border: 1px solid #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .p-info h4 { margin: 0 0 5px; font-size: 1.1rem; }
+        .p-info p { margin: 0; font-size: 0.8rem; color: #757575; line-height: 1.4; }
+        .p-price { font-weight: 800; font-size: 1.1rem; color: #000; margin-top: 8px; }
+        .add-btn { background: white; color: var(--p); border: 1.5px solid var(--p); padding: 8px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
         /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #eee; padding: 12px 0; z-index: 5000; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #eee; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
         .nav-item { text-align: center; color: #9e9e9e; cursor: pointer; font-size: 0.75rem; font-weight: 600; flex: 1; }
         .nav-item.active { color: #000; }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+
+        /* Bot Window */
+        #bot-window { position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; background: white; z-index: 2000; transition: 0.5s cubic-bezier(0, 1, 0.5, 1); border-radius: 24px 24px 0 0; display: flex; flex-direction: column; }
+        #bot-window.open { bottom: 0; }
+        .chat-area { flex: 1; padding: 20px; overflow-y: auto; background: #fafafa; display: flex; flex-direction: column; gap: 15px; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="logo">Urban<span>PaintPro</span></div>
-    <div onclick="toggleBot(true)" style="padding:5px; color:#000; font-size:1.3rem;"><i class="fa-solid fa-circle-question"></i></div>
+    <div onclick="toggleBot(true)" style="padding:10px; color:#000; font-size:1.2rem;"><i class="fa-solid fa-robot"></i></div>
 </div>
 
 <div id="explore" class="section active">
-    <div style="background: #1a1a1a; color: white; padding: 25px; border-radius: 20px; margin-bottom: 20px;">
-        <h2 style="margin:0;">Ghar Chamkayein 🏠</h2>
-        <p style="opacity:0.8; margin:10px 0 0; font-size:0.9rem;">Asian & Berger Paints ki range ab aapke haath mein.</p>
+    <div class="banner">
+        <h2>Premium Paint Services</h2>
+        <p>Expert application with genuine products</p>
     </div>
 
-    <div class="cat-box">
-        <div class="cat-scroll">
-            <button class="cat-btn active" onclick="filterBrand('all', this)">All Paints</button>
-            <button class="cat-btn" onclick="filterBrand('asian', this)">Asian Paints</button>
-            <button class="cat-btn" onclick="filterBrand('berger', this)">Berger Paints</button>
-        </div>
+    <div class="cat-scroll">
+        <button class="cat-btn active" onclick="filterBrand('all', this)">All</button>
+        <button class="cat-btn" onclick="filterBrand('asian', this)">Asian Paints</button>
+        <button class="cat-btn" onclick="filterBrand('berger', this)">Berger Paints</button>
     </div>
 
     <div id="product-list"></div>
 </div>
 
 <div id="orders" class="section">
-    <h2 style="font-weight: 800;">My Projects</h2>
+    <h2 style="font-weight: 800;">My Bookings</h2>
     <div id="order-list"></div>
 </div>
 
 <div id="account" class="section">
-    <div id="auth-area" style="padding-top:30px;">
-        <h2 style="font-weight:800; text-align:center;">Login to UrbanPaintPro</h2>
-        <input type="email" id="user-email" placeholder="Email Address" style="width:100%; padding:15px; margin:10px 0; border-radius:15px; border:1px solid #ddd; box-sizing:border-box;">
-        <input type="password" id="user-pass" placeholder="Password" style="width:100%; padding:15px; margin:10px 0; border-radius:15px; border:1px solid #ddd; box-sizing:border-box;">
-        <button onclick="handleAuth()" class="main-btn">Continue</button>
+    <div id="auth-area" style="max-width:400px; margin:auto; text-align:center; padding-top:50px;">
+        <h2 id="auth-title" style="font-weight:800;">Login / Sign up</h2>
+        <input type="email" id="user-email" placeholder="Email" style="width:100%; padding:15px; margin:10px 0; border-radius:12px; border:1px solid #ddd; box-sizing:border-box;">
+        <input type="password" id="user-pass" placeholder="Password" style="width:100%; padding:15px; margin:10px 0; border-radius:12px; border:1px solid #ddd; box-sizing:border-box;">
+        <button onclick="handleAuth()" style="background:#000; color:#white; border:none; padding:16px; border-radius:12px; width:100%; color:white; font-weight:700; cursor:pointer;">Continue</button>
     </div>
-    <div id="profile-area" style="display:none;">
-        <div class="card-flat" style="text-align:center;">
-            <i class="fa fa-circle-user" style="font-size: 4rem; color: #ddd; margin-bottom:10px;"></i>
-            <h3 id="display-user" style="margin:0;">User</h3>
-            <p onclick="logout()" style="color:red; font-weight:700; cursor:pointer; margin-top:10px;">Sign Out</p>
-        </div>
-        <div class="card-flat" onclick="window.open('https://wa.me/919711904092')">
-            <b>WhatsApp Support</b><br><small>Direct chat with Arbaj</small>
-        </div>
+    <div id="profile-area" style="display:none; text-align:center;">
+        <h3 id="display-user">User</h3>
+        <button onclick="logout()" style="color:red; border:none; background:none; font-weight:700;">Logout</button>
+    </div>
+</div>
+
+<div id="bot-window">
+    <div style="padding: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee;">
+        <b>Paint Expert Assistant</b>
+        <i class="fa fa-xmark" onclick="toggleBot(false)"></i>
+    </div>
+    <div class="chat-area" id="chat-box">
+        <div style="background:white; padding:12px; border-radius:12px; align-self:flex-start; border:1px solid #eee;">Namaste Arbaj! Asian ya Berger, kis paint ke bare mein janna hai?</div>
+    </div>
+    <div style="padding: 15px 20px; display: flex; gap: 12px; align-items: center; border-top: 1px solid #eee;">
+        <input type="text" id="bot-input" placeholder="Type here..." style="flex:1; background:#f0f0f0; padding:14px; border-radius:12px; border:none; outline:none;">
+        <i class="fa fa-paper-plane" onclick="askBot()" style="color:var(--p); font-size:1.3rem;"></i>
     </div>
 </div>
 
 <div class="bottom-nav">
     <div class="nav-item active" onclick="nav('explore', this)"><i class="fa-solid fa-house"></i>Home</div>
-    <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-scroll"></i>Orders</div>
-    <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-circle-user"></i>Account</div>
+    <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-clipboard-list"></i>Bookings</div>
+    <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-user"></i>Account</div>
 </div>
 
 <script>
     const products = [
-        { brand: 'asian', n: 'Royale Aspira', p: 68, d: 'Ultra Luxury: Teflon finish, 10yr warranty.' },
-        { brand: 'asian', n: 'Royale Matt', p: 54, d: 'Luxury: Soft velvet touch, highly washable.' },
-        { brand: 'asian', n: 'Tractor Emulsion', p: 16, d: 'Economy: Smooth budget-friendly finish.' },
-        { brand: 'asian', n: 'Apex Protek', p: 95, d: 'Exterior: Self-cleaning, 15yr warranty.' },
-        { brand: 'berger', n: 'Silk Glamor', p: 65, d: 'Luxury: Ultra-high sheen, crystal finish.' },
-        { brand: 'berger', n: 'Bison Emulsion', p: 18, d: 'Economy: Superior coverage for budget homes.' },
-        { brand: 'berger', n: 'Weathercoat Long Life', p: 88, d: 'Exterior: 10yr warranty, silicon protection.' }
+        { brand: 'asian', n: 'Royale Aspira', p: 68, d: 'Luxury: Teflon coating, 5-year warranty, high sheen.' },
+        { brand: 'asian', n: 'Royale Matt', p: 54, d: 'Luxury: Elegant matt finish, smooth velvet feel.' },
+        { brand: 'asian', n: 'Apcolite Premium Emulsion', p: 32, d: 'Standard: Durable finish, easy to clean.' },
+        { brand: 'asian', n: 'Tractor Emulsion', p: 16, d: 'Economy: Basic smooth finish for budget homes.' },
+        { brand: 'asian', n: 'Apex Protek', p: 95, d: 'Exterior: Self-cleaning, 15yr warranty, anti-algal.' },
+        { brand: 'asian', n: 'Apex Ultima', p: 78, d: 'Exterior: High durability, weather-proof.' },
+        { brand: 'berger', n: 'Silk Glamor', p: 65, d: 'Luxury: Crystal sheen, ultra-smooth silk finish.' },
+        { brand: 'berger', n: 'Silk Breathe Easy', p: 62, d: 'Luxury: Anti-bacterial, eco-friendly, fresh air.' },
+        { brand: 'berger', n: 'Easy Clean Fresh', p: 35, d: 'Standard: Stain resistant, fresh fragrance.' },
+        { brand: 'berger', n: 'Bison Emulsion', p: 18, d: 'Economy: Good coverage, budget-friendly.' },
+        { brand: 'berger', n: 'Weathercoat Long Life', p: 88, d: 'Exterior: 10yr warranty, silicon protection.' },
+        { brand: 'berger', n: 'Weathercoat Anti Dust', p: 72, d: 'Exterior: Dust guard tech, keeps home new.' }
     ];
 
     let currentUser = localStorage.getItem('user');
@@ -122,7 +133,8 @@
                     <div class="p-price">₹${p.p}/sqft</div>
                 </div>
                 <button class="add-btn" onclick="buy('${p.n}', ${p.p})">Book</button>
-            </div>`).join('');
+            </div>
+        `).join('');
     }
 
     function filterBrand(brand, btn) {
@@ -134,14 +146,13 @@
     function handleAuth() {
         let e = document.getElementById('user-email').value;
         if(e.includes('@')) { localStorage.setItem('user', e); location.reload(); }
-        else alert("Sahi email daalein");
     }
 
     function logout() { localStorage.removeItem('user'); location.reload(); }
 
     function buy(n, p) {
         if(!currentUser) return nav('account', document.querySelectorAll('.nav-item')[2]);
-        let area = prompt("Area (sqft) daalein:", "100");
+        let area = prompt("Area (sqft) likhein:", "100");
         if(area) {
             let total = area * p;
             window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaintPro&am=${total}&cu=INR`;
@@ -156,19 +167,18 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         el.classList.add('active');
-        if(id==='orders') renderOrders();
     }
 
-    function renderOrders() {
-        let h = JSON.parse(localStorage.getItem('h') || "[]");
-        document.getElementById('order-list').innerHTML = h.reverse().map(o => `
-            <div class="p-item" style="border-left: 6px solid var(--success);">
-                <div class="p-info">
-                    <h4>${o.n}</h4>
-                    <p>${o.date} | <b>${o.status}</b></p>
-                    <div class="p-price">Paid: ₹${o.total}</div>
-                </div>
-            </div>`).join('') || "<p style='text-align:center; margin-top:50px; color:#999;'>No bookings yet.</p>";
+    function toggleBot(s) { document.getElementById('bot-window').classList.toggle('open', s); }
+
+    function askBot() {
+        const i = document.getElementById('bot-input'), c = document.getElementById('chat-box');
+        if(!i.value) return;
+        c.innerHTML += `<div style="background:var(--p); color:white; padding:12px; border-radius:12px; align-self:flex-end; max-width:80%;">${i.value}</div>`;
+        let q = i.value.toLowerCase(), r = "Theek hai, expert aapko 9711904092 se jald call karenge.";
+        if(q.includes("rate") || q.includes("asian")) r = "Asian Royale Aspira ₹68 aur Berger Silk Glamor ₹65 hai. Konsa pasand hai?";
+        setTimeout(() => { c.innerHTML += `<div style="background:white; padding:12px; border-radius:12px; align-self:flex-start; border:1px solid #eee;">${r}</div>`; c.scrollTop = c.scrollHeight; }, 600);
+        i.value = "";
     }
 
     window.onload = () => {
@@ -176,7 +186,7 @@
         if(currentUser) {
             document.getElementById('auth-area').style.display = 'none';
             document.getElementById('profile-area').style.display = 'block';
-            document.getElementById('display-user').innerText = currentUser.split('@')[0];
+            document.getElementById('display-user').innerText = currentUser;
         }
     };
 </script>
