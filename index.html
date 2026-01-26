@@ -3,133 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Final Fixed App</title>
+    <title>UrbanPaintPro | Professional Painting Agency</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --p: #673ab7; --bg: #f5f5f7; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 90px; }
-        
-        /* Premium Header */
-        .header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 2000; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
-        
-        /* Functional Sections */
-        .section { display: none; padding: 15px; }
-        .section.active { display: block; }
+        :root { --p: #673ab7; --bg: #f5f5f7; --success: #34c759; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 90px; color: #1d1d1f; }
 
         /* UI Elements */
-        .card { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .wall-preview { width: 100%; height: 120px; border-radius: 15px; background: #e5e5ea; margin-bottom: 15px; transition: 0.5s; border: 1px solid #ddd; }
-        .dot { width: 40px; height: 40px; border-radius: 50%; display: inline-block; margin: 5px; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 2000; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
+        .section { display: none; padding: 15px; }
+        .section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Login Modal */
+        #auth-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .auth-box { background: white; width: 85%; padding: 30px; border-radius: 25px; text-align: center; }
+        .auth-input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; outline: none; }
+        
+        /* Calculator Card */
+        .calc-card { background: white; padding: 20px; border-radius: 24px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        select { padding: 12px; border-radius: 10px; border: 1px solid #eee; background: #f9f9f9; font-weight: 600; }
+
+        /* Product Cards */
+        .p-card { background: white; padding: 15px; border-radius: 20px; display: flex; align-items: center; margin-bottom: 12px; border: 1px solid #eee; }
+        .p-info { flex: 1; padding-left: 15px; }
+        .p-price { color: var(--p); font-weight: 800; font-size: 1.1rem; }
         
         /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #ddd; z-index: 5000; }
-        .nav-item { text-align: center; color: #8e8e93; font-size: 11px; cursor: pointer; flex: 1; }
-        .nav-item.active { color: var(--p); font-weight: bold; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; z-index: 5000; }
+        .nav-item { text-align: center; color: #8e8e93; font-size: 11px; cursor: pointer; flex: 1; font-weight: 700; }
+        .nav-item.active { color: var(--p); }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="font-weight:900; font-size:1.4rem;">Urban<span style="color:var(--p);">PaintPro</span></div>
-    <div id="status-tag" style="color:var(--p); font-weight:bold; font-size:0.8rem;">● SYSTEM ACTIVE</div>
+    <div style="font-weight:900; font-size:1.3rem;">Urban<span style="color:var(--p);">PaintPro</span></div>
+    <div id="auth-tag" onclick="openAuth()" style="font-size:0.75rem; font-weight:800; color:var(--p); cursor:pointer;">● LOGIN</div>
+</div>
+
+<div id="auth-modal">
+    <div class="auth-box">
+        <h3 id="auth-title">Welcome Back</h3>
+        <input type="email" id="email" class="auth-input" placeholder="Email Address">
+        <input type="password" id="pass" class="auth-input" placeholder="Password">
+        <button onclick="handleAuth()" style="width:100%; padding:15px; background:var(--p); color:white; border:none; border-radius:12px; font-weight:bold; margin-top:10px;">Continue</button>
+        <p style="font-size:0.8rem; margin-top:15px;" onclick="toggleAuth()">Naya account? <b>Register</b></p>
+    </div>
 </div>
 
 <div id="home" class="section active">
     <div style="background:#e5e5ea; padding:12px; border-radius:12px; display:flex; align-items:center; margin-bottom:20px;">
         <i class="fa fa-search" style="color:#888;"></i>
-        <input type="text" id="main-search" placeholder="Search Royale, Apex, Enamel..." style="border:none; background:transparent; margin-left:10px; width:100%; outline:none;" onkeyup="doSearch()">
+        <input type="text" id="p-search" placeholder="Search paints, textures..." style="border:none; background:transparent; width:100%; margin-left:10px; outline:none;" onkeyup="filter()">
     </div>
 
-    <div class="card">
-        <h5 style="margin:0 0 10px;">Color Visualizer</h5>
-        <div id="live-wall" class="wall-preview"></div>
-        <div style="text-align:center;">
-            <div class="dot" style="background:#f5f5dc;" onclick="changeWall('#f5f5dc')"></div>
-            <div class="dot" style="background:#e6e6fa;" onclick="changeWall('#e6e6fa')"></div>
-            <div class="dot" style="background:#fdf5e6;" onclick="changeWall('#fdf5e6')"></div>
-            <div class="dot" style="background:#d1eaf0;" onclick="changeWall('#d1eaf0')"></div>
+    <div class="calc-card">
+        <h4 style="margin:0;">Instant Quote Calculator</h4>
+        <div class="calc-grid">
+            <select id="bhk" onchange="runCalc()">
+                <option value="450">1 BHK</option>
+                <option value="900">2 BHK</option>
+                <option value="1400">3 BHK</option>
+                <option value="2000">Villa</option>
+            </select>
+            <select id="ptype" onchange="runCalc()">
+                <option value="18">Tractor (Economy)</option>
+                <option value="42">Royale (Premium)</option>
+                <option value="65">Aspira (Luxury)</option>
+            </select>
+        </div>
+        <h2 id="total-price" style="margin:20px 0 10px; color:var(--p);">₹ 8,100</h2>
+        <small style="color:#888;">*Estimated cost including material & labor</small>
+    </div>
+
+    <div style="background:white; padding:20px; border-radius:24px; text-align:center; margin-bottom:20px;">
+        <div id="viz-wall" style="width:100%; height:100px; border-radius:15px; background:#f5f5dc; transition:0.5s;"></div>
+        <div style="margin-top:15px;">
+            <div onclick="viz('#f5f5dc')" style="background:#f5f5dc; width:35px; height:35px; border-radius:50%; display:inline-block; margin:0 5px; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.1);"></div>
+            <div onclick="viz('#e6e6fa')" style="background:#e6e6fa; width:35px; height:35px; border-radius:50%; display:inline-block; margin:0 5px; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.1);"></div>
+            <div onclick="viz('#d1eaf0')" style="background:#d1eaf0; width:35px; height:35px; border-radius:50%; display:inline-block; margin:0 5px; border:2px solid white; box-shadow:0 2px 5px rgba(0,0,0,0.1);"></div>
         </div>
     </div>
 
-    <div id="product-catalog"></div>
+    <div id="catalog"></div>
 </div>
 
 <div id="orders" class="section">
-    <h3>My Bookings</h3>
-    
-    <div class="card" style="border-left: 5px solid var(--p);">
-        <b>Order #UPP-786</b>
-        <p style="color:orange; font-weight:bold; margin:5px 0;">Status: Measurement in Progress</p>
-        <small>Agent: Rahul Sharma (Arriving tomorrow 10 AM)</small>
+    <h3>Track Progress</h3>
+    <div style="background:white; padding:20px; border-radius:20px; border-left:6px solid var(--p);">
+        <div style="display:flex; justify-content:space-between;">
+            <b>Full Home Project</b>
+            <span style="color:#888; font-size:0.7rem;">#ORD-990</span>
+        </div>
+        <div style="height:8px; background:#eee; border-radius:10px; margin:15px 0;">
+            <div style="height:100%; width:40%; background:var(--p); border-radius:10px;"></div>
+        </div>
+        <p style="font-size:0.8rem; color:#666;">Banda kal 10 baje measurement ke liye aayega.</p>
     </div>
 </div>
 
 <div id="settings" class="section">
-    <h3>Account & Bank</h3>
-    <div class="card">
-        <p>Referral Commission: <b style="color:green;">1% Cash</b></p>
-        <hr>
-        <p>Bank A/C: <input type="text" placeholder="Enter Bank Details" style="border:none; border-bottom:1px solid #ddd;"></p>
-        <p>Phone: <input type="tel" placeholder="+91 XXXXXXXX" style="border:none; border-bottom:1px solid #ddd;"></p>
+    <div style="text-align:center; padding-bottom:20px;">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="80" style="border-radius:50%; border:3px solid white; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+        <h4 id="u-mail">Guest Account</h4>
+        <small style="color:var(--success); font-weight:bold;">Refer & Earn: 1% Cash Live</small>
     </div>
-    <button style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--p); color:white; font-weight:bold;">Save Profile</button>
+    <div style="background:white; border-radius:20px; overflow:hidden; border:1px solid #eee;">
+        <div style="padding:15px; border-bottom:1px solid #f2f2f7; display:flex; justify-content:space-between;"><span>Bank Details</span><input type="text" placeholder="Add A/C" style="border:none; text-align:right; font-weight:600; color:var(--p); outline:none;"></div>
+        <div style="padding:15px; border-bottom:1px solid #f2f2f7; display:flex; justify-content:space-between;"><span>Mobile No.</span><input type="tel" placeholder="+91 XXXXX" style="border:none; text-align:right; font-weight:600; color:var(--p); outline:none;"></div>
+        <div style="padding:15px; display:flex; justify-content:space-between;"><span>Language</span><select style="border:none; color:var(--p); font-weight:600;"><option>Hindi</option><option>English</option></select></div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px;">
+        <div style="background:white; padding:15px; border-radius:15px; text-align:center;" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366; font-size:1.5rem;"></i><br><small>Support</small></div>
+        <div style="background:white; padding:15px; border-radius:15px; text-align:center;" onclick="alert('Robot Active')"><i class="fas fa-robot" style="color:var(--p); font-size:1.5rem;"></i><br><small>AI Chat</small></div>
+    </div>
+    <button onclick="auth.signOut().then(()=>location.reload())" style="width:100%; margin-top:20px; padding:15px; border-radius:15px; background:black; color:white; border:none; font-weight:bold;">Logout Account</button>
 </div>
 
 <div class="bottom-nav">
-    <div class="nav-item active" onclick="tab('home', this)"><i class="fa fa-home" style="font-size:1.5rem;"></i><br>Home</div>
-    <div class="nav-item" onclick="tab('orders', this)"><i class="fa fa-box" style="font-size:1.5rem;"></i><br>Orders</div>
-    <div class="nav-item" onclick="tab('settings', this)"><i class="fa fa-user-circle" style="font-size:1.5rem;"></i><br>Account</div>
+    <div class="nav-item active" onclick="nav('home', this)"><i class="fa fa-home" style="font-size:1.5rem;"></i><br>Home</div>
+    <div class="nav-item" onclick="nav('orders', this)"><i class="fa fa-truck-fast" style="font-size:1.5rem;"></i><br>Orders</div>
+    <div class="nav-item" onclick="nav('settings', this)"><i class="fa fa-user-circle" style="font-size:1.5rem;"></i><br>Account</div>
 </div>
 
 <script>
-    // 1. Data Initialization
-    const asianPaints = [
-        {name: "Royale Aspira", price: 60, cat: "Interior"},
-        {name: "Royale Luxury", price: 42, cat: "Interior"},
-        {name: "Apex Ultima Protek", price: 68, cat: "Exterior"},
-        {name: "SmartCare Damp Proof", price: 75, cat: "Waterproofing"},
-        {name: "PU Luxury Italian Polish", price: 450, cat: "Wood/Metal"}
+    const firebaseConfig = { apiKey: "AIzaSy...", ... }; // Paste your REAL config here
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const paints = [
+        {n:"Royale Aspira", p:65, c:"Interior Luxury"}, {n:"Royale Luxury", p:42, c:"Interior Premium"},
+        {n:"Apex Ultima Protek", p:68, c:"Exterior Protection"}, {n:"SmartCare Damp Proof", p:75, c:"Waterproofing"},
+        {n:"Tractor Emulsion", p:18, c:"Budget Interior"}, {n:"PU Luxury Polish", p:450, c:"Wood & Metal"}
     ];
 
-    // 2. Functional Code (Wait for page load)
-    window.onload = function() {
-        renderProducts();
-        console.log("UrbanPaintPro System Loaded Successfully");
-    };
-
-    function renderProducts() {
-        let html = "";
-        asianPaints.forEach(p => {
-            html += `<div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px;">
-                <div><b>${p.name}</b><br><small>${p.cat}</small><br><span style="color:var(--p); font-weight:bold;">₹${p.price}/sqft</span></div>
-                <button style="background:var(--p); color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold;">Book</button>
-            </div>`;
+    function loadCatalog() {
+        let h = "";
+        paints.forEach(p => {
+            h += `<div class="p-card"><div class="p-info"><h4>${p.n}</h4><small>${p.c}</small><br><span class="p-price">₹${p.p}/sqft</span></div><button onclick="nav('orders', document.querySelectorAll('.nav-item')[1])" style="background:var(--p); color:white; border:none; padding:10px 18px; border-radius:10px; font-weight:bold;">Book</button></div>`;
         });
-        document.getElementById('product-catalog').innerHTML = html;
+        document.getElementById('catalog').innerHTML = h;
     }
 
-    // Search Logic
-    function doSearch() {
-        let q = document.getElementById('main-search').value.toLowerCase();
-        let cards = document.getElementById('product-catalog').getElementsByClassName('card');
-        for (let i = 0; i < cards.length; i++) {
-            cards[i].style.display = cards[i].innerText.toLowerCase().includes(q) ? "flex" : "none";
-        }
+    function runCalc() {
+        let res = document.getElementById('bhk').value * document.getElementById('ptype').value;
+        document.getElementById('total-price').innerText = "₹ " + res.toLocaleString('en-IN');
     }
 
-    // Visualizer Logic
-    function changeWall(color) {
-        document.getElementById('live-wall').style.background = color;
+    function filter() {
+        let q = document.getElementById('p-search').value.toLowerCase();
+        let cards = document.getElementsByClassName('p-card');
+        for(let i=0; i<cards.length; i++) cards[i].style.display = cards[i].innerText.toLowerCase().includes(q) ? "flex" : "none";
     }
 
-    // Navigation Logic
-    function tab(secId, el) {
+    function viz(c) { document.getElementById('viz-wall').style.background = c; }
+
+    function nav(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(secId).classList.add('active');
+        document.getElementById(id).classList.add('active');
         el.classList.add('active');
         window.scrollTo(0,0);
     }
+
+    // Auth Functions
+    let isL = true;
+    function openAuth() { document.getElementById('auth-modal').style.display='flex'; }
+    function toggleAuth() { isL=!isL; document.getElementById('auth-title').innerText=isL?"Welcome Back":"Create Account"; }
+    function handleAuth() {
+        const e=document.getElementById('email').value, p=document.getElementById('pass').value;
+        if(isL) auth.signInWithEmailAndPassword(e,p).then(()=>location.reload()).catch(err=>alert(err.message));
+        else auth.createUserWithEmailAndPassword(e,p).then(()=>location.reload()).catch(err=>alert(err.message));
+    }
+
+    auth.onAuthStateChanged(u => { if(u){ document.getElementById('auth-tag').innerText="● "+u.email.split('@')[0]; document.getElementById('u-mail').innerText=u.email; document.getElementById('auth-modal').style.display='none'; }});
+    
+    window.onload = () => { loadCatalog(); runCalc(); };
 </script>
 </body>
 </html>
