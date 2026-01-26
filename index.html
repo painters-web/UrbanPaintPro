@@ -3,97 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Ultra Showroom</title>
+    <title>UrbanPaintPro | Official App</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --p: #673ab7; --bg: #ffffff; --card: #f8f9fa; --success: #34c759; --luxury: #d4af37; --text-dark: #1d1d1f; }
+        :root { --p: #673ab7; --bg: #ffffff; --card: #f8f9fa; --success: #34c759; --text-dark: #1d1d1f; }
         body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text-dark); padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
         
-        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); z-index: 2000; border-bottom: 1px solid #eee; }
+        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: white; z-index: 1000; border-bottom: 1px solid #eee; }
         .logo { font-weight: 900; font-size: 1.3rem; }
 
-        .section { display: none; padding: 20px; animation: slideUp 0.3s ease; }
+        .section { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .section.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Fast AI Robot */
-        #robot-modal { position: fixed; bottom: -100%; left: 0; width: 100%; height: 75%; background: white; z-index: 10000; border-radius: 30px 30px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); transition: 0.3s ease-out; display: flex; flex-direction: column; }
-        #robot-modal.show { bottom: 0; }
-        .chat-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .bot-msg { background: #eee; padding: 12px; border-radius: 15px 15px 15px 0; max-width: 80%; align-self: flex-start; font-size: 0.9rem; }
-        .user-msg { background: var(--p); color: white; padding: 12px; border-radius: 15px 15px 0 15px; max-width: 80%; align-self: flex-end; font-size: 0.9rem; }
+        /* AI Chatbot UI */
+        #bot-modal { position: fixed; bottom: -100%; left: 0; width: 100%; height: 70%; background: white; z-index: 10000; border-radius: 30px 30px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); transition: 0.4s; display: flex; flex-direction: column; }
+        #bot-modal.show { bottom: 0; }
+        .chat-body { flex: 1; padding: 20px; overflow-y: auto; background: #fdfdfd; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; font-size: 0.9rem; line-height: 1.4; }
+        .bot-msg { background: #eee; align-self: flex-start; border-bottom-left-radius: 0; }
+        .user-msg { background: var(--p); color: white; align-self: flex-end; border-bottom-right-radius: 0; }
+
+        /* Auth UI */
+        #auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 11000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .auth-card { background: white; width: 85%; padding: 30px; border-radius: 30px; text-align: center; }
+        .auth-card input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1.5px solid #eee; outline: none; box-sizing: border-box; }
 
         /* Folders & Cards */
-        .folder { background: white; border-radius: 20px; padding: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #eee; font-weight: 800; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .folder { background: white; border-radius: 20px; padding: 22px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border: 1px solid #eee; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
         .folder-list { display: none; margin-bottom: 20px; }
-        .p-card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 15px; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-        .tag { padding: 4px 10px; border-radius: 8px; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; }
-        .tag-ultra { background: #fff8e1; color: #b8860b; border: 1px solid #d4af37; }
-        .tag-premium { background: #f0ebf9; color: var(--p); }
-
-        .book-btn { background: #000; color: white; border: none; padding: 10px 22px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+        .p-card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 15px; border: 1px solid #eee; }
+        
+        .btn-p { background: var(--p); color: white; padding: 16px; border-radius: 15px; border: none; font-weight: 800; width: 100%; cursor: pointer; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; padding: 12px 0; border-top: 1px solid #eee; z-index: 5000; }
         .nav-item { flex: 1; text-align: center; color: #8e8e93; font-size: 11px; font-weight: 700; cursor: pointer; }
         .nav-item.active { color: #000; }
-
-        /* Admin Dashboard Overlay */
-        #admin-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 20000; display: none; padding: 20px; box-sizing: border-box; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-<div id="admin-panel">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2>Admin Console</h2>
-        <button onclick="closeAdmin()" style="background:red; color:white; border:none; padding:8px 15px; border-radius:10px;">Exit</button>
-    </div>
-    <div id="admin-content"></div>
-</div>
-
-<div id="robot-modal">
-    <div style="background:var(--p); color:white; padding:20px; border-radius:30px 30px 0 0; display:flex; justify-content:space-between; align-items:center;">
-        <span><i class="fa fa-bolt"></i> Fast AI Assistant</span>
-        <i class="fa fa-times" onclick="toggleRobot(false)"></i>
+<div id="bot-modal">
+    <div style="background:var(--p); color:white; padding:20px; border-radius:30px 30px 0 0; display:flex; justify-content:space-between;">
+        <span><i class="fa fa-robot"></i> UrbanPaint Assistant</span>
+        <i class="fa fa-times" onclick="toggleBot(false)"></i>
     </div>
     <div class="chat-body" id="chat-content">
-        <div class="bot-msg">Arbaj, main super fast mode mein hoon! Kya help karun?</div>
+        <div class="msg bot-msg">Namaste! Main aapki help kaise kar sakta hoon?</div>
     </div>
-    <div style="padding: 15px; display: flex; gap: 10px; background:#fff; border-top:1px solid #eee;">
-        <input type="text" id="bot-input" placeholder="Price ya Rates puchein..." style="flex:1; border:none; background:#f0f0f0; padding:12px; border-radius:15px; outline:none;">
-        <button onclick="askAI()" style="background:var(--p); color:white; border:none; border-radius:50%; width:45px; height:45px;"><i class="fa fa-paper-plane"></i></button>
+    <div style="padding: 15px; display: flex; gap: 10px; border-top: 1px solid #eee;">
+        <input type="text" id="bot-input" placeholder="Price ya service puchein..." style="flex:1; border:none; background:#f0f0f0; padding:12px; border-radius:15px; outline:none;">
+        <button onclick="sendMsg()" style="background:var(--p); color:white; border:none; border-radius:50%; width:45px; height:45px;"><i class="fa fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<div id="auth-overlay">
+    <div class="auth-card">
+        <h2 style="margin-top:0;">Login / Sign Up</h2>
+        <input type="email" id="email" placeholder="Email Address">
+        <input type="password" id="pass" placeholder="Password (Min 6 chars)">
+        <button onclick="handleAuth()" class="btn-p">Continue</button>
+        <p onclick="toggleAuth(false)" style="color:red; cursor:pointer; margin-top:15px;">Close</p>
     </div>
 </div>
 
 <div class="header">
     <div class="logo">Urban<span style="color:var(--p)">PaintPro</span></div>
-    <div onclick="toggleRobot(true)" style="background:#f0ebf9; color:var(--p); padding:6px 12px; border-radius:20px; font-size:0.7rem; font-weight:800; cursor:pointer;"><i class="fa fa-robot"></i> AI HELP</div>
+    <div onclick="toggleBot(true)" style="background:#f0ebf9; color:var(--p); padding:6px 12px; border-radius:20px; font-size:0.7rem; font-weight:800; cursor:pointer;">AI HELP</div>
 </div>
 
 <div id="home" class="section active">
-    <h3 style="font-weight: 900; margin-bottom: 25px;">Expert Catalog</h3>
+    <h3>Asian Paints Catalog</h3>
     <div class="folder" onclick="toggleFolder('int')">Interior Painting <i class="fa fa-home"></i></div>
     <div id="int" class="folder-list"></div>
     <div class="folder" onclick="toggleFolder('ext')">Exterior Painting <i class="fa fa-shield-alt"></i></div>
     <div id="ext" class="folder-list"></div>
-    <div class="folder" onclick="toggleFolder('wp')">Waterproofing <i class="fa fa-tint"></i></div>
-    <div id="wp" class="folder-list"></div>
 </div>
 
 <div id="orders" class="section">
-    <h3 style="font-weight: 900;">My Projects</h3>
-    <div id="history-box"></div>
+    <h3>My Projects</h3>
+    <div id="order-list"></div>
 </div>
 
 <div id="account" class="section">
-    <div id="admin-trigger" style="font-size: 1.5rem; font-weight: 800; font-style: italic; margin-bottom: 25px;" onclick="adminClick()">Profile</div>
-    <div id="profile-container"></div>
+    <h3>Account</h3>
+    <div id="profile-area">
+        <button onclick="toggleAuth(true)" class="btn-p">Login or Signup</button>
+    </div>
     <div style="height:8px; background:#f4f4f4; margin:25px -20px;"></div>
-    <div style="padding:20px 0;" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp: 9711904092</div>
-    <div style="padding:20px 0;" onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')"><i class="fa fa-envelope" style="color:#ea4335;"></i> urbanpaintpro.inbox@gmail.com</div>
+    <div style="padding:20px 0; border-bottom:1px solid #eee;" onclick="window.open('https://wa.me/919711904092')"><i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp Support</div>
+    <div style="padding:20px 0;" onclick="window.open('mailto:urbanpaintpro.inbox@gmail.com')"><i class="fa fa-envelope" style="color:red;"></i> Email Support</div>
 </div>
 
-<div class="bottom-nav" style="position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; padding: 12px 0; border-top: 1px solid #eee;">
+<div class="bottom-nav">
     <div class="nav-item active" onclick="nav('home', this)"><i class="fa fa-compass"></i>Explore</div>
     <div class="nav-item" onclick="nav('orders', this)"><i class="fa fa-stream"></i>Orders</div>
     <div class="nav-item" onclick="nav('account', this)"><i class="fa fa-user-circle"></i>Account</div>
@@ -110,36 +113,40 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    let clickCount = 0;
 
     const catalog = {
         "int": [
-            {n:"Royale Aspira", p:68, d:"Ultra Luxury: Teflon Coating, 10yr Warranty.", t:"ultra"},
-            {n:"Royale Matt", p:54, d:"Luxury: Velvet Finish, Washable.", t:"ultra"},
-            {n:"Royale Luxury Shyne", p:48, d:"Premium: High Gloss & Stain Resistant.", t:"premium"},
-            {n:"Apcolite Premium", p:32, d:"Standard: Rich Matt Look, 2x Durability.", t:"premium"},
-            {n:"Tractor Emulsion Shyne", p:22, d:"Economy+: High Gloss at Budget Price.", t:"economy"},
-            {n:"Tractor Emulsion Sparc", p:16, d:"Basic: Smooth finish for rental homes.", t:"economy"}
+            {n:"Royale Aspira", p:68, d:"Ultra Luxury: Teflon Coating."},
+            {n:"Tractor Emulsion", p:16, d:"Budget Smooth Finish."}
         ],
         "ext": [
-            {n:"Apex Protek Duralife", p:95, d:"Ultra Luxury: 15yr Warranty, Self-cleaning.", t:"ultra"},
-            {n:"Apex Ultima Protek", p:78, d:"Luxury: 10yr Warranty, Monsoon Defense.", t:"ultra"},
-            {n:"Apex Shyne", p:38, d:"Premium: High Weather Resistance with subtle shine.", t:"premium"},
-            {n:"Ace Exterior", p:22, d:"Basic: Reliable weather protection on a budget.", t:"economy"}
-        ],
-        "wp": [
-            {n:"Damp Proof Duralife", p:115, d:"Ultra Luxury: Heavy Duty Waterproofing + Heat Shield.", t:"ultra"},
-            {n:"SmartCare Damp Proof", p:85, d:"Standard: Durable protection.", t:"premium"}
+            {n:"Apex Protek", p:95, d:"15yr Warranty External."}
         ]
     };
 
-    function askAI() {
+    auth.onAuthStateChanged(user => {
+        const area = document.getElementById('profile-area');
+        if (user) {
+            area.innerHTML = `<h4>Namaste, ${user.email.split('@')[0]}</h4><button onclick="auth.signOut()" style="color:red; background:none; border:none; padding:0; font-weight:bold;">Sign Out</button>`;
+        } else {
+            area.innerHTML = `<button onclick="toggleAuth(true)" class="btn-p">Login or Signup</button>`;
+        }
+    });
+
+    function handleAuth() {
+        const e = document.getElementById('email').value, p = document.getElementById('pass').value;
+        if(!e || p.length < 6) return alert("Sahi Details daalein.");
+        auth.signInWithEmailAndPassword(e, p).then(() => toggleAuth(false))
+        .catch(() => auth.createUserWithEmailAndPassword(e, p).then(() => toggleAuth(false)).catch(err => alert(err.message)));
+    }
+
+    function sendMsg() {
         const i = document.getElementById('bot-input'), b = document.getElementById('chat-content');
         if(!i.value) return;
-        b.innerHTML += `<div class="user-msg">${i.value}</div>`;
-        let q = i.value.toLowerCase(), r = "Expert 9711904092 se aapko jald call karenge.";
-        if(q.includes("price")) r = "Interior ₹16-₹68, Exterior ₹22-₹95 aur Waterproofing ₹85-₹115 per sqft hai.";
-        setTimeout(() => { b.innerHTML += `<div class="bot-msg">${r}</div>`; b.scrollTop = b.scrollHeight; }, 100);
+        b.innerHTML += `<div class="msg user-msg">${i.value}</div>`;
+        let reply = "Theek hai, expert 9711904092 se call karenge.";
+        if(i.value.toLowerCase().includes("price")) reply = "Interior ₹16 se shuru hai aur Royale Aspira ₹68/sqft hai.";
+        setTimeout(() => { b.innerHTML += `<div class="msg bot-msg">${reply}</div>`; b.scrollTop = b.scrollHeight; }, 500);
         i.value = "";
     }
 
@@ -147,41 +154,38 @@
         for(let k in catalog) {
             document.getElementById(k).innerHTML = catalog[k].map(p => `
                 <div class="p-card">
-                    <div style="display:flex; justify-content:space-between;"><h4>${p.n}</h4><span class="tag tag-${p.t}">${p.t}</span></div>
-                    <p style="font-size:0.8rem; color:#666; margin:8px 0;">${p.d}</p>
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #eee; padding-top:15px;">
-                        <span style="font-weight:900; font-size:1.1rem;">₹${p.p}/sqft</span>
-                        <button class="book-btn" onclick="book('${p.n}')">Book</button>
+                    <h4>${p.n}</h4><p style="font-size:0.8rem; color:#666;">${p.d}</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                        <b>₹${p.p}/sqft</b>
+                        <button onclick="book('${p.n}')" style="background:#000; color:#fff; border:none; padding:10px 20px; border-radius:12px;">Book</button>
                     </div>
                 </div>`).join('');
         }
+        updateHistory();
     }
 
     function book(n) {
+        if(!auth.currentUser) return toggleAuth(true);
         window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaintPro&am=1&cu=INR`;
         let h = JSON.parse(localStorage.getItem('upp_h') || "[]");
-        h.push({n, date: new Date().toLocaleDateString(), user: auth.currentUser ? auth.currentUser.email : 'Guest'});
+        h.push({n, date: new Date().toLocaleDateString()});
         localStorage.setItem('upp_h', JSON.stringify(h));
     }
 
-    function adminClick() { clickCount++; if(clickCount >= 10) { document.getElementById('admin-panel').style.display = 'block'; loadAdmin(); clickCount=0; } }
-    function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
-    function loadAdmin() {
+    function updateHistory() {
         const h = JSON.parse(localStorage.getItem('upp_h') || "[]");
-        document.getElementById('admin-content').innerHTML = h.map(o => `<div class="p-card"><b>${o.user}</b> booked ${o.n}</div>`).join('');
+        document.getElementById('order-list').innerHTML = h.length ? h.reverse().map(o => `<div class="p-card"><b>${o.n}</b><br><small>Confirmed on ${o.date}</small></div>`).join('') : '<p style="text-align:center; color:#888;">No projects found.</p>';
     }
 
-    function toggleFolder(id) { const el = document.getElementById(id); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
-    function toggleRobot(s) { document.getElementById('robot-modal').classList.toggle('show', s); }
+    function toggleAuth(s) { document.getElementById('auth-overlay').style.display = s ? 'flex' : 'none'; }
+    function toggleBot(s) { document.getElementById('bot-modal').classList.toggle('show', s); }
+    function toggleFolder(id) { const el = document.getElementById(id); el.style.display = el.style.display === 'block' ? 'none' : 'block'; }
     function nav(id, el) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(el) el.classList.add('active');
-        if(id === 'orders') {
-            const h = JSON.parse(localStorage.getItem('upp_h') || "[]");
-            document.getElementById('history-box').innerHTML = h.map(o => `<div class="p-card"><b>${o.n}</b><br><small>Status: Confirmed</small></div>`).join('');
-        }
+        el.classList.add('active');
+        if(id === 'orders') updateHistory();
     }
     window.onload = render;
 </script>
