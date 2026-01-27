@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" c\u003C!DOCTYPE html>ontent="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>UrbanPaintPro | Official Ultra-Pro Live</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -69,7 +69,7 @@
 
 <div id="home" class="page active">
     <div class="calc-card">
-        <h3>📊Urbanpainpro Quotation Calculator</h3>
+        <h3>📊 Smart Quotation Engine</h3>
         <select id="brand_sel" class="calc-input" onchange="updateProductList()">
             <option value="Asian Paints">Asian Paints</option>
             <option value="Berger">Berger Paints</option>
@@ -78,7 +78,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <input type="number" id="sqft" class="calc-input" placeholder="Sqft Area" oninput="runCalc()">
             <select id="worktype" class="calc-input" onchange="runCalc()">
-                <option value="1">Repaint+ 2 coat</option>
+                <option value="1">Repaint</option>
                 <option value="1.4">Repaint + Primer</option>
                 <option value="2.3">Fresh Painting</option>
             </select>
@@ -151,11 +151,11 @@
 
 <div id="chat-window">
     <div style="padding:20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; background: var(--p); color: white;">
-        <b>UrbanPaint Ai </b>
+        <b>UrbanPaint AI Manager</b>
         <span onclick="toggleChat(false)" style="font-size: 1.5rem;">&times;</span>
     </div>
     <div id="chat-box" style="flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; background: #fafafa;">
-        <div class="msg bot">Hello! Main aapka Urbanpaintpro Ai  hoon. Payment aur calculation mein kiya help kar sakta hoon.</div>
+        <div class="msg bot">Namaste! Main aapka AI manager hoon. Payment aur calculation mein help kar sakta hoon.</div>
     </div>
     <div class="ai-grid">
         <div class="cube-btn" onclick="aiAction('utr', '✅ Verify UTR')">Verify UTR</div>
@@ -318,7 +318,7 @@
 
     function aiAction(t, l) {
         addMsg(l, 'user');
-        setTimeout(() => addMsg("Humne Apki Problem ko hamari Urbanpaintpro team ko notify kar diya hai 🙂. Sorry for this inconvenience 😌", 'bot'), 800);
+        setTimeout(() => addMsg("Main Chief Expert ko notify kar raha hoon. Thoda wait karein.", 'bot'), 800);
     }
     function addMsg(t, s) {
         const d = document.createElement('div'); d.className = `msg ${s}`; d.innerText = t;
@@ -338,5 +338,6 @@
         }
         i.value = "";
     }
-            </script>
-            
+</script>
+</body>
+</html>
