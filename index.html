@@ -1,181 +1,179 @@
-          <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Official Painting Service</title>
+    <title>UrbanPaintPro | Official Ultra-Pro Live</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root { 
-            --p: #673ab7; --p-dark: #512da8; --p-light: #f0ebf9; 
-            --text: #111827; --gray: #6b7280; --white: #ffffff; 
-            --border: #e5e7eb; --bg: #f9fafb; --success: #059669;
+            --p: #6366f1; --p-dark: #4338ca; --p-light: #f0f3ff; 
+            --text: #0f172a; --gray: #64748b; --bg: #f8fafc; --white: #ffffff;
+            --glass: rgba(255, 255, 255, 0.85);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); line-height: 1.5; }
+        body { background: var(--bg); color: var(--text); line-height: 1.6; }
 
-        .header { background: var(--white); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; }
-        .logo span { color: var(--p); }
-
-        .page { display: none; padding: 20px; padding-bottom: 120px; animation: slideUp 0.3s ease-out; }
-        .page.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Catalog UI */
-        .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
-        .tab { padding: 12px 20px; background: var(--white); border: 1px solid var(--border); border-radius: 14px; white-space: nowrap; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .tab.active { background: var(--text); color: var(--white); border-color: var(--text); }
-
-        .card { background: var(--white); padding: 20px; border-radius: 24px; margin-bottom: 16px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .card-info h4 { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
-        .price-chip { font-size: 1rem; font-weight: 800; color: var(--p); }
-        .book-btn { background: var(--p); color: white; border: none; padding: 10px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; }
-
-        /* Modal & Smart Invoice */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: flex-end; }
-        .modal-body { background: white; width: 100%; border-radius: 30px 30px 0 0; padding: 30px 25px; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 0.8rem; font-weight: 800; margin-bottom: 6px; color: var(--gray); }
-        .input-group input, .input-group select { width: 100%; padding: 14px; border-radius: 14px; border: 2px solid var(--border); outline: none; font-size: 1rem; font-weight: 600; }
+        /* UI Elements */
+        .header { background: var(--glass); backdrop-filter: blur(15px); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .logo { font-weight: 800; font-size: 1.4rem; color: var(--p); }
         
-        .invoice-box { background: var(--bg); padding: 20px; border-radius: 18px; border: 1.5px dashed var(--p); margin: 15px 0; }
-        .invoice-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; }
-        .total-row { border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px; font-weight: 800; font-size: 1.2rem; color: var(--p); }
+        .page { display: none; padding: 20px; padding-bottom: 120px; animation: slideIn 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Bottom Navigation */
-        .nav { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; border-top: 1px solid var(--border); padding: 12px 0 30px; z-index: 1000; }
-        .nav-item { flex: 1; text-align: center; color: var(--gray); font-size: 0.75rem; font-weight: 700; }
+        /* Mega Smart Estimator Card */
+        .calc-card { background: linear-gradient(135deg, #1e293b, #334155); color: white; padding: 25px; border-radius: 28px; margin-bottom: 25px; box-shadow: 0 20px 30px -10px rgba(0,0,0,0.2); }
+        .calc-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 12px; font-weight: 600; font-size: 0.9rem; }
+        .calc-input option { color: #333; }
+
+        /* Action Buttons */
+        .primary-booking-btn { background: var(--p); color: white; border: none; padding: 20px; border-radius: 20px; width: 100%; font-weight: 800; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); transition: 0.3s; }
+        .primary-booking-btn:active { transform: scale(0.96); }
+
+        .service-card { background: white; padding: 20px; border-radius: 22px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #edf2f7; }
+
+        /* Auth UI */
+        .auth-card { background: white; padding: 30px; border-radius: 28px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+
+        /* Nav Modern */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--glass); backdrop-filter: blur(20px); display: flex; border-top: 1px solid rgba(0,0,0,0.05); padding: 12px 0 35px; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; color: var(--gray); font-size: 0.75rem; font-weight: 700; cursor: pointer; }
         .nav-item.active { color: var(--p); }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
 
-        /* AI Expert */
-        #chat-window { position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; background: white; z-index: 3000; transition: 0.4s cubic-bezier(0,1,0.5,1); border-radius: 30px 30px 0 0; display: flex; flex-direction: column; }
+        /* Chat Window */
+        #chat-window { position: fixed; bottom: -100%; left: 0; width: 100%; height: 90%; background: white; z-index: 3000; transition: 0.5s cubic-bezier(0,1,0.5,1); border-radius: 30px 30px 0 0; display: flex; flex-direction: column; }
         #chat-window.active { bottom: 0; }
+        .ai-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 15px; background: white; border-top: 1px solid #eee; }
+        .cube-btn { background: #f8fafc; border: 1.5px solid #eee; border-radius: 16px; padding: 12px 8px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .cube-btn span { font-size: 0.7rem; font-weight: 800; }
+
+        /* Modal */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: none; align-items: flex-end; z-index: 4000; }
+        .modal-body { background: white; width: 100%; border-radius: 35px 35px 0 0; padding: 35px 25px; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="logo">Urban<span>PaintPro</span></div>
-    <div onclick="toggleChat(true)"><i class="fa-solid fa-comment-dots" style="font-size: 1.5rem; color: var(--p);"></i></div>
+    <div onclick="toggleChat(true)" style="background: var(--p-light); padding: 10px; border-radius: 12px; color: var(--p);"><i class="fa-solid fa-robot"></i> Manager</div>
 </div>
 
 <div id="home" class="page active">
-    <p style="font-size: 0.7rem; font-weight: 800; color: var(--gray); margin-bottom: 10px;">BROWSE BY BRAND</p>
-    <div class="tabs" id="brand-tabs">
-        <div class="tab active" onclick="selectBrand('Asian Paints', this)">Asian Paints</div>
-        <div class="tab" onclick="selectBrand('Berger Paints', this)">Berger</div>
-        <div class="tab" onclick="selectBrand('Dulux Paints', this)">Dulux</div>
-        <div class="tab" onclick="selectBrand('Nerolac Paints', this)">Nerolac</div>
+    <div class="calc-card">
+        <h3><i class="fa-solid fa-calculator"></i> Smart Quotation Engine</h3>
+        <select id="brand_sel" class="calc-input" onchange="updateProductList()">
+            <option value="Asian Paints">Asian Paints</option>
+            <option value="Berger">Berger Paints</option>
+            
+        </select>
+        
+        <select id="prod_sel" class="calc-input" onchange="runCalc()">
+            </select>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input type="number" id="sqft" class="calc-input" placeholder="Total Sqft Area" oninput="runCalc()">
+            <select id="worktype" class="calc-input" onchange="runCalc()">
+                <option value="1">Repaint ( 2 Coats Only)</option>
+                <option value="1.5">Repaint + Primer</option>
+                <option value="2.3">Fresh Painting</option>
+            </select>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <h2 id="total_res" style="font-weight: 800;">₹0</h2>
+            <button onclick="downloadPDF()" style="background: var(--p); border: none; color: white; padding: 10px 20px; border-radius: 12px; font-weight: 800; font-size: 0.8rem;"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+        </div>
     </div>
 
-    <p style="font-size: 0.7rem; font-weight: 800; color: var(--gray); margin: 15px 0 10px;">CATEGORIES</p>
-    <div class="tabs" id="category-tabs">
-        <div class="tab active" onclick="selectCategory('interior', this)">Interior</div>
-        <div class="tab" onclick="selectCategory('exterior', this)">Exterior</div>
-        <div class="tab" onclick="selectCategory('waterproofing', this)">Waterproofing</div>
-        <div class="tab" onclick="selectCategory('texture', this)">Texture/Polish</div>
+    <div style="margin-top: 40px; text-align: center;">
+        <h4 style="font-weight: 800; margin-bottom: 20px;">Ready to start your project?</h4>
+        <button class="primary-booking-btn" onclick="openVisitModal()">
+            <i class="fa-solid fa-house-user"></i>
+            Book Professional Visit @ ₹49
+        </button>
+        <p style="font-size: 0.75rem; color: var(--gray); margin-top: 15px;">*Available in Delhi, Noida, Gurgaon, Faridabad</p>
     </div>
-
-    <div id="service-list" style="margin-top: 15px;"></div>
 </div>
 
 <div id="orders" class="page">
     <h2 style="font-weight: 800; margin-bottom: 20px;">Project Tracker</h2>
-    <div id="my-orders-list"></div>
+    <div id="order-list"></div>
 </div>
 
-<div id="profile" class="page">
-    <div id="auth-section">
-        <div style="background: white; padding: 25px; border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <h3 style="font-weight: 800; margin-bottom: 20px;">Account Access</h3>
-            <div class="input-group">
-                <label>Email Address</label>
-                <input type="email" id="auth-email" placeholder="email@gmail.com">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="auth-pass" placeholder="••••••••">
-            </div>
-            <button class="book-btn" style="width:100%; padding:15px; font-size: 1rem;" onclick="emailLogin()">Login / Register</button>
-            <div style="text-align: center; margin-top: 15px;">
-                <span onclick="forgotPassword()" style="font-size: 0.8rem; color: var(--p); font-weight: 700; cursor: pointer;">Forgot Password?</span>
-            </div>
-            <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
-            <button class="book-btn" style="background: white; color: black; border: 1px solid #ddd; width: 100%;" onclick="googleLogin()">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18" style="vertical-align: middle; margin-right: 10px;"> Sign In with Google
-            </button>
+<div id="account" class="page">
+    <div id="auth-ui" class="auth-card">
+        <h3 style="margin-bottom: 20px; font-weight: 800;">Secure Login</h3>
+        <input type="email" id="email" class="calc-input" style="color:#333; border: 1px solid #eee;" placeholder="Email">
+        <input type="password" id="pass" class="calc-input" style="color:#333; border: 1px solid #eee;" placeholder="Password">
+        <button onclick="handleAuth()" class="primary-booking-btn" style="padding:15px; font-size:1rem;">Continue</button>
+        <p onclick="forgotPass()" style="text-align: right; color: var(--p); font-size: 0.75rem; font-weight: 700; margin-top: 10px; cursor: pointer;">Forgot Password?</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px;">
+            <button onclick="googleLogin()" style="padding: 12px; border-radius: 12px; border: 1px solid #eee; background: white; font-weight: 700;"><i class="fa-brands fa-google" style="color:#db4437;"></i> Google</button>
+            <button onclick="phoneLogin()" style="padding: 12px; border-radius: 12px; border: 1px solid #eee; background: white; font-weight: 700;"><i class="fa-solid fa-phone" style="color:#4caf50;"></i> Phone</button>
         </div>
     </div>
-    <div id="user-section" style="display:none; text-align: center;">
-        <div style="background: white; padding: 30px; border-radius: 25px;">
-            <div id="user-avatar" style="width:80px; height:80px; background:var(--p-light); border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; color:var(--p);">A</div>
-            <h4 id="user-display-email" style="font-weight: 700; margin-bottom: 20px;"></h4>
-            <button class="book-btn" style="background: #ef4444; width:100%;" onclick="logout()">Sign Out</button>
+    
+    <div id="profile-ui" style="display: none; text-align: center;">
+        <div style="background: white; padding: 40px 20px; border-radius: 30px;">
+            <div id="u-init" style="width: 80px; height: 80px; background: var(--p-light); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; border: 3px solid var(--p);">A</div>
+            <h3 id="u-display-mail" style="font-weight: 800;"></h3>
+            <p id="u-address" style="font-size: 0.8rem; color: var(--gray); margin-top: 5px;"></p>
+            <button onclick="logout()" style="margin-top: 30px; border: none; background: none; color: red; font-weight: 800;">SIGN OUT</button>
         </div>
     </div>
 </div>
 
-<div class="modal" id="order-modal">
+<div class="modal" id="visit-modal">
     <div class="modal-body">
-        <div style="display:flex; justify-content:space-between; margin-bottom: 20px;">
-            <h3 id="m-name" style="font-weight: 800;">Confirm Project</h3>
-            <span onclick="closeModal()" style="font-size: 1.5rem; color: #888;">&times;</span>
-        </div>
-        
-        <div class="input-group">
-            <label>Wall Area (Square Feet)</label>
-            <input type="number" id="m-sqft" value="100" oninput="calculateInvoice()">
-        </div>
-        
-        <div class="input-group">
-            <label>Work Specification</label>
-            <select id="m-type" onchange="calculateInvoice()">
-                <option value="1">Standard Repaint (Economical)</option>
-                <option value="1.4">Standard + 1 Coat Primer</option>
-                <option value="2.3">Fresh Painting (Luxury System)</option>
-            </select>
-        </div>
-
-        <div class="invoice-box">
-            <div class="invoice-row"><span>Base Rate</span><span id="calc-base">₹0</span></div>
-            <div class="invoice-row"><span>Labor Cost</span><span id="calc-labor">₹0</span></div>
-            <div class="total-row invoice-row"><span>Total Project</span><span id="m-total">₹0</span></div>
-        </div>
-
-        <button class="book-btn" style="width:100%; padding:18px; font-size:1.1rem;" onclick="placeOrder()">Place Order & Pay</button>
+        <h3 style="font-weight: 800; margin-bottom: 10px;">🏠 Confirm Booking</h3>
+        <p style="color: var(--gray); font-size: 0.85rem; margin-bottom: 20px;">Delhi/NCR expert visit charge: <b style="color: var(--p);">₹49</b></p>
+        <input type="number" id="v-pin" class="calc-input" style="color:#333; border: 1px solid #eee;" placeholder="Pincode (e.g. 110001)">
+        <input type="text" id="v-addr" class="calc-input" style="color:#333; border: 1px solid #eee;" placeholder="Full House Address">
+        <input type="number" id="v-phone" class="calc-input" style="color:#333; border: 1px solid #eee;" placeholder="WhatsApp Number">
+        <button class="primary-booking-btn" onclick="processVisit()">Pay ₹49 & Confirm Visit</button>
+        <button onclick="closeModal()" style="width: 100%; margin-top: 15px; border: none; background: none; color: var(--gray); font-weight: 700;">Close</button>
     </div>
 </div>
 
 <div id="chat-window">
-    <div style="padding:20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-        <b style="font-size:1.1rem;">UrbanPaint Support</b>
-        <span onclick="toggleChat(false)" style="font-size: 1.5rem;">&times;</span>
+    <div style="padding:20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; background: var(--p); color: white;">
+        <b>UrbanPaint AI Manager</b>
+        <span onclick="toggleChat(false)" style="font-size: 1.5rem; cursor: pointer;">&times;</span>
     </div>
-    <div id="chat-box" style="flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;"></div>
-    <div style="padding:15px; display:flex; gap:10px; background: white; border-top: 1px solid var(--border);">
-        <input type="text" id="chat-input" placeholder="Ask anything..." style="flex:1; padding:12px; border-radius:12px; border:1.5px solid var(--border);">
-        <button onclick="sendMsg()" style="background:var(--p); color:white; border:none; width:45px; height:45px; border-radius:12px;"><i class="fa-solid fa-paper-plane"></i></button>
+    <div id="chat-box" style="flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; background: #fafafa;">
+        <div class="msg bot">Hello. Urbanpaintpro me apka welcome hai. Aap Ki kya maddad kar sakte hai hain?</div>
+    </div>
+    <div class="ai-grid">
+        <div class="cube-btn" onclick="aiAction('rates', '💰 Check Rates')"><i class="fa-solid fa-indian-rupee-sign"></i><span>Rates</span></div>
+        <div class="cube-btn" onclick="aiAction('utr', '✅ Verify UTR')"><i class="fa-solid fa-shield-check"></i><span>Verify UTR</span></div>
+        <div class="cube-btn" onclick="aiAction('human', '👨‍💼 Help')"><i class="fa-solid fa-user-tie"></i><span>Agent</span></div>
+        <div class="cube-btn" onclick="aiAction('brands', '🎨 Brands')"><i class="fa-solid fa-paint-roller"></i><span>Brands</span></div>
+    </div>
+    <div style="padding:15px; display:flex; gap:10px; background: white; border-top: 1px solid #eee; padding-bottom: 30px;">
+        <input type="text" id="ai-input" placeholder="Type here..." style="flex:1; padding:12px; border-radius:12px; border:1px solid #eee; outline: none;">
+        <button onclick="sendManual()" style="background:var(--p); color:white; border:none; width:45px; height:45px; border-radius:12px;"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
 </div>
 
-<div class="nav">
-    <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-paint-roller"></i>Services</div>
-    <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-clipboard-list"></i>Orders</div>
-    <div class="nav-item" onclick="nav('profile', this)"><i class="fa-solid fa-user-circle"></i>Profile</div>
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i>Home</div>
+    <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-list-check"></i>Orders</div>
+    <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-circle-user"></i>Account</div>
 </div>
 
 <script>
-    // Arbaj, Your Live Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
       authDomain: "professionalpainters-28488.firebaseapp.com",
@@ -190,144 +188,139 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    const fullCatalog = [
-        { brand: "Asian Paints", name: "Royale Aspira", price: 68, cat: "interior" },
-        { brand: "Asian Paints", name: "Royale Matt", price: 52, cat: "interior" },
-        { brand: "Asian Paints", name: "Tractor Emulsion", price: 16, cat: "interior" },
-        { brand: "Asian Paints", name: "Apex Ultima", price: 75, cat: "exterior" },
-        { brand: "Asian Paints", name: "Damp Proof", price: 110, cat: "waterproofing" },
-        { brand: "Berger Paints", name: "Silk Glamor", price: 65, cat: "interior" },
-        { brand: "Berger Paints", name: "Weathercoat Long Life", price: 80, cat: "exterior" }
-    ];
+    const megaCatalog = {
+        "Asian Paints": [
+            {n:"Tractor Emulsion", p:16}, {n:"Tractor Emulsion Shyne", p:19}, {n:"Tractor Sparc", p:14},
+            {n:"Apcolite Premium Emulsion", p:32}, {n:"Apcolite All Protek", p:38},
+            {n:"Royale Aspira", p:68}, {n:"Royale Glitz", p:72}, {n:"Royale Atmos", p:65},
+            {n:"Royale Shyne", p:55}, {n:"Royale Matt", p:52},
+            {n:"Ace Exterior Emulsion", p:22}, {n:"Apex Shyne", p:45}, {n:"Apex Advanced", p:42},
+            {n:"Apex Dust Proof", p:48}, {n:"Apex Ultima", p:72}, {n:"Apex Ultima Protek", p:95},
+            {n:"SmartCare Hydraulic Xtreme", p:120}, {n:"SmartCare Damp Sheath", p:105}, {n:"SmartCare Damp Block 2K", p:140},
+            {n:"Apcolite Gloss Enamel", p:28}, {n:"Apcolite Premium Satin", p:34},
+            {n:"Premium PU Gloss", p:250}, {n:"Duco High Gloss", p:180}
+        ],
+        "Berger": [
+            {n:"Bison Emulsion", p:18}, {n:"Silk Glamor Luxury", p:65}, {n:"Silk Breathe Easy", p:62},
+            {n:"Easy Clean Fresh", p:42}, {n:"Weathercoat Long Life", p:78}, {n:"Weathercoat Anti Dust", p:65}
+        ]
+    };
 
-    let currentBrand = "Asian Paints";
-    let currentCat = "interior";
-    let currentItem = null;
-
-    function renderServices() {
-        const list = document.getElementById('service-list');
-        const filtered = fullCatalog.filter(s => s.brand === currentBrand && s.cat === currentCat);
-        if(filtered.length === 0) { list.innerHTML = "<div style='text-align:center; padding:30px; color:#888;'>Coming Soon...</div>"; return; }
-        list.innerHTML = filtered.map(s => `
-            <div class="card">
-                <div class="card-info"><h4>${s.name}</h4><p>${s.brand}</p><span class="price-chip">₹${s.price}/sqft</span></div>
-                <button class="book-btn" onclick="openBooking('${s.name}', ${s.price})">Book</button>
-            </div>
-        `).join('');
+    function updateProductList() {
+        const brand = document.getElementById('brand_sel').value;
+        const prod_sel = document.getElementById('prod_sel');
+        const items = megaCatalog[brand] || [];
+        prod_sel.innerHTML = items.map(i => `<option value="${i.p}">${i.n}</option>`).join('');
+        if(items.length === 0) prod_sel.innerHTML = "<option>Coming Soon...</option>";
+        runCalc();
     }
 
-    function selectBrand(brand, el) {
-        currentBrand = brand;
-        document.querySelectorAll('#brand-tabs .tab').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
-        renderServices();
+    function runCalc() {
+        const s = document.getElementById('sqft').value || 0;
+        const p = document.getElementById('prod_sel').value;
+        const w = document.getElementById('worktype').value;
+        const total = Math.round((parseFloat(p) + 15) * s * w); // 15 is labor base
+        document.getElementById('total_res').innerText = "₹" + total.toLocaleString('en-IN');
     }
 
-    function selectCategory(cat, el) {
-        currentCat = cat;
-        document.querySelectorAll('#category-tabs .tab').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
-        renderServices();
+    function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(22); doc.text("URBAN PAINT PRO OFFICIAL QUOTATION", 15, 25);
+        doc.setFontSize(14); doc.text(`Estimate: ${document.getElementById('total_res').innerText}`, 15, 45);
+        doc.text(`Brand & Product: Selected System`, 15, 55);
+        doc.setFontSize(10); doc.text("*Subject to wall measurement and condition.", 15, 80);
+        doc.save("Quotation.pdf");
     }
 
-    function openBooking(name, price) {
-        if(!auth.currentUser) return nav('profile', document.querySelectorAll('.nav-item')[2]);
-        currentItem = { name, price };
-        document.getElementById('m-name').innerText = name;
-        document.getElementById('order-modal').style.display = 'flex';
-        calculateInvoice();
+    function openVisitModal() {
+        if(!auth.currentUser) return nav('account', document.querySelectorAll('.nav-item')[2]);
+        document.getElementById('visit-modal').style.display = 'flex';
     }
 
-    function calculateInvoice() {
-        const sqft = parseFloat(document.getElementById('m-sqft').value) || 0;
-        const multiplier = parseFloat(document.getElementById('m-type').value);
-        const base = Math.round(currentItem.price * sqft * multiplier);
-        const labor = Math.round(base * 0.4);
-        const total = base + labor;
-        document.getElementById('calc-base').innerText = "₹" + base;
-        document.getElementById('calc-labor').innerText = "₹" + labor;
-        document.getElementById('m-total').innerText = "₹" + total;
-        return total;
-    }
+    function processVisit() {
+        const pin = document.getElementById('v-pin').value;
+        const addr = document.getElementById('v-addr').value;
+        const ph = document.getElementById('v-phone').value;
+        const valid = ['11', '201', '121', '122'];
+        
+        if(!pin || !addr || !ph) return alert("Kripya saari details bharein.");
 
-    function placeOrder() {
-        const total = calculateInvoice();
-        const orderId = "UP" + Date.now().toString().slice(-6);
-        db.ref('orders/' + orderId).set({
-            id: orderId, user: auth.currentUser.email, item: currentItem.name, 
-            amt: total, date: new Date().toLocaleDateString(), status: "Confirmed"
-        }).then(() => {
-            alert("Project " + orderId + " Booked!");
-            closeModal();
-            window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaint&am=${total}&cu=INR`;
-        });
-    }
-
-    function closeModal() { document.getElementById('order-modal').style.display = 'none'; }
-
-    // AUTH ENGINE
-    auth.onAuthStateChanged(user => {
-        if(user) {
-            document.getElementById('auth-section').style.display = 'none';
-            document.getElementById('user-section').style.display = 'block';
-            document.getElementById('user-display-email').innerText = user.email;
-            document.getElementById('user-avatar').innerText = (user.email || 'A').charAt(0).toUpperCase();
+        if(valid.some(v => pin.startsWith(v))) {
+            const id = "UP" + Date.now().toString().slice(-4);
+            db.ref('orders/'+id).set({ id, user: auth.currentUser.email, addr, pin, ph, amt: 49, date: new Date().toLocaleDateString(), status: "Confirmed" })
+            .then(() => {
+                alert("Booking Successful! Redirecting to ₹49 Payment.");
+                window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaint&am=49&cu=INR`;
+            });
         } else {
-            document.getElementById('auth-section').style.display = 'block';
-            document.getElementById('user-section').style.display = 'none';
+            alert("Hum abhi sirf Delhi, Noida, Gurgaon aur Faridabad mein hain. Jald hi aapke state mein aayenge!");
         }
+    }
+
+    // AI Logic
+    function aiAction(type, label) {
+        addMsg(label, 'user');
+        setTimeout(() => {
+            let r = "Connecting to our team ... Thoda wait karein.";
+            if(type === 'utr') r = "UTR number 12 digits ka yahan likhein, main turant verify karunga.";
+            if(type === 'rates') r = "Tractor Emulsion ₹16 se Royale Aspira ₹72 tak hai. Calculator check karein.";
+            addMsg(r, 'bot');
+        }, 800);
+    }
+
+    function addMsg(t, s) {
+        const box = document.getElementById('chat-box');
+        const d = document.createElement('div'); d.className = `msg ${s}`; d.innerText = t;
+        box.appendChild(d); box.scrollTop = box.scrollHeight;
+    }
+
+    function sendManual() {
+        const i = document.getElementById('ai-input');
+        if(!i.value) return;
+        addMsg(i.value, 'user');
+        if(i.value.length >= 12 && !isNaN(i.value)) {
+            addMsg("🔍 Database match kiya ja raha hai...", 'bot');
+            db.ref('confirmed_payments/'+i.value).once('value', snap => {
+                if(snap.exists()) addMsg("✅ Verified! Payment Received.", 'bot');
+                else addMsg("❌ UTR Match nahi hua. Manual help ke liye wait karein.", 'bot');
+            });
+        }
+        i.value = "";
+    }
+
+    auth.onAuthStateChanged(user => {
+        document.getElementById('auth-ui').style.display = user ? 'none' : 'block';
+        document.getElementById('profile-ui').style.display = user ? 'block' : 'none';
+        if(user) document.getElementById('u-display-mail').innerText = user.email;
     });
 
-    function googleLogin() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-    function emailLogin() {
-        const e = document.getElementById('auth-email').value;
-        const p = document.getElementById('auth-pass').value;
-        if(e && p) auth.signInWithEmailAndPassword(e, p).catch(() => auth.createUserWithEmailAndPassword(e, p));
+    function handleAuth() {
+        const e = document.getElementById('email').value, p = document.getElementById('pass').value;
+        auth.signInWithEmailAndPassword(e,p).catch(()=>auth.createUserWithEmailAndPassword(e,p));
     }
-    function forgotPassword() {
-        const e = document.getElementById('auth-email').value;
-        if(e) auth.sendPasswordResetEmail(e).then(() => alert("Reset Link Sent!"));
-    }
-    function logout() { auth.signOut(); }
+    function logout() { auth.signOut(); location.reload(); }
+    function closeModal() { document.getElementById('visit-modal').style.display = 'none'; }
+    function toggleChat(s) { document.getElementById('chat-window').classList.toggle('active', s); }
 
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        el.classList.add('active');
+        document.getElementById(id).classList.add('active'); el.classList.add('active');
         if(id === 'orders') loadOrders();
     }
 
     function loadOrders() {
-        db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
-            const list = document.getElementById('my-orders-list');
-            if(!snap.val()) { list.innerHTML = "<p style='color:#888; text-align:center;'>No orders found.</p>"; return; }
-            list.innerHTML = Object.values(snap.val()).reverse().map(o => `
-                <div class="card">
-                    <div><b>ID: ${o.id}</b><br><small>${o.item}</small></div>
-                    <div style="text-align:right"><b>₹${o.amt}</b><br><small style="color:var(--p)">${o.status}</small></div>
-                </div>
-            `).join('');
+        db.ref('orders').orderByChild('user').equalTo(auth.currentUser?.email).on('value', snap => {
+            const list = document.getElementById('order-list');
+            list.innerHTML = snap.val() ? Object.values(snap.val()).reverse().map(o => `
+                <div class="service-card"><div><b>ID: ${o.id}</b><br><small>${o.date}</small></div>
+                <div style="text-align:right"><b>₹${o.amt}</b><br><small style="color:var(--p)">${o.status}</small></div></div>
+            `).join('') : "<p style='text-align:center;'>No orders yet.</p>";
         });
     }
 
-    function sendMsg() {
-        const inp = document.getElementById('chat-input');
-        const box = document.getElementById('chat-box');
-        if(!inp.value) return;
-        box.innerHTML += `<div style="align-self:flex-end; background:var(--p); color:white; padding:10px; border-radius:12px;">${inp.value}</div>`;
-        let q = inp.value.toLowerCase();
-        let r = "Expert Arbaj Khan will call you soon. Help: 9711904092.";
-        if(q.includes("rate")) r = "Interior starts at ₹16/sqft.";
-        setTimeout(() => {
-            box.innerHTML += `<div style="align-self:flex-start; background:#f0f0f0; padding:10px; border-radius:12px;">${r}</div>`;
-            box.scrollTop = box.scrollHeight;
-        }, 800);
-        inp.value = "";
-    }
-
-    function toggleChat(s) { document.getElementById('chat-window').classList.toggle('active', s); }
-    window.onload = () => renderServices();
+    window.onload = () => updateProductList();
 </script>
 </body>
 </html>
