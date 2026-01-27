@@ -1,206 +1,181 @@
-<!DOCTYPE html>
+          <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Professional Home Painting</title>
+    <title>UrbanPaintPro | Official Painting Service</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --p: #673ab7;
-            --p-light: #f0ebf9;
-            --text: #212121;
-            --gray: #757575;
-            --white: #ffffff;
-            --border: #eeeeee;
-            --bg-body: #f8f9fa;
+        :root { 
+            --p: #673ab7; --p-dark: #512da8; --p-light: #f0ebf9; 
+            --text: #111827; --gray: #6b7280; --white: #ffffff; 
+            --border: #e5e7eb; --bg: #f9fafb; --success: #059669;
         }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); line-height: 1.5; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-body); color: var(--text); line-height: 1.6; }
-
-        .header {
-            background: var(--white);
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-        }
-        .logo { font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px; }
+        .header { background: var(--white); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; }
         .logo span { color: var(--p); }
 
-        .page { display: none; padding: 20px; min-height: 100vh; animation: pageFade 0.4s ease; }
+        .page { display: none; padding: 20px; padding-bottom: 120px; animation: slideUp 0.3s ease-out; }
         .page.active { display: block; }
-        @keyframes pageFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        .hero-banner {
-            background: #111;
-            color: var(--white);
-            padding: 30px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            background-image: linear-gradient(45deg, #111, #333);
-            position: relative;
-        }
-        .hero-banner h2 { font-size: 1.6rem; margin-bottom: 8px; }
-        .hero-banner p { font-size: 0.9rem; opacity: 0.8; }
+        /* Catalog UI */
+        .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
+        .tab { padding: 12px 20px; background: var(--white); border: 1px solid var(--border); border-radius: 14px; white-space: nowrap; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .tab.active { background: var(--text); color: var(--white); border-color: var(--text); }
 
-        .filter-nav {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            scrollbar-width: none;
-        }
-        .filter-nav::-webkit-scrollbar { display: none; }
-        .filter-btn {
-            background: var(--white);
-            padding: 10px 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            font-weight: 600;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .filter-btn.active { background: var(--text); color: var(--white); border-color: var(--text); }
+        .card { background: var(--white); padding: 20px; border-radius: 24px; margin-bottom: 16px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .card-info h4 { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+        .price-chip { font-size: 1rem; font-weight: 800; color: var(--p); }
+        .book-btn { background: var(--p); color: white; border: none; padding: 10px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; }
 
-        .service-list { display: grid; gap: 16px; margin-bottom: 80px; }
-        .s-card {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-        .s-info { flex: 1; }
-        .s-info .brand { font-size: 0.65rem; font-weight: 800; color: var(--p); text-transform: uppercase; margin-bottom: 4px; display: block; }
-        .s-info h4 { font-size: 1.1rem; margin-bottom: 6px; font-weight: 700; }
-        .s-info p { font-size: 0.8rem; color: var(--gray); margin-bottom: 12px; }
-        .s-info .price { font-weight: 800; font-size: 1.1rem; }
+        /* Modal & Smart Invoice */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: flex-end; }
+        .modal-body { background: white; width: 100%; border-radius: 30px 30px 0 0; padding: 30px 25px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.8rem; font-weight: 800; margin-bottom: 6px; color: var(--gray); }
+        .input-group input, .input-group select { width: 100%; padding: 14px; border-radius: 14px; border: 2px solid var(--border); outline: none; font-size: 1rem; font-weight: 600; }
+        
+        .invoice-box { background: var(--bg); padding: 20px; border-radius: 18px; border: 1.5px dashed var(--p); margin: 15px 0; }
+        .invoice-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.85rem; }
+        .total-row { border-top: 1px solid #ddd; padding-top: 10px; margin-top: 10px; font-weight: 800; font-size: 1.2rem; color: var(--p); }
 
-        .book-btn {
-            background: var(--white);
-            color: var(--p);
-            border: 1.5px solid var(--p);
-            padding: 8px 24px;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-        }
+        /* Bottom Navigation */
+        .nav { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; border-top: 1px solid var(--border); padding: 12px 0 30px; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; color: var(--gray); font-size: 0.75rem; font-weight: 700; }
+        .nav-item.active { color: var(--p); }
+        .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
 
-        .auth-box { max-width: 400px; margin: 40px auto; background: var(--white); padding: 30px; border-radius: 24px; border: 1px solid var(--border); }
-        .input-wrap { margin-bottom: 16px; }
-        .input-wrap label { font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 6px; }
-        .input-wrap input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #ddd; outline: none; }
-        .primary-btn { background: var(--text); color: var(--white); width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; }
-
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; border-top: 1px solid var(--border); padding: 10px 0 25px; z-index: 1000; }
-        .nav-link { flex: 1; text-align: center; color: var(--gray); font-size: 0.7rem; font-weight: 600; cursor: pointer; }
-        .nav-link.active { color: var(--text); }
-        .nav-link i { display: block; font-size: 1.3rem; margin-bottom: 4px; }
-
-        .admin-wrap { display: none; margin-top: 20px; background: #fff; border: 2px solid #000; border-radius: 20px; padding: 20px; }
-        .admin-item { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.85rem; }
-        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; background: var(--p-light); color: var(--p); }
-
-        #chat-modal { position: fixed; bottom: -100%; left: 0; width: 100%; height: 80%; background: var(--white); z-index: 2000; transition: 0.5s cubic-bezier(0, 1, 0.5, 1); border-radius: 24px 24px 0 0; display: flex; flex-direction: column; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); }
-        #chat-modal.active { bottom: 0; }
-        .chat-h { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .msg { padding: 12px 16px; border-radius: 14px; max-width: 80%; font-size: 0.95rem; }
-        .msg.bot { background: var(--p-light); align-self: flex-start; border-bottom-left-radius: 2px; }
-        .msg.user { background: var(--p); color: var(--white); align-self: flex-end; border-bottom-right-radius: 2px; }
+        /* AI Expert */
+        #chat-window { position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%; background: white; z-index: 3000; transition: 0.4s cubic-bezier(0,1,0.5,1); border-radius: 30px 30px 0 0; display: flex; flex-direction: column; }
+        #chat-window.active { bottom: 0; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="logo">Urban<span>PaintPro</span></div>
-    <div onclick="toggleChat(true)"><i class="fa-regular fa-comment-dots" style="font-size: 1.4rem;"></i></div>
+    <div onclick="toggleChat(true)"><i class="fa-solid fa-comment-dots" style="font-size: 1.5rem; color: var(--p);"></i></div>
 </div>
 
-<div id="explore" class="page active">
-    <div class="hero-banner">
-        <h2>Professional Painting</h2>
-        <p>100% genuine Asian & Berger paints with expert application</p>
+<div id="home" class="page active">
+    <p style="font-size: 0.7rem; font-weight: 800; color: var(--gray); margin-bottom: 10px;">BROWSE BY BRAND</p>
+    <div class="tabs" id="brand-tabs">
+        <div class="tab active" onclick="selectBrand('Asian Paints', this)">Asian Paints</div>
+        <div class="tab" onclick="selectBrand('Berger Paints', this)">Berger</div>
+        <div class="tab" onclick="selectBrand('Dulux Paints', this)">Dulux</div>
+        <div class="tab" onclick="selectBrand('Nerolac Paints', this)">Nerolac</div>
     </div>
-    <div class="filter-nav">
-        <button class="filter-btn active" onclick="filterData('all', this)">All Services</button>
-        <button class="filter-btn" onclick="filterData('asian', this)">Asian Paints</button>
-        <button class="filter-btn" onclick="filterData('berger', this)">Berger Paints</button>
-        <button class="filter-btn" onclick="filterData('wp', this)">Waterproofing</button>
+
+    <p style="font-size: 0.7rem; font-weight: 800; color: var(--gray); margin: 15px 0 10px;">CATEGORIES</p>
+    <div class="tabs" id="category-tabs">
+        <div class="tab active" onclick="selectCategory('interior', this)">Interior</div>
+        <div class="tab" onclick="selectCategory('exterior', this)">Exterior</div>
+        <div class="tab" onclick="selectCategory('waterproofing', this)">Waterproofing</div>
+        <div class="tab" onclick="selectCategory('texture', this)">Texture/Polish</div>
     </div>
-    <div id="service-grid" class="service-list"></div>
+
+    <div id="service-list" style="margin-top: 15px;"></div>
 </div>
 
-<div id="bookings" class="page">
-    <h2 style="font-weight: 800; margin-bottom: 20px;">My Bookings</h2>
-    <div id="user-orders-list"></div>
+<div id="orders" class="page">
+    <h2 style="font-weight: 800; margin-bottom: 20px;">Project Tracker</h2>
+    <div id="my-orders-list"></div>
 </div>
 
 <div id="profile" class="page">
-    <div id="auth-ui">
-        <div class="auth-box">
-            <h2 id="auth-title" style="margin-bottom: 25px; font-weight: 800;">Log in</h2>
-            <div class="input-wrap"><label>Email Address</label><input type="email" id="email"></div>
-            <div class="input-wrap"><label>Password</label><input type="password" id="pass"></div>
-            <button class="primary-btn" onclick="handleAuth()" id="auth-btn">Proceed</button>
-            <p onclick="toggleAuthMode()" id="auth-toggle" style="text-align:center; margin-top:20px; font-weight:600; color:var(--p); cursor:pointer;">New here? Create account</p>
-        </div>
-    </div>
-    <div id="profile-ui" style="display: none;">
-        <div style="background: var(--white); padding: 30px; border-radius: 24px; text-align: center; border: 1px solid var(--border);">
-            <div style="width: 80px; height: 80px; background: var(--p-light); color: var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2rem; font-weight: 800;" id="user-initial">A</div>
-            <h3 id="user-name">Username</h3>
-            <p id="user-email-text" style="color: var(--gray); font-size: 0.9rem; margin-bottom: 20px;"></p>
-            <button onclick="logout()" style="color: red; border: none; background: none; font-weight: 700; cursor: pointer;">Sign Out</button>
-        </div>
-        <div id="admin-panel" class="admin-wrap" style="margin-top: 20px;">
-            <h3 style="color: var(--p); margin-bottom: 15px;">Admin Dashboard</h3>
-            <div id="all-cloud-orders"></div>
-        </div>
-        <div style="margin-top: 25px;" onclick="adminUnlock()">
-            <div style="background: white; padding: 20px; border-radius: 15px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;" onclick="window.open('https://wa.me/919711904092')">
-                <span>WhatsApp Help Center</span>
-                <i class="fa-solid fa-chevron-right" style="color: #ccc;"></i>
+    <div id="auth-section">
+        <div style="background: white; padding: 25px; border-radius: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h3 style="font-weight: 800; margin-bottom: 20px;">Account Access</h3>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="auth-email" placeholder="email@gmail.com">
             </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="auth-pass" placeholder="••••••••">
+            </div>
+            <button class="book-btn" style="width:100%; padding:15px; font-size: 1rem;" onclick="emailLogin()">Login / Register</button>
+            <div style="text-align: center; margin-top: 15px;">
+                <span onclick="forgotPassword()" style="font-size: 0.8rem; color: var(--p); font-weight: 700; cursor: pointer;">Forgot Password?</span>
+            </div>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+            <button class="book-btn" style="background: white; color: black; border: 1px solid #ddd; width: 100%;" onclick="googleLogin()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18" style="vertical-align: middle; margin-right: 10px;"> Sign In with Google
+            </button>
+        </div>
+    </div>
+    <div id="user-section" style="display:none; text-align: center;">
+        <div style="background: white; padding: 30px; border-radius: 25px;">
+            <div id="user-avatar" style="width:80px; height:80px; background:var(--p-light); border-radius:50%; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:800; color:var(--p);">A</div>
+            <h4 id="user-display-email" style="font-weight: 700; margin-bottom: 20px;"></h4>
+            <button class="book-btn" style="background: #ef4444; width:100%;" onclick="logout()">Sign Out</button>
         </div>
     </div>
 </div>
 
-<div id="chat-modal">
-    <div class="chat-h"><b>Assistant</b><i class="fa-solid fa-xmark" onclick="toggleChat(false)"></i></div>
-    <div class="chat-messages" id="chat-box">
-        <div class="msg bot">Namaste Arbaj! Main aapka UrbanPaint assistant hoon.</div>
-    </div>
-    <div style="padding: 15px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px;">
-        <input type="text" id="chat-input" placeholder="Ask anything..." style="flex:1; padding:12px; border:none; background:var(--bg-body); border-radius:12px; outline:none;">
-        <button onclick="sendMessage()" style="background: var(--text); color: white; border: none; width: 45px; height: 45px; border-radius: 50%;"><i class="fa-solid fa-paper-plane"></i></button>
+<div class="modal" id="order-modal">
+    <div class="modal-body">
+        <div style="display:flex; justify-content:space-between; margin-bottom: 20px;">
+            <h3 id="m-name" style="font-weight: 800;">Confirm Project</h3>
+            <span onclick="closeModal()" style="font-size: 1.5rem; color: #888;">&times;</span>
+        </div>
+        
+        <div class="input-group">
+            <label>Wall Area (Square Feet)</label>
+            <input type="number" id="m-sqft" value="100" oninput="calculateInvoice()">
+        </div>
+        
+        <div class="input-group">
+            <label>Work Specification</label>
+            <select id="m-type" onchange="calculateInvoice()">
+                <option value="1">Standard Repaint (Economical)</option>
+                <option value="1.4">Standard + 1 Coat Primer</option>
+                <option value="2.3">Fresh Painting (Luxury System)</option>
+            </select>
+        </div>
+
+        <div class="invoice-box">
+            <div class="invoice-row"><span>Base Rate</span><span id="calc-base">₹0</span></div>
+            <div class="invoice-row"><span>Labor Cost</span><span id="calc-labor">₹0</span></div>
+            <div class="total-row invoice-row"><span>Total Project</span><span id="m-total">₹0</span></div>
+        </div>
+
+        <button class="book-btn" style="width:100%; padding:18px; font-size:1.1rem;" onclick="placeOrder()">Place Order & Pay</button>
     </div>
 </div>
 
-<div class="bottom-nav">
-    <div class="nav-link active" onclick="nav('explore', this)"><i class="fa-solid fa-magnifying-glass"></i>Explore</div>
-    <div class="nav-link" onclick="nav('bookings', this)"><i class="fa-solid fa-file-invoice"></i>Bookings</div>
-    <div class="nav-link" onclick="nav('profile', this)"><i class="fa-solid fa-circle-user"></i>Account</div>
+<div id="chat-window">
+    <div style="padding:20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <b style="font-size:1.1rem;">UrbanPaint Support</b>
+        <span onclick="toggleChat(false)" style="font-size: 1.5rem;">&times;</span>
+    </div>
+    <div id="chat-box" style="flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;"></div>
+    <div style="padding:15px; display:flex; gap:10px; background: white; border-top: 1px solid var(--border);">
+        <input type="text" id="chat-input" placeholder="Ask anything..." style="flex:1; padding:12px; border-radius:12px; border:1.5px solid var(--border);">
+        <button onclick="sendMsg()" style="background:var(--p); color:white; border:none; width:45px; height:45px; border-radius:12px;"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<div class="nav">
+    <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-paint-roller"></i>Services</div>
+    <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-clipboard-list"></i>Orders</div>
+    <div class="nav-item" onclick="nav('profile', this)"><i class="fa-solid fa-user-circle"></i>Profile</div>
 </div>
 
 <script>
+    // Arbaj, Your Live Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
       authDomain: "professionalpainters-28488.firebaseapp.com",
@@ -215,159 +190,144 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    let isLoginMode = true;
-    let adminClicks = 0;
-
-    const catalog = [
-        { brand: 'asian', n: 'Royale Aspira', p: 68, d: 'Teflon coating, 5yr warranty, ultra-luxury finish.', cat: 'asian' },
-        { brand: 'asian', n: 'Royale Matt', p: 54, d: 'Luxury velvet touch, high washability.', cat: 'asian' },
-        { brand: 'asian', n: 'Apcolite Premium Emulsion', p: 32, d: 'Durable finish, easy to maintain.', cat: 'asian' },
-        { brand: 'asian', n: 'Tractor Emulsion', p: 16, d: 'Smooth finish for budget homes.', cat: 'asian' },
-        { brand: 'asian', n: 'Apex Protek Duralife', p: 95, d: 'Self-cleaning, 15yr warranty external.', cat: 'asian' },
-        { brand: 'berger', n: 'Silk Glamor', p: 65, d: 'Crystal sheen, ultra-smooth silk finish.', cat: 'berger' },
-        { brand: 'berger', n: 'Silk Breathe Easy', p: 62, d: 'Anti-bacterial, eco-friendly luxury.', cat: 'berger' },
-        { brand: 'berger', n: 'Bison Emulsion', p: 18, d: 'Good coverage, budget-friendly.', cat: 'berger' },
-        { brand: 'berger', n: 'Weathercoat Anti Dust', p: 72, d: 'Dust guard tech for external walls.', cat: 'berger' },
-        { brand: 'wp', n: 'Damp Proof Duralife', p: 115, d: 'Fibre-reinforced roof waterproofing.', cat: 'wp' },
-        { brand: 'wp', n: 'SmartCare Damp Proof', p: 85, d: 'Severe dampness protection.', cat: 'wp' }
+    const fullCatalog = [
+        { brand: "Asian Paints", name: "Royale Aspira", price: 68, cat: "interior" },
+        { brand: "Asian Paints", name: "Royale Matt", price: 52, cat: "interior" },
+        { brand: "Asian Paints", name: "Tractor Emulsion", price: 16, cat: "interior" },
+        { brand: "Asian Paints", name: "Apex Ultima", price: 75, cat: "exterior" },
+        { brand: "Asian Paints", name: "Damp Proof", price: 110, cat: "waterproofing" },
+        { brand: "Berger Paints", name: "Silk Glamor", price: 65, cat: "interior" },
+        { brand: "Berger Paints", name: "Weathercoat Long Life", price: 80, cat: "exterior" }
     ];
 
-    function renderCatalog(brand = 'all') {
-        const grid = document.getElementById('service-grid');
-        const data = brand === 'all' ? catalog : catalog.filter(x => x.cat === brand);
-        grid.innerHTML = data.map(p => `
-            <div class="s-card">
-                <div class="s-info">
-                    <span class="brand">${p.brand}</span>
-                    <h4>${p.n}</h4>
-                    <p>${p.d}</p>
-                    <div class="price">₹${p.p}/sqft</div>
-                </div>
-                <button class="book-btn" onclick="initBooking('${p.n}', ${p.p})">Add</button>
+    let currentBrand = "Asian Paints";
+    let currentCat = "interior";
+    let currentItem = null;
+
+    function renderServices() {
+        const list = document.getElementById('service-list');
+        const filtered = fullCatalog.filter(s => s.brand === currentBrand && s.cat === currentCat);
+        if(filtered.length === 0) { list.innerHTML = "<div style='text-align:center; padding:30px; color:#888;'>Coming Soon...</div>"; return; }
+        list.innerHTML = filtered.map(s => `
+            <div class="card">
+                <div class="card-info"><h4>${s.name}</h4><p>${s.brand}</p><span class="price-chip">₹${s.price}/sqft</span></div>
+                <button class="book-btn" onclick="openBooking('${s.name}', ${s.price})">Book</button>
             </div>
         `).join('');
     }
 
-    function filterData(cat, btn) {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderCatalog(cat);
+    function selectBrand(brand, el) {
+        currentBrand = brand;
+        document.querySelectorAll('#brand-tabs .tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        renderServices();
     }
 
+    function selectCategory(cat, el) {
+        currentCat = cat;
+        document.querySelectorAll('#category-tabs .tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        renderServices();
+    }
+
+    function openBooking(name, price) {
+        if(!auth.currentUser) return nav('profile', document.querySelectorAll('.nav-item')[2]);
+        currentItem = { name, price };
+        document.getElementById('m-name').innerText = name;
+        document.getElementById('order-modal').style.display = 'flex';
+        calculateInvoice();
+    }
+
+    function calculateInvoice() {
+        const sqft = parseFloat(document.getElementById('m-sqft').value) || 0;
+        const multiplier = parseFloat(document.getElementById('m-type').value);
+        const base = Math.round(currentItem.price * sqft * multiplier);
+        const labor = Math.round(base * 0.4);
+        const total = base + labor;
+        document.getElementById('calc-base').innerText = "₹" + base;
+        document.getElementById('calc-labor').innerText = "₹" + labor;
+        document.getElementById('m-total').innerText = "₹" + total;
+        return total;
+    }
+
+    function placeOrder() {
+        const total = calculateInvoice();
+        const orderId = "UP" + Date.now().toString().slice(-6);
+        db.ref('orders/' + orderId).set({
+            id: orderId, user: auth.currentUser.email, item: currentItem.name, 
+            amt: total, date: new Date().toLocaleDateString(), status: "Confirmed"
+        }).then(() => {
+            alert("Project " + orderId + " Booked!");
+            closeModal();
+            window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaint&am=${total}&cu=INR`;
+        });
+    }
+
+    function closeModal() { document.getElementById('order-modal').style.display = 'none'; }
+
+    // AUTH ENGINE
     auth.onAuthStateChanged(user => {
-        if (user) {
-            document.getElementById('auth-ui').style.display = 'none';
-            document.getElementById('profile-ui').style.display = 'block';
-            document.getElementById('user-name').innerText = user.email.split('@')[0].toUpperCase();
-            document.getElementById('user-email-text').innerText = user.email;
-            document.getElementById('user-initial').innerText = user.email.charAt(0).toUpperCase();
+        if(user) {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('user-section').style.display = 'block';
+            document.getElementById('user-display-email').innerText = user.email;
+            document.getElementById('user-avatar').innerText = (user.email || 'A').charAt(0).toUpperCase();
         } else {
-            document.getElementById('auth-ui').style.display = 'block';
-            document.getElementById('profile-ui').style.display = 'none';
+            document.getElementById('auth-section').style.display = 'block';
+            document.getElementById('user-section').style.display = 'none';
         }
     });
 
-    function toggleAuthMode() {
-        isLoginMode = !isLoginMode;
-        document.getElementById('auth-title').innerText = isLoginMode ? "Log in" : "Create account";
-        document.getElementById('auth-btn').innerText = isLoginMode ? "Proceed" : "Create Account";
-        document.getElementById('auth-toggle').innerText = isLoginMode ? "New here? Create account" : "Already have an account? Log in";
+    function googleLogin() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+    function emailLogin() {
+        const e = document.getElementById('auth-email').value;
+        const p = document.getElementById('auth-pass').value;
+        if(e && p) auth.signInWithEmailAndPassword(e, p).catch(() => auth.createUserWithEmailAndPassword(e, p));
     }
-
-    function handleAuth() {
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('pass').value;
-        if(!email || pass.length < 6) return alert("Sahi email aur 6-digit password dalein.");
-        if(isLoginMode) auth.signInWithEmailAndPassword(email, pass).catch(e => alert(e.message));
-        else auth.createUserWithEmailAndPassword(email, pass).catch(e => alert(e.message));
+    function forgotPassword() {
+        const e = document.getElementById('auth-email').value;
+        if(e) auth.sendPasswordResetEmail(e).then(() => alert("Reset Link Sent!"));
     }
-
     function logout() { auth.signOut(); }
-
-    function initBooking(name, price) {
-        if(!auth.currentUser) { nav('profile', document.querySelectorAll('.nav-link')[2]); return; }
-        const area = prompt("Deewar ka Area (sqft) dalein:", "100");
-        if(area && !isNaN(area)) {
-            const total = area * price;
-            const orderId = Date.now();
-            db.ref('orders/' + orderId).set({
-                id: orderId, item: name, amt: total, user: auth.currentUser.email,
-                date: new Date().toLocaleDateString(), status: "Expert Assigned"
-            }).then(() => {
-                window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaintPro&am=${total}&cu=INR`;
-            });
-        }
-    }
-
-    function fetchBookings() {
-        if(!auth.currentUser) return;
-        db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
-            const list = document.getElementById('user-orders-list');
-            if(!snap.val()) { list.innerHTML = `<div style="text-align:center; margin-top:50px; color:#888;">Koi booking nahi mili.</div>`; return; }
-            list.innerHTML = Object.values(snap.val()).reverse().map(o => `
-                <div style="background:white; padding:20px; border-radius:20px; border:1px solid #eee; margin-bottom:15px;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <h4 style="font-weight:700;">${o.item}</h4><span class="status-badge">${o.status}</span>
-                    </div>
-                    <div style="font-size:0.85rem; color:#666;">Total Paid: <b>₹${o.amt}</b></div>
-                </div>
-            `).join('');
-        });
-    }
-
-    function adminUnlock() {
-        adminClicks++;
-        if(adminClicks >= 10) {
-            const pin = prompt("Admin Password:");
-            if(pin === "Arbaj@786") { document.getElementById('admin-panel').style.display = 'block'; loadAdminData(); }
-            adminClicks = 0;
-        }
-    }
-
-    function loadAdminData() {
-        db.ref('orders').on('value', snap => {
-            const area = document.getElementById('all-cloud-orders');
-            if(!snap.val()) return area.innerText = "No cloud data.";
-            area.innerHTML = Object.values(snap.val()).reverse().map(o => `
-                <div class="admin-item">
-                    <b>${o.user.split('@')[0]}</b>: ${o.item} (₹${o.amt})<br>
-                    <select onchange="updateStatusCloud('${o.id}', this.value)" style="margin-top:5px;">
-                        <option value="${o.status}">${o.status}</option>
-                        <option value="Material Delivered">Material Delivered</option>
-                        <option value="Work Started">Work Started</option>
-                        <option value="Completed">Completed</option>
-                    </select>
-                </div>
-            `).join('');
-        });
-    }
-
-    function updateStatusCloud(id, s) { 
-        db.ref('orders/' + id).update({ status: s });
-    }
-
-    function sendMessage() {
-        const input = document.getElementById('chat-input');
-        const box = document.getElementById('chat-box');
-        if(!input.value) return;
-        box.innerHTML += `<div class="msg user">${input.value}</div>`;
-        let q = input.value.toLowerCase();
-        let r = "Main expert se detail mangta hoon. 9711904092 par call karein.";
-        if(q.includes("rate")) r = "Interior ₹16-₹68 aur Exterior ₹22-₹95/sqft hai.";
-        setTimeout(() => { box.innerHTML += `<div class="msg bot">${r}</div>`; box.scrollTop = box.scrollHeight; }, 500);
-        input.value = "";
-    }
 
     function nav(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         el.classList.add('active');
-        if(id === 'bookings') fetchBookings();
+        if(id === 'orders') loadOrders();
     }
 
-    function toggleChat(s) { document.getElementById('chat-modal').classList.toggle('active', s); }
-    window.onload = () => renderCatalog();
+    function loadOrders() {
+        db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
+            const list = document.getElementById('my-orders-list');
+            if(!snap.val()) { list.innerHTML = "<p style='color:#888; text-align:center;'>No orders found.</p>"; return; }
+            list.innerHTML = Object.values(snap.val()).reverse().map(o => `
+                <div class="card">
+                    <div><b>ID: ${o.id}</b><br><small>${o.item}</small></div>
+                    <div style="text-align:right"><b>₹${o.amt}</b><br><small style="color:var(--p)">${o.status}</small></div>
+                </div>
+            `).join('');
+        });
+    }
+
+    function sendMsg() {
+        const inp = document.getElementById('chat-input');
+        const box = document.getElementById('chat-box');
+        if(!inp.value) return;
+        box.innerHTML += `<div style="align-self:flex-end; background:var(--p); color:white; padding:10px; border-radius:12px;">${inp.value}</div>`;
+        let q = inp.value.toLowerCase();
+        let r = "Expert Arbaj Khan will call you soon. Help: 9711904092.";
+        if(q.includes("rate")) r = "Interior starts at ₹16/sqft.";
+        setTimeout(() => {
+            box.innerHTML += `<div style="align-self:flex-start; background:#f0f0f0; padding:10px; border-radius:12px;">${r}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }, 800);
+        inp.value = "";
+    }
+
+    function toggleChat(s) { document.getElementById('chat-window').classList.toggle('active', s); }
+    window.onload = () => renderServices();
 </script>
 </body>
 </html>
