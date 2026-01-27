@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Professional Command Center</title>
+    <title>UrbanPaintPro | Ultra Professional App</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -14,44 +14,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        :root { 
-            --p: #6366f1; --p-dark: #4338ca; --p-light: #f0f3ff; 
-            --text: #0f172a; --gray: #64748b; --bg: #f8fafc; --white: #ffffff;
-            --glass: rgba(255, 255, 255, 0.85);
-        }
-        
+        :root { --p: #6366f1; --p-light: #f0f3ff; --text: #0f172a; --gray: #64748b; --bg: #f8fafc; --glass: rgba(255, 255, 255, 0.85); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); overflow: hidden; }
 
-        /* 1. YouTube Style Splash */
-        #splash {
-            position: fixed; inset: 0; background: white; z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .logo-load { width: 80px; height: 80px; border: 6px solid var(--p-light); border-top: 6px solid var(--p); border-radius: 50%; animation: spin 1s linear infinite; }
+        /* YouTube Style Entry */
+        #splash { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .logo-loader { width: 80px; height: 80px; border: 6px solid var(--p-light); border-top: 6px solid var(--p); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* UI Base */
         .header { background: var(--glass); backdrop-filter: blur(15px); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .logo { font-weight: 800; font-size: 1.3rem; color: var(--p); }
         .user-head-info { text-align: right; line-height: 1.2; display: none; }
-        .user-head-info b { font-size: 0.8rem; color: var(--p); }
+        .user-head-info b { font-size: 0.85rem; color: var(--p); }
 
-        .page { display: none; padding: 20px; padding-bottom: 140px; animation: slideIn 0.3s ease; height: calc(100vh - 70px); overflow-y: auto; }
+        .page { display: none; padding: 20px; padding-bottom: 140px; animation: slideUp 0.4s ease; height: calc(100vh - 70px); overflow-y: auto; }
         .page.active { display: block; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Calculator */
-        .calc-card { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 25px; border-radius: 28px; margin-bottom: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
-        .calc-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 12px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 12px; font-weight: 600; font-size: 0.85rem; }
+        /* Calculator Card */
+        .calc-card { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 25px; border-radius: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); margin-bottom: 25px; }
+        .calc-input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 14px; border-radius: 12px; color: white; width: 100%; outline: none; margin-bottom: 12px; font-weight: 600; font-size: 0.85rem; }
         .calc-input option { color: #333; }
 
-        .primary-btn { background: var(--p); color: white; border: none; padding: 18px; border-radius: 20px; width: 100%; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2); }
+        .primary-btn { background: var(--p); color: white; border: none; padding: 18px; border-radius: 20px; width: 100%; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
 
-        /* Account Menu */
-        .menu-item { background: white; padding: 15px 20px; border-radius: 18px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #f1f5f9; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        /* Account Styling */
+        .menu-item { background: white; padding: 15px 20px; border-radius: 18px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #f1f5f9; margin-bottom: 10px; cursor: pointer; }
         .menu-item .left { display: flex; align-items: center; gap: 15px; font-weight: 700; color: #334155; font-size: 0.9rem; }
-        .menu-item i { color: var(--p); }
+        .menu-item i { color: var(--p); width: 20px; }
 
         /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--glass); backdrop-filter: blur(20px); display: flex; border-top: 1px solid rgba(0,0,0,0.05); padding: 12px 0 35px; z-index: 1000; }
@@ -62,153 +54,143 @@
         /* Modals */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 4000; padding: 20px; }
         .modal-body { background: white; width: 100%; max-width: 400px; border-radius: 30px; padding: 25px; max-height: 85vh; overflow-y: auto; }
-        .close-btn { background: #f1f5f9; border: none; padding: 10px; border-radius: 50%; float: right; cursor: pointer; }
+        
+        #ai-chat-window { height: 70vh; display: flex; flex-direction: column; }
     </style>
 </head>
 <body>
 
-<div id="splash">
-    <div class="logo-load"></div>
-    <h2 style="margin-top: 20px; font-weight: 800; color: var(--p); letter-spacing: 2px;">URBAN PAINTPRO</h2>
-</div>
+<div id="splash"><div class="logo-loader"></div><h2 style="margin-top:20px; color:var(--p); font-weight:800;">URBAN PAINTPRO</h2></div>
 
 <div class="header">
     <div class="logo">Urban<span>PaintPro</span></div>
     <div id="user-head" class="user-head-info">
-        <b id="h-name">Loading...</b><br>
-        <small id="h-phone">Verified User</small>
+        <b id="h-name">User</b><br>
+        <small id="h-phone">Verified Member</small>
     </div>
 </div>
 
 <div id="home" class="page active">
     <div class="calc-card">
-        <h2>📊 Smart Quotation Engine</h2>
-        <p style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 15px;">Professional Material + Labor Included</p>
+        <h2>📊 Advanced Quotation Engine</h2>
         <select id="brand_sel" class="calc-input" onchange="updateProductList()">
             <option value="Asian Paints">Asian Paints</option>
             <option value="Berger">Berger Paints</option>
         </select>
         <select id="prod_sel" class="calc-input" onchange="runCalc()"></select>
-        
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <input type="number" id="sqft" class="calc-input" placeholder="Sqft Area" oninput="runCalc()">
+            <input type="number" id="sqft" class="calc-input" placeholder="Total Area" oninput="runCalc()">
             <select id="worktype" class="calc-input" onchange="runCalc()">
-                <option value="1">Repaint</option>
+                <option value="1">Repaint System</option>
                 <option value="1.5">Repaint + Primer</option>
-                <option value="2.3">Fresh Painting</option>
+                <option value="2.3">Fresh (Luxury Finish)</option>
             </select>
         </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-            <h2 id="total_res" style="font-weight: 800;">₹0</h2>
-            <button onclick="downloadPDF()" style="background: var(--p); border: none; color: white; padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.75rem;">Download PDF</button>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 id="total_res">₹0</h2>
+            <button onclick="downloadPDF()" style="background:var(--p); color:white; border:none; padding:10px 18px; border-radius:12px; font-weight:800; font-size:0.75rem;">Get PDF</button>
         </div>
     </div>
-
-    <button class="primary-btn" onclick="openVisitModal()">
-        <i class="fa-solid fa-house-chimney"></i> Book Visit at Home @ ₹49
-    </button>
-
-    <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid #eee;">
-        <a href="#" onclick="alert('Policies Accepted')" style="font-size: 0.7rem; color: var(--gray); text-decoration: none; font-weight: 700; margin: 0 15px;">Terms & Conditions</a>
-        <a href="#" onclick="alert('Privacy Policy v1.1')" style="font-size: 0.7rem; color: var(--gray); text-decoration: none; font-weight: 700;">Privacy Policy</a>
+    <button class="primary-btn" onclick="openVisitModal()"><i class="fa-solid fa-house-chimney"></i> Book Visit at Home @ ₹49</button>
+    
+    <div style="margin-top: 40px; text-align: center; border-top: 1px solid #eee; padding-top: 20px;">
+        <a href="#" onclick="openModal('modal-tc')" style="font-size:0.7rem; color:var(--gray); text-decoration:none; font-weight:700; margin: 0 10px;">Terms & Conditions</a>
+        <a href="#" style="font-size:0.7rem; color:var(--gray); text-decoration:none; font-weight:700;">Privacy Policy</a>
     </div>
 </div>
 
+<div id="orders" class="page">
+    <h2 style="margin-bottom:20px;">Project Dashboard</h2>
+    <div id="order-list"></div>
+</div>
+
 <div id="account" class="page">
-    <div id="auth-box" style="background: white; padding: 25px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
-        <h3 id="auth-title" style="margin-bottom: 15px;">Secure Access</h3>
-        <input type="text" id="u-name-in" class="calc-input" style="color:#333; border: 1px solid #ddd;" placeholder="Enter Name">
-        <input type="email" id="email" class="calc-input" style="color:#333; border: 1px solid #ddd;" placeholder="Email">
-        <input type="password" id="pass" class="calc-input" style="color:#333; border: 1px solid #ddd;" placeholder="Password">
-        <button onclick="handleAuth('email')" class="primary-btn">Sign In / Register</button>
-        <div style="margin: 20px 0; text-align: center; font-size: 0.7rem; color: #ccc; font-weight: 800;">OR LOGIN VIA</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button onclick="handleAuth('google')" class="menu-item" style="justify-content: center;"><i class="fa-brands fa-google"></i><span>Google</span></button>
-            <button onclick="handleAuth('phone')" class="menu-item" style="justify-content: center;"><i class="fa-solid fa-phone"></i><span>OTP</span></button>
+    <div id="auth-box" style="background:white; padding:30px; border-radius:30px; box-shadow:0 10px 25px rgba(0,0,0,0.05);">
+        <h3 id="auth-title">Welcome</h3>
+        <input type="text" id="u-name-in" class="calc-input" style="color:#333; border:1px solid #ddd;" placeholder="Full Name">
+        <input type="email" id="u-mail" class="calc-input" style="color:#333; border:1px solid #ddd;" placeholder="Email">
+        <input type="password" id="u-pass" class="calc-input" style="color:#333; border:1px solid #ddd;" placeholder="Password">
+        <button onclick="handleAuth('email')" class="primary-btn">Sign In / Signup</button>
+        <div style="margin:20px 0; text-align:center; font-size:0.7rem; color:#ccc; font-weight:800;">OR LOGIN VIA</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <button onclick="handleAuth('google')" class="menu-item" style="justify-content:center; font-size:0.75rem;"><i class="fa-brands fa-google"></i><span>Google</span></button>
+            <button onclick="handleAuth('phone')" class="menu-item" style="justify-content:center; font-size:0.75rem;"><i class="fa-solid fa-phone"></i><span>OTP</span></button>
         </div>
         <div id="recaptcha-container"></div>
     </div>
 
-    <div id="profile-ui" style="display: none;">
-        <div style="text-align: center; background: white; padding: 30px; border-radius: 30px; border: 1px solid #eee;">
-            <div style="position: relative; width: 90px; height: 90px; margin: 0 auto 10px;">
+    <div id="profile-ui" style="display:none;">
+        <div style="text-align:center; background:white; padding:30px; border-radius:30px; border:1px solid #eee; margin-bottom:20px;">
+            <div style="position:relative; width:90px; height:90px; margin:0 auto 10px;">
                 <img id="u-pic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:100%; height:100%; border-radius:50%; border:3px solid var(--p); object-fit:cover;">
                 <input type="file" id="pic-upload" style="display:none" onchange="updatePic(this)">
-                <div onclick="document.getElementById('pic-upload').click()" style="position:absolute; bottom:0; right:0; background:var(--p); color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; cursor:pointer;"><i class="fa-solid fa-camera" style="font-size:0.7rem;"></i></div>
+                <div onclick="document.getElementById('pic-upload').click()" style="position:absolute; bottom:0; right:0; background:var(--p); color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; cursor:pointer;"><i class="fa-solid fa-camera"></i></div>
             </div>
             <h3 id="u-name-disp">User</h3>
-            <p id="u-phone-disp" style="font-size:0.8rem; color:gray; font-weight:700;"></p>
+            <p id="u-detail-disp" style="font-size:0.8rem; color:var(--gray); font-weight:700;"></p>
         </div>
 
         <div class="acc-menu-grid">
-            <div class="menu-item" onclick="openModal('modal-plans')"><div class="left"><i class="fa-solid fa-gem"></i><span>My Plans</span></div><i class="fa-solid fa-chevron-right"></i></div>
-            <div class="menu-item" onclick="openModal('modal-orders')"><div class="left"><i class="fa-solid fa-box-archive"></i><span>My Bookings</span></div><i class="fa-solid fa-chevron-right"></i></div>
+            <div class="menu-item" onclick="alert('Plans: Silver, Gold, Platinum Coming Soon!')"><div class="left"><i class="fa-solid fa-gem"></i><span>My Plans</span></div><i class="fa-solid fa-chevron-right"></i></div>
             <div class="menu-item" onclick="openModal('modal-help')"><div class="left"><i class="fa-solid fa-headset"></i><span>Help Center</span></div><i class="fa-solid fa-chevron-right"></i></div>
-            <div class="menu-item" onclick="openModal('modal-rating')"><div class="left"><i class="fa-solid fa-star"></i><span>My Rating</span></div><i class="fa-solid fa-chevron-right"></i></div>
             <div class="menu-item" onclick="openModal('modal-address')"><div class="left"><i class="fa-solid fa-location-dot"></i><span>Manage Address</span></div><i class="fa-solid fa-chevron-right"></i></div>
             <div class="menu-item" onclick="openModal('modal-refer')"><div class="left"><i class="fa-solid fa-share-nodes"></i><span>Refer & Earn</span></div><i class="fa-solid fa-chevron-right"></i></div>
             <div class="menu-item" onclick="openModal('modal-about')"><div class="left"><i class="fa-solid fa-circle-info"></i><span>About Us</span></div><i class="fa-solid fa-chevron-right"></i></div>
-            <div class="menu-item" onclick="openModal('modal-settings')"><div class="left"><i class="fa-solid fa-gear"></i><span>Settings</span></div><i class="fa-solid fa-chevron-right"></i></div>
-            <div class="menu-item" onclick="logout()" style="border-color:#fee2e2; margin-top:10px;"><div class="left" style="color:red;"><i class="fa-solid fa-power-off"></i><span>Log Out</span></div></div>
+            <div class="menu-item" onclick="logout()" style="color:red; border-color:#fee2e2;"><div class="left" style="color:red;"><i class="fa-solid fa-power-off"></i><span>Logout</span></div></div>
         </div>
     </div>
 </div>
 
 <div id="modal-help" class="modal">
     <div class="modal-body">
-        <button class="close-btn" onclick="closeAllModals()">&times;</button>
-        <h3 style="margin-bottom:20px;">Help Center</h3>
-        <button class="menu-item" style="width:100%" onclick="alert('AI Chat Connected!')"><div class="left"><i class="fa-solid fa-robot"></i><span>Urban Manager AI</span></div></button>
+        <h3 style="margin-bottom:20px; text-align:center;">Help Center</h3>
+        <button class="menu-item" style="width:100%" onclick="openAI()"><div class="left"><i class="fa-solid fa-robot"></i><span>Urban Manager AI</span></div></button>
         <button class="menu-item" style="width:100%" onclick="window.location.href='https://wa.me/9625027471'"><div class="left"><i class="fa-brands fa-whatsapp" style="color:#25d366;"></i><span>WhatsApp Support</span></div></button>
         <button class="menu-item" style="width:100%" onclick="window.location.href='mailto:urbanpaintpro.inbox@gmail.com'"><div class="left"><i class="fa-solid fa-envelope" style="color:#ea4335;"></i><span>Email Support</span></div></button>
+        <button onclick="closeModal('modal-help')" class="primary-btn" style="margin-top:20px; background:#eee; color:#333;">Close</button>
     </div>
 </div>
 
 <div id="modal-address" class="modal">
     <div class="modal-body">
-        <button class="close-btn" onclick="closeAllModals()">&times;</button>
-        <h3>Add Project Address</h3>
-        <input type="text" class="calc-input" style="color:#333; border:1px solid #ddd; margin-top:15px;" placeholder="House / Flat No.">
-        <input type="text" class="calc-input" style="color:#333; border:1px solid #ddd;" placeholder="Street / Area">
+        <h3>Site Address</h3>
+        <input type="text" class="calc-input" style="color:#333; border:1px solid #ddd; margin-top:15px;" placeholder="House No. / Floor">
+        <input type="text" class="calc-input" style="color:#333; border:1px solid #ddd;" placeholder="Street / Area Name">
         <input type="text" class="calc-input" style="color:#333; border:1px solid #ddd;" placeholder="Landmark">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <input type="text" class="calc-input" style="color:#333; border:1px solid #ddd;" placeholder="City">
-            <input type="number" class="calc-input" style="color:#333; border:1px solid #ddd;" placeholder="Pincode">
-        </div>
-        <button class="primary-btn" onclick="alert('Address Saved!')">Save Address</button>
+        <input type="number" class="calc-input" style="color:#333; border:1px solid #ddd;" placeholder="Pincode">
+        <button class="primary-btn" onclick="closeModal('modal-address')">Save Address</button>
     </div>
 </div>
 
 <div id="modal-refer" class="modal">
     <div class="modal-body" style="text-align:center;">
-        <button class="close-btn" onclick="closeAllModals()">&times;</button>
         <i class="fa-solid fa-gift" style="font-size:3rem; color:var(--p); margin-bottom:15px;"></i>
         <h3>Refer & Earn 1%</h3>
-        <p style="font-size:0.8rem; color:gray; margin:10px 0;">Earn 1% commission on every service booked using your code.</p>
-        <div style="background:#f1f5f9; padding:15px; border-radius:15px; font-weight:800; font-size:1.2rem; border:2px dashed var(--p); margin-bottom:15px;" id="refer-code">UP8823</div>
-        <button class="primary-btn" onclick="navigator.share({title:'UrbanPaintPro', url:location.href})">Share with Friends</button>
-        <small style="display:block; margin-top:10px; color:var(--gray);">*Bonus credited after service completion.</small>
+        <p style="font-size:0.8rem; color:gray; margin:10px 0;">Refer friends and get 1% commission on their service booking.</p>
+        <div style="background:#f1f5f9; padding:15px; border-radius:15px; font-weight:800; font-size:1.2rem; border:2px dashed var(--p); margin-bottom:15px;">UPPRO77</div>
+        <button class="primary-btn" onclick="navigator.share({title:'UrbanPaintPro', url:location.href})">Share Link</button>
     </div>
 </div>
 
-<div id="modal-about" class="modal">
-    <div class="modal-body">
-        <button class="close-btn" onclick="closeAllModals()">&times;</button>
-        <h3 style="color:var(--p);">UrbanPaintPro</h3>
-        <p style="font-style:italic; margin-bottom:15px;">"Transforming Spaces, Defining Luxury."</p>
-        <p style="font-size:0.85rem; line-height:1.6;"><b>Warranty:</b> 1 to 10 Year Service Warranty.<br><b>Quality:</b> 3-Layer Quality Check.<br><b>Support:</b> Personal project manager assigned.</p>
+<div id="modal-ai" class="modal">
+    <div class="modal-body" id="ai-chat-window">
+        <h3 style="margin-bottom:10px;">Urban Manager AI</h3>
+        <div id="ai-messages" style="flex:1; overflow-y:auto; padding:10px; background:#f9fafb; border-radius:15px; margin-bottom:10px; font-size:0.9rem;">
+            <p style="background:white; padding:10px; border-radius:10px; margin-bottom:10px;">Namaste! Main Urban Manager hoon. Aapki kaise help kar sakta hoon?</p>
+        </div>
+        <input type="text" id="ai-in" class="calc-input" style="color:#333; border:1px solid #ddd;" placeholder="Type here...">
+        <button onclick="closeModal('modal-ai')" class="primary-btn" style="background:#eee; color:#333;">Close Chat</button>
     </div>
 </div>
 
 <div class="bottom-nav">
     <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i>Home</div>
-    <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-list-check"></i>Orders</div>
-    <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-circle-user"></i>Account</div>
+    <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-clipboard-list"></i>Orders</div>
+    <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-user-shield"></i>Account</div>
 </div>
 
 <script>
-    // --- 1. FIREBASE SETUP ---
+    // --- 1. CONFIG ---
     const firebaseConfig = {
       apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
       authDomain: "professionalpainters-28488.firebaseapp.com",
@@ -223,50 +205,44 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // --- 2. MEGA DATABASE (ASIAN & BERGER) ---
+    // --- 2. DATABASE ---
     const megaCatalog = {
         "Asian Paints": [
-            {n:"Royale Aspira", p:68}, {n:"Royale Glitz", p:72}, {n:"Royale Atmos", p:65},
-            {n:"Royale Shyne", p:55}, {n:"Royale Matt", p:52}, {n:"Tractor Emulsion", p:16},
-            {n:"Tractor Emulsion Shyne", p:19}, {n:"Tractor Sparc", p:14}, {n:"Apcolite Premium", p:32},
-            {n:"Apex Ultima Protek", p:95}, {n:"Apex Ultima", p:72}, {n:"Ace Exterior", p:22},
-            {n:"SmartCare Hydraulic", p:120}, {n:"SmartCare Damp Block", p:140}
+            {n:"Tractor Emulsion", p:16}, {n:"Tractor Emulsion Shyne", p:19}, {n:"Royale Aspira", p:68},
+            {n:"Royale Glitz", p:72}, {n:"Apex Ultima Protek", p:95}, {n:"Ace Exterior", p:22},
+            {n:"SmartCare Hydraulic", p:120}, {n:"Premium PU Gloss", p:250}
         ],
         "Berger": [
-            {n:"Silk Glamor Luxury", p:65}, {n:"Silk Breathe Easy", p:62}, {n:"Easy Clean Fresh", p:42},
-            {n:"Bison Emulsion", p:18}, {n:"Weathercoat Long Life", p:78}
+            {n:"Silk Glamor Luxury", p:65}, {n:"Weathercoat Pro", p:55}, {n:"Bison Emulsion", p:18}
         ]
     };
 
-    // --- 3. CORE ENGINE ---
+    // --- 3. ENGINE ---
     window.addEventListener('load', () => {
         updateProductList();
-        setTimeout(() => document.getElementById('splash').style.display='none', 2000);
+        setTimeout(() => { document.getElementById('splash').style.display='none'; document.body.style.overflow='auto'; }, 2000);
         window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
     });
 
     function updateProductList() {
-        const brand = document.getElementById('brand_sel').value;
-        document.getElementById('prod_sel').innerHTML = megaCatalog[brand].map(i => `<option value="${i.p}">${i.n}</option>`).join('');
+        const b = document.getElementById('brand_sel').value;
+        document.getElementById('prod_sel').innerHTML = megaCatalog[b].map(i => `<option value="${i.p}">${i.n}</option>`).join('');
         runCalc();
     }
 
     function runCalc() {
-        const p = document.getElementById('prod_sel').value;
         const s = document.getElementById('sqft').value || 0;
+        const p = document.getElementById('prod_sel').value;
         const w = document.getElementById('worktype').value;
-        const total = Math.round((parseFloat(p) + 15) * s * w); 
+        const total = Math.round((parseFloat(p) + 15) * s * w);
         document.getElementById('total_res').innerText = "₹" + total.toLocaleString('en-IN');
     }
 
-    // --- 4. AUTH & USER DATA ---
     function handleAuth(type) {
-        document.getElementById('splash').style.display = 'flex';
+        document.getElementById('splash').style.display='flex';
         if(type==='email') {
-            const e = document.getElementById('email').value, p = document.getElementById('pass').value, n = document.getElementById('u-name-in').value;
-            auth.signInWithEmailAndPassword(e, p).catch(() => {
-                auth.createUserWithEmailAndPassword(e, p).then(cred => db.ref('users/'+cred.user.uid).set({name: n}));
-            });
+            const e = document.getElementById('u-mail').value, p = document.getElementById('u-pass').value, n = document.getElementById('u-name-in').value;
+            auth.signInWithEmailAndPassword(e, p).catch(() => auth.createUserWithEmailAndPassword(e, p).then(cred => db.ref('users/'+cred.user.uid).set({name: n})));
         } else if(type==='google') {
             auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
         } else if(type==='phone') {
@@ -279,16 +255,16 @@
 
     auth.onAuthStateChanged(user => {
         if(user) {
-            document.getElementById('auth-box').style.display = 'none';
-            document.getElementById('profile-ui').style.display = 'block';
-            document.getElementById('user-head').style.display = 'block';
+            document.getElementById('auth-box').style.display='none';
+            document.getElementById('profile-ui').style.display='block';
+            document.getElementById('user-head').style.display='block';
             db.ref('users/'+user.uid).once('value', snap => {
-                const name = snap.val()?.name || user.displayName || "User";
-                document.getElementById('u-name-disp').innerText = name;
-                document.getElementById('h-name').innerText = name;
-                document.getElementById('u-phone-disp').innerText = user.email || user.phoneNumber;
+                const n = snap.val()?.name || user.displayName || "User";
+                document.getElementById('u-name-disp').innerText = n;
+                document.getElementById('h-name').innerText = n;
+                document.getElementById('u-detail-disp').innerText = user.email || user.phoneNumber;
             });
-            document.getElementById('splash').style.display = 'none';
+            document.getElementById('splash').style.display='none';
         }
     });
 
@@ -297,7 +273,7 @@
         const pin = prompt("Delhi/NCR Pincode:");
         if(['11','201','121','122'].some(v => pin?.startsWith(v))) {
             window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaint&am=49&cu=INR`;
-        } else { alert("NCR regions only."); }
+        } else { alert("Service in Delhi/NCR Only."); }
     }
 
     function nav(id, el) {
@@ -306,4 +282,18 @@
         document.getElementById(id).classList.add('active'); el.classList.add('active');
     }
 
-    function openModal(id) { document.getElementBy
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function openAI() { closeModal('modal-help'); openModal('modal-ai'); }
+    function logout() { auth.signOut().then(() => location.reload()); }
+    function updatePic(i) { if(i.files[0]) document.getElementById('u-pic').src = URL.createObjectURL(i.files[0]); }
+    function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("UrbanPaintPro Official Quotation", 15, 20);
+        doc.text("Estimate: " + document.getElementById('total_res').innerText, 15, 30);
+        doc.save("Quotation.pdf");
+    }
+</script>
+</body>
+</html>
