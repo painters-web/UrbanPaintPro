@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | Book Service</title>
+    <title>UrbanPaintPro | Premium</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -11,67 +12,153 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        :root { --primary: #4F46E5; --bg: #F8FAFC; --text: #0F172A; --white: #FFFFFF; }
+        :root { --p: #4F46E5; --bg: #F8FAFC; --text: #0F172A; --white: #FFFFFF; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
-        /* UI Components */
+
+        /* Custom Splash with Logo */
+        #splash { position: fixed; inset: 0; background: var(--white); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .logo-ring { width: 60px; height: 60px; border: 5px solid #E0E7FF; border-top: 5px solid var(--p); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Blocking T&C Modal */
+        #tnc-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        
+        /* UI Base */
         .header { position: absolute; top: 0; width: 100%; height: 60px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; border-bottom: 1px solid #F1F5F9; }
-        .logo { font-weight: 800; font-size: 1.2rem; color: var(--primary); }
-        .page { height: 100%; padding: 80px 20px 100px; overflow-y: auto; }
-        .card { background: var(--white); border-radius: 24px; padding: 24px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .inp { width: 100%; padding: 16px; background: #F1F5F9; border: 1px solid #E2E8F0; border-radius: 14px; font-weight: 600; outline: none; margin-bottom: 12px; }
-        .btn { width: 100%; padding: 18px; border-radius: 18px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3); }
-        /* Bottom Sheet */
+        .logo { font-weight: 800; font-size: 1.2rem; color: var(--p); }
+        .user-chip { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #334155; }
+        .user-chip img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #E2E8F0; }
+
+        .page { height: 100%; padding: 80px 20px 100px; overflow-y: auto; display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: var(--white); border-radius: 24px; padding: 24px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        .inp { width: 100%; padding: 15px; background: #F1F5F9; border: 1px solid transparent; border-radius: 14px; font-size: 0.95rem; font-weight: 600; outline: none; margin-bottom: 12px; }
+        .btn { width: 100%; padding: 16px; border-radius: 16px; border: none; background: var(--p); color: white; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn.outline { background: transparent; border: 2px solid #E2E8F0; color: var(--text); }
+        
+        /* Payment Options */
+        .pay-opt { border: 2px solid #E2E8F0; padding: 15px; border-radius: 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .pay-opt.selected { border-color: var(--p); background: #EEF2FF; }
+        .pay-icon { width: 24px; }
+
+        /* Bottom Sheets */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
         .modal-overlay.active { opacity: 1; pointer-events: all; }
-        .bottom-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); border-radius: 30px 30px 0 0; padding: 30px 25px 40px; z-index: 2001; transform: translateY(100%); transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .bottom-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); border-radius: 30px 30px 0 0; padding: 30px 25px 40px; z-index: 2001; transform: translateY(100%); transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); max-height: 85vh; overflow-y: auto; }
         .bottom-sheet.active { transform: translateY(0); }
         .sheet-handle { width: 40px; height: 5px; background: #E2E8F0; border-radius: 10px; margin: 0 auto 20px; }
+
+        .nav-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--white); border-top: 1px solid #F1F5F9; display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: 10px; }
+        .nav-btn { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; }
+        .nav-btn.active { color: var(--p); transform: translateY(-2px); }
+        .nav-btn i { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+        
+        .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-radius: 16px; background: var(--white); border: 1px solid #F1F5F9; margin-bottom: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="header"><div class="logo">Urban<span>PaintPro</span></div><div style="font-weight:700; font-size:0.8rem;" id="user-status">Guest</div></div>
+    <div id="splash"><div class="logo-ring"></div><h3 style="margin-top:15px; color:var(--p);">URBAN PAINTPRO</h3></div>
 
-<div class="page">
-    <div class="card" style="background: linear-gradient(145deg, #1E1B4B, #312E81); color: white;">
-        <h2 style="margin-bottom: 15px;">Book Painting</h2>
-        <select id="service-type" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;">
-            <option value="Interior Painting" style="color:black">Interior Painting</option>
-            <option value="Exterior Painting" style="color:black">Exterior Painting</option>
-            <option value="Waterproofing" style="color:black">Waterproofing</option>
+<div id="tnc-modal">
+    <div class="card" style="width:100%; max-width:350px; text-align:center;">
+        <i class="fa-solid fa-file-contract" style="font-size:3rem; color:var(--p); margin-bottom:15px;"></i>
+        <h3>Terms & Conditions</h3>
+        <p style="color:#64748B; font-size:0.9rem; margin:15px 0;">To use UrbanPaintPro, you must accept our policies regarding service quality, payments, and data usage.</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <button class="btn outline" onclick="alert('Access Denied! You must accept to proceed.');">Deny</button>
+            <button class="btn" onclick="acceptTNC()">Accept</button>
+        </div>
+    </div>
+</div>
+
+<div class="header">
+    <div class="logo">Urban<span>PaintPro</span></div>
+    <div class="user-chip" onclick="nav('account')"><span id="h-name">Guest</span><img id="h-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png"></div>
+</div>
+
+<div id="home" class="page active">
+    <div class="card" style="background: linear-gradient(135deg, #1E1B4B, #312E81); color: white;">
+        <h2 style="margin-bottom:15px;">Smart Calculator</h2>
+        <select id="brand-sel" class="inp" style="background:rgba(255,255,255,0.15); color:white; border:none;" onchange="updateProducts()">
+            <option style="color:black" value="Asian">Asian Paints</option>
+            <option style="color:black" value="Berger">Berger Paints</option>
         </select>
-        <input type="number" id="sqft" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" placeholder="Est. Area (Sqft)">
-        <button class="btn" style="background:white; color:var(--primary); margin-top:10px;" onclick="openBooking()">Proceed to Book</button>
+        <select id="prod-sel" class="inp" style="background:rgba(255,255,255,0.15); color:white; border:none;" onchange="calc()"></select>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <input type="number" id="sqft" class="inp" style="background:rgba(255,255,255,0.15); color:white; border:none;" placeholder="Sqft Area" oninput="calc()">
+            <select id="work-type" class="inp" style="background:rgba(255,255,255,0.15); color:white; border:none;" onchange="calc()">
+                <option value="1" style="color:black">Repaint</option>
+                <option value="1.5" style="color:black">Repaint + Primer</option>
+                <option value="2.3" style="color:black">Fresh Paint</option>
+            </select>
+        </div>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; border-top:1px solid rgba(255,255,255,0.2); padding-top:15px;">
+            <div><small>Estimated Cost</small><h2 id="total-price">₹0</h2></div>
+            <button class="btn" style="background:white; color:var(--p); padding:8px 15px; font-size:0.8rem;" onclick="genInvoice()">Generate Bill</button>
+        </div>
     </div>
-    
-    <div style="margin-top:20px;">
-        <h3 style="margin-bottom:10px;">Why Choose Us?</h3>
-        <div class="card" style="display:flex; align-items:center; gap:15px; padding:15px;">
-            <i class="fa-solid fa-shield-halved" style="font-size:1.5rem; color:var(--primary);"></i>
-            <div><b>1 Year Warranty</b><br><small style="color:gray">On all painting services</small></div>
+    <button class="btn" onclick="initBooking()"><i class="fa-solid fa-calendar-check"></i> Book Home Visit @ ₹49</button>
+</div>
+
+<div id="account" class="page">
+    <div id="login-ui" style="text-align:center; padding:30px 0;">
+        <img src="https://cdn-icons-png.flaticon.com/512/295/295128.png" width="100">
+        <h3>Welcome Back</h3><p style="color:#64748B;">Login to manage orders</p>
+        <button class="btn" onclick="openSheet('sheet-auth')">Login / Sign Up</button>
+    </div>
+
+    <div id="user-ui" style="display:none;">
+        <div style="text-align:center; margin-bottom:30px;">
+            <img id="p-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:90px; height:90px; border-radius:50%; border:3px solid var(--p);">
+            <h3 id="p-name">User</h3><p id="p-mail" style="color:#64748B; font-size:0.9rem;"></p>
         </div>
-        <div class="card" style="display:flex; align-items:center; gap:15px; padding:15px;">
-            <i class="fa-solid fa-user-check" style="font-size:1.5rem; color:var(--primary);"></i>
-            <div><b>Verified Pros</b><br><small style="color:gray">Background checked painters</small></div>
-        </div>
+        
+        <div class="menu-item" onclick="openSheet('sheet-quotes')"><div style="display:flex; gap:10px;"><i class="fa-solid fa-file-invoice-dollar" style="color:var(--p)"></i><b>Partner Quotes</b></div><i class="fa-solid fa-chevron-right" style="color:#ccc"></i></div>
+        <div class="menu-item" onclick="alert('Orders will appear here')"><div style="display:flex; gap:10px;"><i class="fa-solid fa-box" style="color:var(--p)"></i><b>My Orders</b></div><i class="fa-solid fa-chevron-right" style="color:#ccc"></i></div>
+        <div class="menu-item" onclick="openSheet('sheet-about')"><div style="display:flex; gap:10px;"><i class="fa-solid fa-circle-info" style="color:var(--p)"></i><b>About Us</b></div><i class="fa-solid fa-chevron-right" style="color:#ccc"></i></div>
+        <button class="btn outline" style="margin-top:20px; border-color:#fee2e2; color:red;" onclick="logout()">Logout</button>
     </div>
 </div>
 
-<div class="modal-overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="modal-overlay" id="overlay" onclick="closeAll()"></div>
+
+<div class="bottom-sheet" id="sheet-auth">
+    <div class="sheet-handle"></div><h3>Login / Sign Up</h3>
+    <button class="btn outline" style="width:100%; margin-bottom:15px;" onclick="googleLogin()"><i class="fa-brands fa-google"></i> Continue with Google</button>
+    <div style="text-align:center; color:#ccc; margin:10px 0;">OR EMAIL</div>
+    <input type="email" id="l-email" class="inp" placeholder="Email">
+    <input type="password" id="l-pass" class="inp" placeholder="Password">
+    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+        <span style="font-size:0.8rem; color:var(--p);" onclick="alert('Reset link sent!')">Forgot Password?</span>
+        <span style="font-size:0.8rem; color:var(--p); font-weight:700;" onclick="toggleSignup()">Create Account</span>
+    </div>
+    <button class="btn" onclick="emailLogin()">Login</button>
+</div>
+
 <div class="bottom-sheet" id="sheet-book">
-    <div class="sheet-handle"></div>
-    <h3>Confirm Details</h3>
-    <p style="color:gray; font-size:0.9rem; margin-bottom:20px;">Please provide accurate details for the partner.</p>
+    <div class="sheet-handle"></div><h3>Confirm Booking</h3>
+    <button class="btn outline" style="width:100%; margin-bottom:15px; border-color:var(--p); color:var(--p);" onclick="getLocation()"><i class="fa-solid fa-location-crosshairs"></i> Use Current Location</button>
+    <input type="text" id="b-addr" class="inp" placeholder="House/Flat No, Landmark">
+    <input type="text" id="b-pin" class="inp" placeholder="Pincode (NCR Only)">
     
-    <input type="text" id="c-name" class="inp" placeholder="Your Name">
-    <input type="number" id="c-phone" class="inp" placeholder="Phone Number">
-    <input type="text" id="c-addr" class="inp" placeholder="Full Address & Pincode">
-    <input type="date" id="c-date" class="inp">
+    <h4 style="margin:15px 0;">Payment Method</h4>
+    <div class="pay-opt selected" onclick="selPay(this, 'COD')"><i class="fa-solid fa-money-bill-wave pay-icon"></i> Cash on Delivery</div>
+    <div class="pay-opt" onclick="selPay(this, 'UPI')"><i class="fa-brands fa-google-pay pay-icon"></i> UPI / Online</div>
     
-    <button class="btn" onclick="confirmOrder()">Confirm Booking @ ₹49</button>
+    <button class="btn" onclick="confirmOrder()">Place Order</button>
 </div>
 
+<div class="bottom-sheet" id="sheet-quotes"><div class="sheet-handle"></div><h3>Partner Quotes</h3><p style="text-align:center; color:#ccc; margin-top:20px;">No quotes received yet.</p></div>
+<div class="bottom-sheet" id="sheet-about"><div class="sheet-handle"></div><h2 style="color:var(--p)">UrbanPaintPro</h2><p>India's Premium Painting Service.<br>We provide end-to-end painting solutions with 100% satisfaction guarantee. Automated tools, verified pros, and on-time delivery.</p></div>
+
+<div class="nav-bar"><div class="nav-btn active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i>Home</div><div class="nav-btn" onclick="nav('account', this)"><i class="fa-solid fa-user"></i>Account</div></div>
 <script>
     const firebaseConfig = {
       apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
@@ -83,43 +170,140 @@
       appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
     };
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.database();
 
-    function openBooking() {
-        document.getElementById('overlay').classList.add('active');
-        document.getElementById('sheet-book').classList.add('active');
+    let selectedPayment = 'COD';
+    
+    const products = {
+        "Asian": [
+            {n:"Tractor Emulsion", p:16}, {n:"Royale Aspira", p:68}, {n:"Royale Glitz", p:72}, 
+            {n:"Apex Ultima", p:72}, {n:"SmartCare Damp Block", p:140}, {n:"Premium PU", p:250},
+            {n:"Apcolite Premium", p:32}, {n:"Royale Shyne", p:55}
+        ],
+        "Berger": [
+            {n:"Bison Emulsion", p:18}, {n:"Silk Glamor", p:65}, {n:"Weathercoat Pro", p:55},
+            {n:"Easy Clean", p:42}, {n:"Long Life", p:78}
+        ]
+    };
+
+    window.onload = () => {
+        updateProducts();
+        if(localStorage.getItem('tnc_accepted')) document.getElementById('tnc-modal').style.display = 'none';
+        setTimeout(() => document.getElementById('splash').style.display='none', 2000);
+    };
+
+    function acceptTNC() {
+        localStorage.setItem('tnc_accepted', 'true');
+        document.getElementById('tnc-modal').style.display = 'none';
     }
-    function closeSheet() {
-        document.getElementById('overlay').classList.remove('active');
-        document.getElementById('sheet-book').classList.remove('active');
+
+    function updateProducts() {
+        const brand = document.getElementById('brand-sel').value;
+        document.getElementById('prod-sel').innerHTML = products[brand].map(p => `<option value="${p.p}">${p.n}</option>`).join('');
+        calc();
+    }
+
+    function calc() {
+        const p = parseFloat(document.getElementById('prod-sel').value);
+        const s = parseFloat(document.getElementById('sqft').value) || 0;
+        const w = parseFloat(document.getElementById('work-type').value);
+        document.getElementById('total-price').innerText = "₹" + Math.round((p + 15) * s * w).toLocaleString('en-IN');
+    }
+
+    // --- AUTH ---
+    auth.onAuthStateChanged(u => {
+        if(u) {
+            document.getElementById('login-ui').style.display='none';
+            document.getElementById('user-ui').style.display='block';
+            document.getElementById('h-name').innerText = u.displayName || "User";
+            document.getElementById('p-name').innerText = u.displayName || "Member";
+            document.getElementById('p-mail').innerText = u.email;
+            if(u.photoURL) {
+                document.getElementById('h-img').src = u.photoURL;
+                document.getElementById('p-img').src = u.photoURL;
+            }
+        } else {
+            document.getElementById('login-ui').style.display='block';
+            document.getElementById('user-ui').style.display='none';
+        }
+    });
+
+    function googleLogin() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(()=>closeAll()); }
+    function emailLogin() { 
+        const e = document.getElementById('l-email').value, p = document.getElementById('l-pass').value;
+        if(!e) return alert("Email Required");
+        auth.signInWithEmailAndPassword(e,p).catch(err => {
+            // Auto Signup if not found
+            if(err.code === 'auth/user-not-found') auth.createUserWithEmailAndPassword(e,p);
+            else alert(err.message);
+        }).then(()=>closeAll());
+    }
+    function logout() { auth.signOut().then(()=>location.reload()); }
+
+    // --- BOOKING ---
+    function initBooking() {
+        if(!auth.currentUser) return openSheet('sheet-auth');
+        openSheet('sheet-book');
+    }
+
+    function getLocation() {
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                // Mock Reverse Geocode (Real requires paid API)
+                document.getElementById('b-addr').value = `Lat: ${pos.coords.latitude}, Long: ${pos.coords.longitude}`;
+                alert("Location Fetched!");
+            }, () => alert("Permission Denied"));
+        }
+    }
+
+    function selPay(el, mode) {
+        document.querySelectorAll('.pay-opt').forEach(e => e.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedPayment = mode;
     }
 
     function confirmOrder() {
-        const name = document.getElementById('c-name').value;
-        const phone = document.getElementById('c-phone').value;
-        const addr = document.getElementById('c-addr').value;
-        const date = document.getElementById('c-date').value;
-        const service = document.getElementById('service-type').value;
-
-        if(!name || !phone || !addr || !date) return alert("Please fill all details!");
-
-        const orderId = "ORD" + Date.now().toString().slice(-6);
+        const addr = document.getElementById('b-addr').value;
+        if(!addr) return alert("Please enter address");
         
-        // Push to Firebase
-        db.ref('orders/' + orderId).set({
-            id: orderId,
-            name: name,
-            phone: phone,
-            address: addr,
-            date: date,
-            service: service,
-            status: "Pending", // Important for Partner App
-            timestamp: Date.now()
-        }).then(() => {
-            closeSheet();
-            alert("Booking Sent! A partner will accept shortly.");
-            // Redirect to payment in real app
+        if(selectedPayment === 'UPI') {
+            window.location.href = `upi://pay?pa=kingkhan33648@okicici&pn=UrbanPaint&am=49&cu=INR`;
+        } else {
+            db.ref('orders/' + Date.now()).set({
+                user: auth.currentUser.email,
+                addr: addr,
+                mode: 'COD',
+                amt: 49,
+                status: 'Pending'
+            });
+            alert("Order Placed via Cash on Delivery!");
+            closeAll();
+        }
+    }
+
+    function genInvoice() {
+        const doc = new window.jspdf.jsPDF();
+        doc.text("UrbanPaintPro - Computer Generated Bill", 20, 20);
+        doc.autoTable({
+            head: [['Description', 'Value']],
+            body: [
+                ['Product', document.getElementById('prod-sel').options[document.getElementById('prod-sel').selectedIndex].text],
+                ['Area', document.getElementById('sqft').value + ' sqft'],
+                ['Total Estimate', document.getElementById('total-price').innerText]
+            ],
+            startY: 30
         });
+        doc.save("Invoice.pdf");
+    }
+
+    function openSheet(id) { document.getElementById('overlay').classList.add('active'); document.getElementById(id).classList.add('active'); }
+    function closeAll() { document.getElementById('overlay').classList.remove('active'); document.querySelectorAll('.bottom-sheet').forEach(e => e.classList.remove('active')); }
+    function nav(p, e) {
+        document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active'));
+        document.getElementById(p).classList.add('active');
+        if(e) e.classList.add('active'); else document.querySelector(`.nav-btn[onclick*='${p}']`).classList.add('active');
     }
 </script>
 </body>
