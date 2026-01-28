@@ -130,22 +130,22 @@
         
         <div class="card" style="padding:0;">
             <div class="menu-item" onclick="openFS('fs-bookings')"><i class="fa-solid fa-calendar-check"></i><span>My Bookings</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i></div>
-            <div class="menu-item" onclick="openFS('fs-personal')"><i class="fa-solid fa-user-pen"></i><span>Personal Details</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i></div>
-            <div class="menu-item" onclick="openFS('fs-about')"><i class="fa-solid fa-circle-info"></i><span>About Company</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i></div>
+            <div class="menu-item" onclick="openFS('fs-personal')"><i class="fa-solid fa-user-pen"></i><span>My Account</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i></div>
+            <div class="menu-item" onclick="openFS('fs-about')"><i class="fa-solid fa-circle-info"></i><span>About</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i></div>
             <div class="menu-item" onclick="logout()" style="color:red;"><i class="fa-solid fa-power-off" style="color:red"></i><span>Logout</span></div>
         </div>
     </div>
 </div>
 
 <div class="full-sheet" id="fs-login">
-    <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-login')"></i> Login</div>
+    <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-login')"></i> Sign-in</div>
     <div class="fs-body" style="display:flex; flex-direction:column; justify-content:center;">
         <h2 style="margin-bottom:20px;">Welcome Back</h2>
         <input type="email" id="l-email" class="inp" placeholder="Email Address">
         <input type="password" id="l-pass" class="inp" placeholder="Password">
         <div style="text-align:right; margin-bottom:20px;"><span style="color:var(--p); font-size:0.9rem;" onclick="resetPass()">Forgot Password?</span></div>
         <button class="btn" onclick="login()">Log In</button>
-        <button class="btn outline" onclick="googleLogin()"><i class="fa-brands fa-google"></i> Google Login</button>
+        <button class="btn outline" onclick="googleLogin()"><i class="fa-brands fa-google"></i> Google Sign-in</button>
         <p style="text-align:center; margin-top:20px;">Don't have an account? <b style="color:var(--p);" onclick="switchAuth('signup')">Sign Up</b></p>
     </div>
 </div>
@@ -185,7 +185,7 @@
         <div class="card"><b>✅ Expert Painters</b><br><small>Verified, Trained & Professional</small></div>
         <div class="card"><b>✅ On-Time Completion</b><br><small>Strict timelines followed</small></div>
         <div class="card"><b>✅ Laser Measurement</b><br><small>Accurate pricing, no hidden costs</small></div>
-        <div class="card"><b>✅ 1 Year Warranty</b><br><small>On all premium services</small></div>
+        <div class="card"><b>✅ 2 Year Warranty</b><br><small>On all premium services</small></div>
     </div>
 </div>
 
@@ -246,7 +246,7 @@
                 {n:"SmartCare Damp Block", p:85}, {n:"SmartCare Crack Fill", p:120}
             ],
             "Wood/Metal": [
-                {n:"Apcolite Enamel", p:25}, {n:"PU Gloss", p:180}, {n:"Duco Auto", p:160}, {n:"Melamine", p:110}
+                {n:"Apcolite Enamel", p:18}, {n:"PU Gloss-Starting", p:120-380}, {n:"Duco ", p:160-260}, {n:"Melamine", p:110-350}
             ]
         },
         "Berger": {
