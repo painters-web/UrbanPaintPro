@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Urban Partner | Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --p: #10B981; --bg: #111827; --card: #1F2937; --text: #F9FAFB; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+        
+        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #374151; background: #1F2937; }
+        .logo { font-weight: 800; font-size: 1.1rem; color: var(--p); letter-spacing: 1px; }
+        .status-toggle { background: rgba(16, 185, 129, 0.2); color: var(--p); padding: 5px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+        .dot { width: 8px; height: 8px; background: var(--p); border-radius: 50%; box-shadow: 0 0 10px var(--p); }
+
+        .tabs { display: flex; padding: 10px; gap: 10px; }
+        .tab { flex: 1; padding: 12px; text-align: center; background: #374151; border-radius: 12px; font-size: 0.85rem; font-weight: 600; color: #9CA3AF; cursor: pointer; }
+        .tab.active { background: var(--p); color: white; }
+
+        .content { height: calc(100vh - 140px); overflow-y: auto; padding: 10px 20px; }
+        
+        /* Lead Card */
+        .lead-card { background: var(--card); padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #374151; animation: popIn 0.3s ease; }
+        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .lead-head { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #374151; padding-bottom: 10px; }
+        .lead-tag { background: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; color: #D1D5DB; }
+        .lead-price { font-size: 1.2rem; font-weight: 700; color: var(--p); }
+        
+        .lead-row { display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #D1D5DB; align-items: center; }
+        .lead-row i { color: #6B7280; width: 20px; }
+
+        .accept-btn { width: 100%; background: var(--p); color: white; padding: 14px; border: none; border-radius: 12px; font-weight: 800; font-size: 1rem; margin-top: 15px; cursor: pointer; }
+        .accept-btn:active { opacity: 0.9; transform: scale(0.98); }
+        
+        .empty-state { text-align: center; margin-top: 50px; color: #6B7280; }
+        .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="logo">URBAN PARTNER</div>
+    <div class="status-toggle"><div class="dot"></div> ONLINE</div>
+</div>
+
+<div class="tabs">
+    <div class="tab active" onclick="switchTab('new')">New Leads ( <span id="lead-count">0</span> )</div>
+    <div class="tab" onclick="switchTab('jobs')">My Jobs</div>
+</div>
+
+<div class="content" id="leads-container">
+    <div class="empty-state">
+        <i class="fa-solid fa-radar"></i>
+        <p>Searching for leads nearby...</p>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
+      authDomain: "professionalpainters-28488.firebaseapp.com",
+      projectId: "professionalpainters-28488",
+      databaseURL: "https://professionalpainters-28488-default-rtdb.firebaseio.com",
+      storageBucket: "professionalpainters-28488.firebasestorage.app",
+      messagingSenderId: "233510965012",
+      appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let currentTab = 'new';
+
+    // Listen for Realtime Leads
+    db.ref('orders').on('value', snap => {
+        const data = snap.val();
+        renderLeads(data);
+    });
+
+    function renderLeads(data) {
+        const container = document.getElementById('leads-container');
+        if(!data) return;
+
+        const allOrders = Object.values(data);
+        // Filter based on tab
+        const leads = allOrders.filter(o => currentTab === 'new' ? o.status === 'Pending' : o.status === 'Accepted');
+        
+        document.getElementById('lead-count').innerText = allOrders.filter(o => o.status === 'Pending').length;
+
+        if(leads.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-check-circle"></i><p>No jobs found here.</p></div>`;
+            return;
+        }
+
+        container.innerHTML = leads.map(o => `
+            <div class="lead-card">
+                <div class="lead-head">
+                    <span class="lead-tag">${o.service}</span>
+                    <span class="lead-price">₹49 Visit</span>
+                </div>
+                <div class="lead-row"><i class="fa-solid fa-user"></i> ${o.name}</div>
+                <div class="lead-row"><i class="fa-solid fa-map-pin"></i> ${o.address}</div>
+                <div class="lead-row"><i class="fa-solid fa-calendar"></i> ${o.date}</div>
+                ${currentTab === 'new' 
+                    ? `<button class="accept-btn" onclick="acceptJob('${o.id}')">ACCEPT LEAD</button>` 
+                    : `<a href="tel:${o.phone}"><button class="accept-btn" style="background:#374151">CALL CUSTOMER</button></a>`
+                }
+            </div>
+        `).join('');
+    }
+
+    function acceptJob(id) {
+        if(confirm("Are you sure you want to accept this lead?")) {
+            // Update status in Realtime Database
+            db.ref('orders/' + id).update({
+                status: "Accepted",
+                partner: "Partner1" // In real app, this would be Partner ID
+            });
+            alert("Lead Accepted! Check 'My Jobs' tab.");
+        }
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        // Re-trigger render
+        db.ref('orders').once('value', snap => renderLeads(snap.val()));
+    }
+</script>
+</body>
+</html>
