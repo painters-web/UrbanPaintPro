@@ -20,10 +20,12 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
+        /* Splash & Loaders */
         #splash { position: fixed; inset: 0; background: var(--white); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
         .logo-load { font-size: 2rem; font-weight: 800; color: var(--p); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
+        /* Headers & Nav */
         .header { position: absolute; top: 0; width: 100%; height: 60px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; border-bottom: 1px solid #F1F5F9; }
         .logo { font-weight: 800; font-size: 1.2rem; color: var(--p); }
         .user-icon { width: 32px; height: 32px; border-radius: 50%; background: #EEF2FF; display: flex; align-items: center; justify-content: center; color: var(--p); cursor: pointer; }
@@ -32,35 +34,43 @@
         .page.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Common Elements */
         .card { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 15px; }
         .inp { width: 100%; padding: 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; font-weight: 600; font-size: 0.9rem; outline: none; margin-bottom: 10px; transition: 0.3s; }
-        
         .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--p); color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; }
         .btn.outline { background: transparent; border: 2px solid #E2E8F0; color: var(--text); }
 
-        .qty-box { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 12px; margin-bottom: 15px; color: white; }
-        .qty-btn { width: 30px; height: 30px; border-radius: 50%; border: none; background: white; color: var(--p); font-weight: bold; cursor: pointer; }
+        /* AAPKA NAYA CSS (Merged Section) */
+        .merged-section { background: #EEF2FF; border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px dashed var(--p); }
+        .merged-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .merged-label { font-weight: 700; font-size: 0.85rem; color: var(--p); }
 
-        .status-screen { position: fixed; inset: 0; background: white; z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
-        .status-screen.active { display: flex; }
-        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 20px; animation: scaleIn 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-        .success-icon { background: #dcfce7; color: var(--success); }
-        .error-icon { background: #fee2e2; color: var(--error); }
-        @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .full-sheet { position: fixed; inset: 0; background: var(--white); z-index: 5000; transform: translateX(100%); transition: 0.3s; display: flex; flex-direction: column; }
+        /* Sheets & Overlays */
+        .full-sheet { position: fixed; inset: 0; background: var(--white); z-index: 5000; transform: translateX(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
         .full-sheet.active { transform: translateX(0); }
         .fs-header { padding: 15px 20px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 15px; font-weight: 700; font-size: 1.1rem; }
         .fs-body { flex: 1; overflow-y: auto; padding: 20px; }
 
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; backdrop-filter: blur(2px); }
-        .sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); border-radius: 25px 25px 0 0; padding: 25px; z-index: 2001; transform: translateY(100%); transition: 0.4s; max-height: 85vh; overflow-y: auto; }
+        .sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); border-radius: 25px 25px 0 0; padding: 25px; z-index: 2001; transform: translateY(100%); transition: 0.4s; }
         .sheet.active { transform: translateY(0); }
 
+        /* Menu Items */
+        .menu-item { display: flex; align-items: center; gap: 15px; padding: 18px; border-bottom: 1px solid #F8FAFC; cursor: pointer; }
+        .menu-item span { flex: 1; font-weight: 600; font-size: 0.95rem; }
+
+        /* Nav */
         .nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--white); border-top: 1px solid #F1F5F9; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
         .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; }
         .nav-item.active { color: var(--p); }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+        
+        /* Status Screen */
+        .status-screen { position: fixed; inset: 0; background: white; z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+        .status-screen.active { display: flex; }
+        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 20px; animation: scaleIn 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        .success-icon { background: #dcfce7; color: var(--success); }
+        @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -72,60 +82,58 @@
     </div>
 
     <div id="home" class="page active">
-        <div class="card" style="background: linear-gradient(135deg, #1E1B4B, #312E81); color: white;">
-            <h2 style="margin-bottom:15px;">Cost Calculator</h2>
+        <div class="card" style="margin-bottom: 10px; border-bottom: 3px solid var(--p);">
+            <h3 style="margin-bottom:15px;"><i class="fa-solid fa-layer-group"></i> Define Work Area</h3>
             
-            <label style="font-size:0.75rem; opacity:0.8;">SCOPE OF WORK</label>
-            <select id="scope-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="calc()">
-                <option value="1" style="color:black">Full Home Painting</option>
-                <option value="0.3" style="color:black">Partial (1-2 Rooms)</option>
-                <option value="0.1" style="color:black">Single Wall Accent</option>
-            </select>
-
-            <label style="font-size:0.75rem; opacity:0.8;">BRAND & CATEGORY</label>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-                <select id="brand-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadCats()">
-                    <option value="Asian" style="color:black">Asian Paints</option>
-                    <option value="Berger" style="color:black">Berger Paints</option>
-                </select>
-                <select id="cat-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadProds()"></select>
+            <div class="merged-section">
+                <div class="merged-header">
+                    <span class="merged-label">Select Scope</span>
+                    <span class="merged-label">Unit Count</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; align-items: center;">
+                    <select id="scope-sel" class="inp" style="margin-bottom:0;" onchange="calc()">
+                        <option value="1">Full Home Painting</option>
+                        <option value="0.3">Partial (1-2 Rooms)</option>
+                        <option value="0.1">Single Wall Accent</option>
+                    </select>
+                    
+                    <div style="display:flex; align-items:center; justify-content:center; gap:10px; background:white; padding:8px; border-radius:12px; border:1px solid #E2E8F0;">
+                        <button onclick="updateQty(-1)" style="border:none; background:none; color:var(--p); font-weight:800; cursor:pointer;">-</button>
+                        <b id="qty-val" style="min-width:20px; text-align:center;">1</b>
+                        <button onclick="updateQty(1)" style="border:none; background:none; color:var(--p); font-weight:800; cursor:pointer;">+</button>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <select id="prod-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="calc()"></select>
-
-            <label style="font-size:0.75rem; opacity:0.8;">QUANTITY</label>
-            <div class="qty-box">
-                <span>Units</span>
-                <div style="display:flex; align-items:center; gap:15px;">
-                    <button class="qty-btn" onclick="updateQty(-1)">-</button>
-                    <b id="qty-val">1</b>
-                    <button class="qty-btn" onclick="updateQty(1)">+</button>
+        <div class="card" style="background: linear-gradient(135deg, #1E1B4B, #312E81); color: white;">
+            <h3 style="margin-bottom:15px; color: #A5B4FC;"><i class="fa-solid fa-fill-drip"></i> Paint Selection</h3>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                    <label style="font-size:0.7rem; opacity:0.8;">BRAND</label>
+                    <select id="brand-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadCats()">
+                        <option value="Asian" style="color:black">Asian Paints</option>
+                        <option value="Berger" style="color:black">Berger Paints</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.7rem; opacity:0.8;">CATEGORY</label>
+                    <select id="cat-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadProds()"></select>
                 </div>
             </div>
 
+            <label style="font-size:0.7rem; opacity:0.8;">CHOOSE PRODUCT</label>
+            <select id="prod-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="calc()"></select>
+
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; border-top:1px solid rgba(255,255,255,0.2); padding-top:15px;">
-                <div><small>Estimated</small><h2 id="total-price">₹0</h2></div>
-                <button class="btn" style="background:white; color:var(--p); width:auto; padding:8px 15px; font-size:0.8rem;" onclick="genInvoice()">Bill</button>
+                <div><small>Estimated Estimate</small><h2 id="total-price">₹0</h2></div>
+                <button class="btn" style="background:white; color:var(--p); width:auto; padding:8px 15px; font-size:0.8rem;" onclick="genInvoice()">Download Bill</button>
             </div>
         </div>
-        <button class="btn" onclick="startBooking()">Book Home Visit @ ₹49</button>
-    </div>
 
-    <div id="status-success" class="status-screen">
-        <div class="icon-circle success-icon"><i class="fa-solid fa-check"></i></div>
-        <h2 style="color:var(--success)">Order Successful!</h2>
-        <p style="margin-top:10px; color:#64748B;">A professional will visit to verify wall conditions. Final price will be shared after inspection.</p>
-        <button class="btn" onclick="nav('orders')">View My Bookings</button>
+        <button class="btn" onclick="startBooking()">Book Inspection Visit</button>
     </div>
-
-    <div id="status-failed" class="status-screen">
-        <div class="icon-circle error-icon"><i class="fa-solid fa-xmark"></i></div>
-        <h2 style="color:var(--error)">Order Failed</h2>
-        <p style="margin-top:10px; color:#64748B;">Something went wrong with the payment.</p>
-        <button class="btn" onclick="retryPayment()">Pay Again</button>
-        <button class="btn outline" onclick="closeStatus()">Go Back</button>
-    </div>
-
     <div id="orders" class="page">
         <h2>My Projects</h2>
         <div id="order-list" style="margin-top:20px;"></div>
@@ -137,40 +145,82 @@
         </div>
         <div id="profile-ui" style="display:none;">
             <div style="text-align:center; margin-bottom:30px;">
+                <div style="width:80px; height:80px; background:var(--p); color:white; font-size:2rem; font-weight:800; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto;" id="avatar">U</div>
                 <h3 id="u-name">User</h3>
                 <p id="u-email" style="color:#64748B; font-size:0.9rem;"></p>
                 <div id="u-plan-badge" style="margin-top:5px;"></div>
             </div>
+            
             <div class="card" style="padding:0;">
+                <div class="menu-item" onclick="openFS('fs-plans')">
+                    <i class="fa-solid fa-crown" style="color: gold;"></i><span>My Plans</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
                 <div class="menu-item" onclick="openFS('fs-bookings')">
-                    <i class="fa-solid fa-calendar-check" style="margin-left:15px; color:var(--p);"></i><span>My Bookings</span>
+                    <i class="fa-solid fa-calendar-check" style="color: var(--p);"></i><span>My Bookings</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-addresses')">
+                    <i class="fa-solid fa-map-location-dot" style="color: #e74c3c;"></i><span>Manage Addresses</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-settings')">
+                    <i class="fa-solid fa-gear" style="color: #64748B;"></i><span>Settings</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-help')">
+                    <i class="fa-solid fa-headset" style="color: #10b981;"></i><span>Help Center</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-personal')">
+                    <i class="fa-solid fa-user-pen"></i><span>Edit Profile</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-about')">
+                    <i class="fa-solid fa-circle-info"></i><span>About App</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
                 </div>
                 <div class="menu-item" onclick="logout()" style="color:red;">
-                    <i class="fa-solid fa-power-off" style="margin-left:15px; color:red"></i><span>Logout</span>
+                    <i class="fa-solid fa-power-off" style="color:red"></i><span>Logout</span>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="status-success" class="status-screen">
+        <div class="icon-circle success-icon"><i class="fa-solid fa-check"></i></div>
+        <h2 style="color:var(--success)">Order Successful!</h2>
+        <p style="margin-top:10px; color:#64748B;">A professional will visit shortly.</p>
+        <button class="btn" onclick="window.location.reload()">Done</button>
+    </div>
+
     <div class="full-sheet" id="fs-login">
         <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-login')"></i> Sign-in</div>
-        <div class="fs-body">
+        <div class="fs-body" style="display:flex; flex-direction:column; justify-content:center;">
             <input type="email" id="l-email" class="inp" placeholder="Email Address">
             <input type="password" id="l-pass" class="inp" placeholder="Password">
             <button class="btn" onclick="login()">Log In</button>
+            <p style="text-align:center; margin-top:20px;">New user? <b style="color:var(--p);" onclick="switchAuth('signup')">Sign Up</b></p>
         </div>
     </div>
-
-    <div class="full-sheet" id="fs-bookings">
-        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-bookings')"></i> My Bookings</div>
-        <div class="fs-body" id="my-booking-list-fs"></div>
+    <div class="full-sheet" id="fs-signup">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-signup')"></i> Create Account</div>
+        <div class="fs-body">
+            <input type="text" id="s-name" class="inp" placeholder="Full Name">
+            <input type="email" id="s-email" class="inp" placeholder="Email Address">
+            <input type="password" id="s-pass" class="inp" placeholder="Password">
+            <button class="btn" onclick="signup()">Create Account</button>
+        </div>
     </div>
+    <div class="full-sheet" id="fs-plans"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-plans')"></i> Plans</div><div class="fs-body" id="fs-plans-content"></div></div>
+    <div class="full-sheet" id="fs-bookings"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-bookings')"></i> My Bookings</div><div class="fs-body" id="my-booking-list"></div></div>
+    <div class="full-sheet" id="fs-addresses"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-addresses')"></i> Addresses</div><div class="fs-body" id="address-list"><div class="card"><input type="text" id="new-address-input" placeholder="New address..." class="inp"><button onclick="saveNewAddress()" class="btn" style="margin-top:0;">Save</button></div><div id="saved-addr-list" style="margin-top:15px;"></div></div></div>
+    <div class="full-sheet" id="fs-settings"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-settings')"></i> Settings</div><div class="fs-body"><div class="card">Settings Panel</div></div></div>
+    <div class="full-sheet" id="fs-help"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-help')"></i> Help</div><div class="fs-body" onclick="startHybridAIChat()">Start AI Chat</div></div>
+    <div class="full-sheet" id="fs-personal"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-personal')"></i> Profile</div><div class="fs-body"><input type="text" id="edit-name" class="inp" placeholder="Name"><button class="btn" onclick="updateProfile()">Save</button></div></div>
+    <div class="full-sheet" id="fs-about"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-about')"></i> About</div><div class="fs-body">UrbanPaintPro v2.0</div></div>
 
     <div class="overlay" id="overlay" onclick="closeSheet()"></div>
-    <div class="sheet" id="sheet-tnc">
-        <h3>Booking Terms</h3>
-        <p style="margin:15px 0; font-size:0.85rem; color:#64748B;">Final price depends on actual wall condition measured by our expert.</p>
-        <button class="btn" onclick="acceptTNC()">Accept & Pay ₹49</button>
+    <div class="sheet" id="sheet-book">
+        <h3>Confirm Booking</h3>
+        <p style="margin-bottom:15px; font-size:0.9rem;" id="visit-charge-display">Visiting Charge: ₹49</p>
+        <button class="btn outline" onclick="autoLoc()">Auto Detect Location</button>
+        <input type="text" id="b-addr" class="inp" placeholder="Full Address">
+        <input type="number" id="b-pin" class="inp" placeholder="Pincode (NCR)">
+        <button class="btn" onclick="placeOrder()">Confirm Booking</button>
     </div>
 
     <div class="nav">
@@ -179,48 +229,13 @@
         <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-user"></i>Account</div>
     </div>
 
-    <script>
-        const firebaseConfig = {
-          apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
-          authDomain: "professionalpainters-28488.firebaseapp.com",
-          projectId: "professionalpainters-28488",
-          databaseURL: "https://professionalpainters-28488-default-rtdb.firebaseio.com",
-          storageBucket: "professionalpainters-28488.firebasestorage.app",
-          messagingSenderId: "233510965012",
-          appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
+    function updateUI(u) {
+            document.getElementById('u-name').innerText = u.displayName || 'User';
+            document.getElementById('u-email').innerText = u.email;
+            document.getElementById('avatar').innerText = u.displayName ? u.displayName[0].toUpperCase() : 'U';
+        }
 
-        let currentQty = 1;
-        const catalog = {
-            "Asian": {
-                "Interior": [{n:"Tractor Emulsion", p:14}, {n:"Royale Luxury", p:28}],
-                "Exterior": [{n:"Ace Exterior", p:16}, {n:"Apex Ultima", p:32}],
-                "Waterproofing": [{n:"Damp Block", p:85}],
-                "PU/Polish": [{n:"PU Gloss", p:180}]
-            },
-            "Berger": {
-                "Interior": [{n:"Bison Emulsion", p:15}, {n:"Silk Glamor", p:34}],
-                "Exterior": [{n:"Walmasta", p:18}, {n:"Weathercoat", p:40}]
-            }
-        };
-
-        window.onload = () => {
-            loadCats();
-            setTimeout(() => { document.getElementById('splash').style.display='none'; }, 2000);
-            auth.onAuthStateChanged(u => {
-                if(u) {
-                    document.getElementById('auth-ui').style.display='none';
-                    document.getElementById('profile-ui').style.display='block';
-                    document.getElementById('u-name').innerText = u.displayName || 'User';
-                    document.getElementById('u-email').innerText = u.email;
-                    loadOrders(u.email);
-                }
-            });
-        };
-
+        // NEW LOGIC FOR MERGED QUANTITY
         function updateQty(v) {
             currentQty = Math.max(1, currentQty + v);
             document.getElementById('qty-val').innerText = currentQty;
@@ -243,72 +258,114 @@
         }
 
         function calc() {
-            const p = parseFloat(document.getElementById('prod-sel').value);
-            const scope = parseFloat(document.getElementById('scope-sel').value);
-            const total = Math.round((p + 12) * currentQty * scope * 100); 
+            const p = parseFloat(document.getElementById('prod-sel').value) || 0;
+            const scope = parseFloat(document.getElementById('scope-sel').value) || 1;
+            const total = Math.round((p + 15) * currentQty * scope * 100); 
             document.getElementById('total-price').innerText = "₹" + total.toLocaleString('en-IN');
         }
 
         function startBooking() {
             if(!auth.currentUser) return openFS('fs-login');
             document.getElementById('overlay').style.display='block';
-            document.getElementById('sheet-tnc').classList.add('active');
+            document.getElementById('sheet-book').classList.add('active');
         }
 
-        function acceptTNC() {
-            closeSheet();
-            payNow(49);
-        }
+        function placeOrder() {
+            const addr = document.getElementById('b-addr').value;
+            const pin = document.getElementById('b-pin').value;
+            if(!addr || !pin) return alert("Details missing");
 
-        function payNow(amt) {
-            const options = {
-                "key": "rzp_test_S9bZgZmbrF8kPi", 
-                "amount": amt * 100,
-                "name": "UrbanPaintPro",
-                "handler": function (res) { recordOrder(res.razorpay_payment_id, "Booked"); },
-                "modal": { "ondismiss": function() { recordOrder("FAILED_"+Date.now(), "Failed"); } }
-            };
-            const rzp = new Razorpay(options);
-            rzp.open();
-        }
-
-        function recordOrder(payId, status) {
-            const data = {
+            db.ref('orders').push({
                 user: auth.currentUser.email,
+                scope: document.getElementById('scope-sel').options[document.getElementById('scope-sel').selectedIndex].text,
+                quantity: currentQty,
+                paint: document.getElementById('prod-sel').options[document.getElementById('prod-sel').selectedIndex].text,
+                estimate: document.getElementById('total-price').innerText,
+                addr: addr,
+                pin: pin,
                 amt: 49,
-                payId: payId,
-                status: status === "Booked" ? "Pending" : "Payment Failed",
-                date: new Date().toLocaleDateString()
-            };
-            db.ref('orders').push(data);
-            if(status === "Booked") document.getElementById('status-success').classList.add('active');
-            else document.getElementById('status-failed').classList.add('active');
-        }
-
-        function loadOrders(email) {
-            db.ref('orders').orderByChild('user').equalTo(email).on('value', snap => {
-                const html = snap.exists() ? Object.values(snap.val()).reverse().map(o => `
-                    <div class="card" style="border-left: 5px solid ${o.status==='Pending'?'orange':'red'}">
-                        <b>Status: ${o.status}</b><br><small>Date: ${o.date}</small>
-                    </div>
-                `).join('') : '<p>No bookings yet.</p>';
-                document.getElementById('order-list').innerHTML = html;
-                document.getElementById('my-booking-list-fs').innerHTML = html;
+                status: "Pending",
+                date: new Date().toLocaleString()
+            }).then(() => {
+                document.getElementById('status-success').classList.add('active');
+                closeSheet();
             });
         }
 
-        function nav(p, e) {
-            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-            document.getElementById(p).classList.add('active');
+        // --- EXISTING UTILS (Safe) ---
+        function loadRealData(uid) {
+            db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
+                const list = document.getElementById('order-list'); 
+                const myBookings = document.getElementById('my-booking-list');
+                if(snap.exists()) {
+                    const html = Object.values(snap.val()).reverse().map(o => `<div class="card" style="border-left:4px solid orange"><b>${o.status}</b><br>${o.date}</div>`).join('');
+                    if(list) list.innerHTML = html;
+                    if(myBookings) myBookings.innerHTML = html;
+                }
+            });
+            // Address logic...
+            db.ref('users/' + uid + '/addresses').on('value', snap => {
+                const c = document.getElementById('saved-addr-list');
+                if(snap.exists()) {
+                    let h = ""; snap.forEach(s => { h += `<div class="menu-item"><span>${s.val()}</span><i class="fa-solid fa-trash" onclick="delAddr('${s.key}')"></i></div>`; });
+                    c.innerHTML = h;
+                }
+            });
         }
+        function saveNewAddress() { const v=document.getElementById('new-address-input').value; if(v) db.ref('users/'+auth.currentUser.uid+'/addresses').push(v); }
+        function delAddr(k) { db.ref('users/'+auth.currentUser.uid+'/addresses/'+k).remove(); }
+        
+        function switchAuth(type) { document.getElementById('fs-login').classList.remove('active'); document.getElementById('fs-signup').classList.remove('active'); document.getElementById('fs-'+type).classList.add('active'); }
+        function login() { const e = document.getElementById('l-email').value, p = document.getElementById('l-pass').value; if(e) auth.signInWithEmailAndPassword(e,p).then(()=>closeFS('fs-login')).catch(e=>alert(e.message)); }
+        function signup() { const n = document.getElementById('s-name').value, e = document.getElementById('s-email').value, p = document.getElementById('s-pass').value; if(n && e) auth.createUserWithEmailAndPassword(e,p).then(c => { c.user.updateProfile({displayName: n}); db.ref('users/'+c.user.uid).set({ profile: {name: n, email: e}, plan: {name: "Free Member", exp: "Lifetime"} }); closeFS('fs-signup'); }).catch(e=>alert(e.message)); }
+        function logout() { auth.signOut().then(()=>location.reload()); }
+        function genInvoice() { alert("Invoice Generated!"); }
+        function updateProfile() { const n = document.getElementById('edit-name').value; if(n && auth.currentUser) { auth.currentUser.updateProfile({displayName: n}); db.ref('users/'+auth.currentUser.uid+'/profile/name').set(n); alert("Updated!"); closeFS('fs-personal'); } }
+        
+        // UTILS
+        function acceptTNC() { document.getElementById('sheet-tnc').classList.remove('active'); document.getElementById('sheet-book').classList.add('active'); }
+        function autoLoc() { if(navigator.geolocation) { navigator.geolocation.getCurrentPosition(p => { document.getElementById('b-addr').value = "GPS: "+p.coords.latitude.toFixed(4)+", "+p.coords.longitude.toFixed(4); }); } }
         function openFS(id) { document.getElementById(id).classList.add('active'); }
         function closeFS(id) { document.getElementById(id).classList.remove('active'); }
         function closeSheet() { document.getElementById('overlay').style.display='none'; document.querySelectorAll('.sheet').forEach(s => s.classList.remove('active')); }
-        function closeStatus() { document.querySelectorAll('.status-screen').forEach(s => s.classList.remove('active')); }
-        function login() { const e = document.getElementById('l-email').value; if(e) auth.signInWithEmailAndPassword(e,"password123").then(()=>closeFS('fs-login')); }
-        function logout() { auth.signOut().then(()=>location.reload()); }
-        function genInvoice() { alert("Invoice Generated!"); }
-        function retryPayment() { closeStatus(); payNow(49); }
+        function nav(p, e) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active')); document.getElementById(p).classList.add('active'); if(e) e.classList.add('active'); else document.querySelector(`.nav-item[onclick*='${p}']`)?.classList.add('active'); }
+        function startHybridAIChat() { alert("🤖 Hybrid AI connecting..."); }
     </script>
 </body>
 </html>
+
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
+          authDomain: "professionalpainters-28488.firebaseapp.com",
+          projectId: "professionalpainters-28488",
+          databaseURL: "https://professionalpainters-28488-default-rtdb.firebaseio.com",
+          storageBucket: "professionalpainters-28488.firebasestorage.app",
+          messagingSenderId: "233510965012",
+          appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let currentQty = 1;
+        let userPlanDetails = { name: "Free User" };
+
+        const catalog = {
+            "Asian": { "Interior": [{n:"Tractor Emulsion", p:14}, {n:"Royale Luxury", p:28}], "Exterior": [{n:"Ace Exterior", p:16}, {n:"Apex Ultima", p:32}] },
+            "Berger": { "Interior": [{n:"Bison Emulsion", p:15}, {n:"Silk Glamor", p:34}], "Exterior": [{n:"Walmasta", p:18}, {n:"Weathercoat", p:40}] }
+        };
+
+        window.onload = () => {
+            loadCats();
+            setTimeout(() => { document.getElementById('splash').style.display='none'; }, 2000);
+            auth.onAuthStateChanged(u => {
+                if(u) {
+                    document.getElementById('auth-ui').style.display='none';
+                    document.getElementById('profile-ui').style.display='block';
+                    updateUI(u);
+                    loadRealData(u.uid);
+                }
+            });
+        };
+        
