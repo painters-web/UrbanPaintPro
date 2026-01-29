@@ -16,61 +16,67 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        :root { --p: #4F46E5; --bg: #F8FAFC; --text: #0F172A; --white: #FFFFFF; --success: #22c55e; --error: #ef4444; }
+        :root { --p: #4F46E5; --bg: #F8FAFC; --text: #0F172A; --white: #FFFFFF; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        /* Splash & Loaders */
+        /* Splash */
         #splash { position: fixed; inset: 0; background: var(--white); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
         .logo-load { font-size: 2rem; font-weight: 800; color: var(--p); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
-        /* Headers & Nav */
+        /* Header */
         .header { position: absolute; top: 0; width: 100%; height: 60px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; border-bottom: 1px solid #F1F5F9; }
         .logo { font-weight: 800; font-size: 1.2rem; color: var(--p); }
         .user-icon { width: 32px; height: 32px; border-radius: 50%; background: #EEF2FF; display: flex; align-items: center; justify-content: center; color: var(--p); cursor: pointer; }
 
+        /* Pages */
         .page { height: 100%; padding: 80px 20px 100px; overflow-y: auto; display: none; }
         .page.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Common Elements */
+        /* Cards & Inputs */
         .card { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 15px; }
         .inp { width: 100%; padding: 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; font-weight: 600; font-size: 0.9rem; outline: none; margin-bottom: 10px; transition: 0.3s; }
+        .inp:focus { background: var(--white); border-color: var(--p); }
+        
         .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--p); color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; }
         .btn.outline { background: transparent; border: 2px solid #E2E8F0; color: var(--text); }
 
-        /* AAPKA NAYA CSS (Merged Section) */
-        .merged-section { background: #EEF2FF; border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px dashed var(--p); }
-        .merged-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .merged-label { font-weight: 700; font-size: 0.85rem; color: var(--p); }
-
-        /* Sheets & Overlays */
-        .full-sheet { position: fixed; inset: 0; background: var(--white); z-index: 5000; transform: translateX(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        /* Full Screen Sheets */
+        .full-sheet { 
+            position: fixed; inset: 0; background: var(--white); z-index: 5000; 
+            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
+        }
         .full-sheet.active { transform: translateX(0); }
         .fs-header { padding: 15px 20px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 15px; font-weight: 700; font-size: 1.1rem; }
         .fs-body { flex: 1; overflow-y: auto; padding: 20px; }
 
+        /* Bottom Sheet */
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; backdrop-filter: blur(2px); }
-        .sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); border-radius: 25px 25px 0 0; padding: 25px; z-index: 2001; transform: translateY(100%); transition: 0.4s; }
+        .sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); border-radius: 25px 25px 0 0; padding: 25px; z-index: 2001; transform: translateY(100%); transition: 0.4s; max-height: 85vh; overflow-y: auto; }
         .sheet.active { transform: translateY(0); }
 
-        /* Menu Items */
+        /* Account Menu */
         .menu-item { display: flex; align-items: center; gap: 15px; padding: 18px; border-bottom: 1px solid #F8FAFC; cursor: pointer; }
+        .menu-item:last-child { border: none; }
+        .menu-item i { width: 25px; font-size: 1.2rem; }
         .menu-item span { flex: 1; font-weight: 600; font-size: 0.95rem; }
 
-        /* Nav */
+        /* Settings Toggle Switch CSS */
+        .switch { position: relative; display: inline-block; width: 45px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--p); }
+        input:checked + .slider:before { transform: translateX(21px); }
+
+        /* Nav Bar */
         .nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--white); border-top: 1px solid #F1F5F9; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
         .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; }
         .nav-item.active { color: var(--p); }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
-        
-        /* Status Screen */
-        .status-screen { position: fixed; inset: 0; background: white; z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
-        .status-screen.active { display: flex; }
-        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 20px; animation: scaleIn 0.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-        .success-icon { background: #dcfce7; color: var(--success); }
-        @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -82,58 +88,35 @@
     </div>
 
     <div id="home" class="page active">
-        <div class="card" style="margin-bottom: 10px; border-bottom: 3px solid var(--p);">
-            <h3 style="margin-bottom:15px;"><i class="fa-solid fa-layer-group"></i> Define Work Area</h3>
-            
-            <div class="merged-section">
-                <div class="merged-header">
-                    <span class="merged-label">Select Scope</span>
-                    <span class="merged-label">Unit Count</span>
-                </div>
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; align-items: center;">
-                    <select id="scope-sel" class="inp" style="margin-bottom:0;" onchange="calc()">
-                        <option value="1">Full Home Painting</option>
-                        <option value="0.3">Partial (1-2 Rooms)</option>
-                        <option value="0.1">Single Wall Accent</option>
-                    </select>
-                    
-                    <div style="display:flex; align-items:center; justify-content:center; gap:10px; background:white; padding:8px; border-radius:12px; border:1px solid #E2E8F0;">
-                        <button onclick="updateQty(-1)" style="border:none; background:none; color:var(--p); font-weight:800; cursor:pointer;">-</button>
-                        <b id="qty-val" style="min-width:20px; text-align:center;">1</b>
-                        <button onclick="updateQty(1)" style="border:none; background:none; color:var(--p); font-weight:800; cursor:pointer;">+</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="card" style="background: linear-gradient(135deg, #1E1B4B, #312E81); color: white;">
-            <h3 style="margin-bottom:15px; color: #A5B4FC;"><i class="fa-solid fa-fill-drip"></i> Paint Selection</h3>
-            
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <div>
-                    <label style="font-size:0.7rem; opacity:0.8;">BRAND</label>
-                    <select id="brand-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadCats()">
-                        <option value="Asian" style="color:black">Asian Paints</option>
-                        <option value="Berger" style="color:black">Berger Paints</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="font-size:0.7rem; opacity:0.8;">CATEGORY</label>
-                    <select id="cat-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadProds()"></select>
-                </div>
+            <h2 style="margin-bottom:15px;">Cost Calculator</h2>
+            <label style="font-size:0.75rem; opacity:0.8;">BRAND & CATEGORY</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                <select id="brand-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadCats()">
+                    <option value="Asian" style="color:black">Asian Paints</option>
+                    <option value="Berger" style="color:black">Berger Paints</option>
+                </select>
+                <select id="cat-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadProds()"></select>
             </div>
-
-            <label style="font-size:0.7rem; opacity:0.8;">CHOOSE PRODUCT</label>
             <select id="prod-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="calc()"></select>
-
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <input type="number" id="sqft" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" placeholder="Area (Sqft)" oninput="calc()">
+                <select id="work-type" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="calc()">
+                    <option value="1" style="color:black">Repaint</option>
+                    <option value="1.5" style="color:black">Repaint + Primer</option>
+                    <option value="2.5" style="color:black">Fresh Paint</option>
+                </select>
+            </div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; border-top:1px solid rgba(255,255,255,0.2); padding-top:15px;">
-                <div><small>Estimated Estimate</small><h2 id="total-price">₹0</h2></div>
-                <button class="btn" style="background:white; color:var(--p); width:auto; padding:8px 15px; font-size:0.8rem;" onclick="genInvoice()">Download Bill</button>
+                <div><small>Estimated</small><h2 id="total-price">₹0</h2></div>
+                <button class="btn" style="background:white; color:var(--p); width:auto; padding:8px 15px; font-size:0.8rem;" onclick="genInvoice()"><i class="fa-solid fa-file-invoice"></i> Bill</button>
             </div>
         </div>
-
-        <button class="btn" onclick="startBooking()">Book Inspection Visit</button>
+        
+        <button class="btn" onclick="startBooking()">Book Home Visit</button>
+        <p style="text-align:center; font-size:0.8rem; margin-top:5px; color:#64748B;">Charges: ₹49 (Free for Members)</p>
     </div>
+
     <div id="orders" class="page">
         <h2>My Projects</h2>
         <div id="order-list" style="margin-top:20px;"></div>
@@ -141,12 +124,14 @@
 
     <div id="account" class="page">
         <div id="auth-ui" style="text-align:center; padding:40px 0;">
+            <h2>Login</h2><p style="color:#64748B;">Access your dashboard</p>
             <button class="btn" onclick="openFS('fs-login')">Login / Sign Up</button>
         </div>
+
         <div id="profile-ui" style="display:none;">
             <div style="text-align:center; margin-bottom:30px;">
                 <div style="width:80px; height:80px; background:var(--p); color:white; font-size:2rem; font-weight:800; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto;" id="avatar">U</div>
-                <h3 id="u-name">User</h3>
+                <h3 id="u-name" style="margin-top:10px;">User</h3>
                 <p id="u-email" style="color:#64748B; font-size:0.9rem;"></p>
                 <div id="u-plan-badge" style="margin-top:5px;"></div>
             </div>
@@ -180,46 +165,123 @@
         </div>
     </div>
 
-    <div id="status-success" class="status-screen">
-        <div class="icon-circle success-icon"><i class="fa-solid fa-check"></i></div>
-        <h2 style="color:var(--success)">Order Successful!</h2>
-        <p style="margin-top:10px; color:#64748B;">A professional will visit shortly.</p>
-        <button class="btn" onclick="window.location.reload()">Done</button>
-    </div>
-
     <div class="full-sheet" id="fs-login">
         <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-login')"></i> Sign-in</div>
         <div class="fs-body" style="display:flex; flex-direction:column; justify-content:center;">
+            <h2 style="margin-bottom:20px;">Welcome Back</h2>
             <input type="email" id="l-email" class="inp" placeholder="Email Address">
             <input type="password" id="l-pass" class="inp" placeholder="Password">
             <button class="btn" onclick="login()">Log In</button>
-            <p style="text-align:center; margin-top:20px;">New user? <b style="color:var(--p);" onclick="switchAuth('signup')">Sign Up</b></p>
+            <p style="text-align:center; margin-top:20px;">Don't have an account? <b style="color:var(--p);" onclick="switchAuth('signup')">Sign Up</b></p>
         </div>
     </div>
+
     <div class="full-sheet" id="fs-signup">
         <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-signup')"></i> Create Account</div>
         <div class="fs-body">
+            <h2 style="margin-bottom:20px;">New Account</h2>
             <input type="text" id="s-name" class="inp" placeholder="Full Name">
             <input type="email" id="s-email" class="inp" placeholder="Email Address">
-            <input type="password" id="s-pass" class="inp" placeholder="Password">
+            <input type="password" id="s-pass" class="inp" placeholder="Password (Min 6 chars)">
             <button class="btn" onclick="signup()">Create Account</button>
+            <p style="text-align:center; margin-top:20px;">Already have an account? <b style="color:var(--p);" onclick="switchAuth('login')">Log In</b></p>
         </div>
     </div>
-    <div class="full-sheet" id="fs-plans"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-plans')"></i> Plans</div><div class="fs-body" id="fs-plans-content"></div></div>
-    <div class="full-sheet" id="fs-bookings"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-bookings')"></i> My Bookings</div><div class="fs-body" id="my-booking-list"></div></div>
-    <div class="full-sheet" id="fs-addresses"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-addresses')"></i> Addresses</div><div class="fs-body" id="address-list"><div class="card"><input type="text" id="new-address-input" placeholder="New address..." class="inp"><button onclick="saveNewAddress()" class="btn" style="margin-top:0;">Save</button></div><div id="saved-addr-list" style="margin-top:15px;"></div></div></div>
-    <div class="full-sheet" id="fs-settings"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-settings')"></i> Settings</div><div class="fs-body"><div class="card">Settings Panel</div></div></div>
-    <div class="full-sheet" id="fs-help"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-help')"></i> Help</div><div class="fs-body" onclick="startHybridAIChat()">Start AI Chat</div></div>
-    <div class="full-sheet" id="fs-personal"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-personal')"></i> Profile</div><div class="fs-body"><input type="text" id="edit-name" class="inp" placeholder="Name"><button class="btn" onclick="updateProfile()">Save</button></div></div>
-    <div class="full-sheet" id="fs-about"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-about')"></i> About</div><div class="fs-body">UrbanPaintPro v2.0</div></div>
+
+    <div class="full-sheet" id="fs-plans">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-plans')"></i> Plans & Subscription</div>
+        <div class="fs-body" id="fs-plans-content"></div>
+    </div>
+
+    <div class="full-sheet" id="fs-bookings">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-bookings')"></i> My Bookings</div>
+        <div class="fs-body">
+            <div id="my-booking-list"></div>
+        </div>
+    </div>
+
+    <div class="full-sheet" id="fs-addresses">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-addresses')"></i> Manage Addresses</div>
+        <div class="fs-body">
+            <div class="card">
+                <input type="text" id="new-address-input" placeholder="Enter new address..." class="inp">
+                <button onclick="saveNewAddress()" class="btn" style="margin-top:0;">Add Address</button>
+            </div>
+            <h3>Saved Addresses</h3>
+            <div id="address-list" class="card" style="padding:0; margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <div class="full-sheet" id="fs-settings">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-settings')"></i> Settings</div>
+        <div class="fs-body">
+            <h4 style="margin-bottom:15px; color:#64748B;">Notifications</h4>
+            <div class="card" style="padding:0;">
+                <div class="menu-item" style="justify-content:space-between;">
+                    <div><i class="fa-brands fa-whatsapp" style="color:#25D366"></i> <span>WhatsApp</span></div>
+                    <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                </div>
+                <div class="menu-item" style="justify-content:space-between;">
+                    <div><i class="fa-solid fa-bell" style="color:orange"></i> <span>Push Notifications</span></div>
+                    <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="full-sheet" id="fs-help">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-help')"></i> Help Center</div>
+        <div class="fs-body">
+            <div class="card" style="padding:0;">
+                <div class="menu-item" onclick="startHybridAIChat()">
+                    <i class="fa-solid fa-robot" style="color: #6c5ce7;"></i><span>Hybrid AI Chat</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <a href="https://wa.me/919711904092" target="_blank" style="text-decoration:none; color:inherit;">
+                    <div class="menu-item"><i class="fa-brands fa-whatsapp" style="color: #25D366;"></i><span>WhatsApp Support</span></div>
+                </a>
+                <a href="mailto:urbanpaintpro.inbox@gmail.com" style="text-decoration:none; color:inherit;">
+                    <div class="menu-item"><i class="fa-solid fa-envelope" style="color: #ea4335;"></i><span>Email Support</span></div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="full-sheet" id="fs-personal">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-personal')"></i> Edit Profile</div>
+        <div class="fs-body">
+            <input type="text" id="edit-name" class="inp" placeholder="Update Name">
+            <button class="btn" onclick="updateProfile()">Save Changes</button>
+        </div>
+    </div>
+
+    <div class="full-sheet" id="fs-about">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-about')"></i> About Us</div>
+        <div class="fs-body">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="100" style="display:block; margin:20px auto;">
+            <h2 style="text-align:center;">UrbanPaintPro</h2>
+            <div class="card" style="margin-top:20px;"><b>✅ Expert Painters</b><br><small>Verified Professionals</small></div>
+            <div class="card"><b>✅ Laser Measurement</b><br><small>Accurate pricing</small></div>
+        </div>
+    </div>
 
     <div class="overlay" id="overlay" onclick="closeSheet()"></div>
+
+    <div class="sheet" id="sheet-tnc">
+        <h3><i class="fa-solid fa-shield-halved" style="color:var(--p)"></i> Terms & Policy</h3>
+        <div style="max-height:200px; overflow-y:auto; margin:15px 0; font-size:0.9rem; color:#64748B; line-height:1.6;">
+            1. <b>Service Area:</b> Delhi NCR only.<br>
+            2. <b>Booking Fee:</b> ₹49 (Waived for Subscribers).<br>
+            3. <b>Quotation:</b> Final price upon measurement.<br>
+        </div>
+        <button class="btn" onclick="acceptTNC()">I Accept & Continue</button>
+    </div>
+
     <div class="sheet" id="sheet-book">
         <h3>Confirm Booking</h3>
-        <p style="margin-bottom:15px; font-size:0.9rem;" id="visit-charge-display">Visiting Charge: ₹49</p>
-        <button class="btn outline" onclick="autoLoc()">Auto Detect Location</button>
-        <input type="text" id="b-addr" class="inp" placeholder="Full Address">
-        <input type="number" id="b-pin" class="inp" placeholder="Pincode (NCR)">
+        <p style="margin-bottom:15px; font-size:0.9rem; color:#64748B;" id="visit-charge-display">Visiting Charge: ₹49</p>
+        <button class="btn outline" style="margin-bottom:10px; border-color:var(--p); color:var(--p);" onclick="autoLoc()"><i class="fa-solid fa-location-dot"></i> Auto Detect Location</button>
+        <input type="text" id="b-addr" class="inp" placeholder="House No, Landmark">
+        <input type="number" id="b-pin" class="inp" placeholder="Pincode (NCR Only)">
         <button class="btn" onclick="placeOrder()">Confirm Booking</button>
     </div>
 
@@ -229,97 +291,282 @@
         <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-user"></i>Account</div>
     </div>
 
-    function updateUI(u) {
+    <script>
+        // --- 1. FIREBASE CONFIG ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
+          authDomain: "professionalpainters-28488.firebaseapp.com",
+          projectId: "professionalpainters-28488",
+          databaseURL: "https://professionalpainters-28488-default-rtdb.firebaseio.com",
+          storageBucket: "professionalpainters-28488.firebasestorage.app",
+          messagingSenderId: "233510965012",
+          appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
+        };
+
+        let auth, db;
+        let userPlanDetails = { name: "Free User", status: "none" }; // Store plan globally
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.database();
+        } catch (error) { alert("Firebase Error: " + error.message); }
+
+        const catalog = {
+            "Asian": { "Interior": [{n:"Tractor Emulsion", p:14}, {n:"Royale Luxury", p:28}], "Exterior": [{n:"Ace Exterior", p:16}, {n:"Apex Ultima", p:32}] },
+            "Berger": { "Interior": [{n:"Bison Emulsion", p:15}, {n:"Silk Glamor", p:34}], "Exterior": [{n:"Walmasta", p:18}, {n:"Weathercoat", p:40}] }
+        };
+
+        window.onload = () => {
+            try {
+                loadCats();
+                setTimeout(() => { document.getElementById('splash').style.display='none'; }, 3000);
+                if(auth) {
+                    auth.onAuthStateChanged(u => {
+                        if(u) {
+                            document.getElementById('auth-ui').style.display='none';
+                            document.getElementById('profile-ui').style.display='block';
+                            updateUI(u);
+                            loadRealData(u.uid);
+                        } else {
+                            document.getElementById('auth-ui').style.display='block';
+                            document.getElementById('profile-ui').style.display='none';
+                        }
+                        document.getElementById('splash').style.display='none';
+                    });
+                }
+            } catch (e) { document.getElementById('splash').style.display='none'; }
+        };
+
+        function updateUI(u) {
             document.getElementById('u-name').innerText = u.displayName || 'User';
             document.getElementById('u-email').innerText = u.email;
-            document.getElementById('avatar').innerText = u.displayName ? u.displayName[0].toUpperCase() : 'U';
+            let initial = u.displayName ? u.displayName[0].toUpperCase() : 'U';
+            document.getElementById('avatar').innerText = initial;
         }
 
-        // NEW LOGIC FOR MERGED QUANTITY
-        function updateQty(v) {
-            currentQty = Math.max(1, currentQty + v);
-            document.getElementById('qty-val').innerText = currentQty;
-            calc();
+        // --- REAL DATA LOAD ---
+        function loadRealData(uid) {
+            // A. Load Orders
+            db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
+                const list = document.getElementById('order-list'); 
+                const myBookings = document.getElementById('my-booking-list');
+                if(snap.exists()) {
+                    const html = Object.values(snap.val()).reverse().map(o => `
+                        <div class="card" style="border-left: 4px solid ${o.status==='Completed'?'green':'orange'}; margin-bottom:10px;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <b>${o.amt > 0 ? '₹'+o.amt : 'FREE'} Service</b> <small>${o.date}</small>
+                            </div>
+                            <div style="font-size:0.85rem; color:#666; margin-top:5px;">
+                                ${o.addr} <br>
+                                <span style="color:${o.status==='Pending'?'orange':'green'}">Status: ${o.status}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                    if(list) list.innerHTML = html;
+                    if(myBookings) myBookings.innerHTML = html;
+                } else {
+                    const empty = '<p style="text-align:center; color:#ccc">No orders yet.</p>';
+                    if(list) list.innerHTML = empty; 
+                    if(myBookings) myBookings.innerHTML = empty;
+                }
+            });
+
+            // B. Load Addresses
+            db.ref('users/' + uid + '/addresses').on('value', snap => {
+                const container = document.getElementById('address-list');
+                if(snap.exists()) {
+                    let html = "";
+                    snap.forEach(childSnap => {
+                        html += `
+                        <div class="menu-item">
+                            <i class="fa-solid fa-location-dot" style="color:#e74c3c;"></i>
+                            <span>${childSnap.val()}</span>
+                            <i class="fa-solid fa-trash" onclick="deleteAddress('${childSnap.key}')" style="color:#ccc; font-size:12px;"></i>
+                        </div>`;
+                    });
+                    container.innerHTML = html;
+                } else { container.innerHTML = "<small style='padding:10px; color:#999'>No saved addresses.</small>"; }
+            });
+
+            // C. Load Plan (UPDATED 2 PLANS LOGIC)
+            db.ref('users/' + uid + '/plan').on('value', snap => {
+                const planData = snap.val() || { name: "Free User", status: "none" };
+                userPlanDetails = planData; // Save globally for booking check
+                const container = document.getElementById('fs-plans-content');
+                const badge = document.getElementById('u-plan-badge');
+
+                // Update Profile Badge
+                if(planData.name !== "Free User") {
+                    badge.innerHTML = `<span style="background:gold; color:black; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:bold;">${planData.name}</span>`;
+                } else { badge.innerHTML = ""; }
+                
+                // Show Active Plan
+                if (planData.name === "Gold Member" || planData.name === "Platinum Member") {
+                    container.innerHTML = `
+                        <div class="card" style="background: linear-gradient(135deg, ${planData.name==='Gold Member'?'#ffd700':'#e0e0e0'} 0%, ${planData.name==='Gold Member'?'#fdb931':'#ffffff'} 100%); color: #000;">
+                            <h3><i class="fa-solid fa-crown"></i> ${planData.name}</h3>
+                            <p>Valid till: ${planData.exp}</p>
+                            <div style="margin-top:10px; font-size:0.9rem;">
+                                ✅ <b>FREE</b> Home Visits<br>
+                                ✅ <b>${planData.name==='Gold Member'?'10-20%':'20-25%'}</b> Discount<br>
+                                ${planData.name==='Platinum Member'?'✅ <b>5%</b> Cashback<br>':''}
+                                ✅ Priority Support Active
+                            </div>
+                        </div>`;
+                } else {
+                    // Show 2 Plans for Purchase
+                    container.innerHTML = `
+                        <h3 style="margin-bottom:10px;">Choose a Plan</h3>
+                        
+                        <div class="card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: #fff; position:relative; overflow:hidden;">
+                            <div style="position:absolute; top:0; right:0; background:gold; color:black; padding:5px 10px; font-weight:bold; font-size:0.7rem; border-radius:0 0 0 10px;">MOST POPULAR</div>
+                            <h2>GOLD <i class="fa-solid fa-crown" style="color:gold;"></i></h2>
+                            <h1 style="margin:5px 0;">₹399 <small style="font-size:1rem;">/Year</small></h1>
+                            <ul style="text-align:left; margin:10px 0; font-size:0.9rem; line-height:1.6;">
+                                <li>✨ <b>Free</b> Home Visits (Save ₹49/visit)</li>
+                                <li>✨ <b>10-20%</b> Discount on Painting</li>
+                                <li>✨ Priority Support</li>
+                            </ul>
+                            <button onclick="payWithRazorpay('Gold')" class="btn" style="background:gold; color:black; font-weight:800;">Get Gold @ ₹399</button>
+                        </div>
+
+                        <div class="card" style="background: linear-gradient(135deg, #0f172a 0%, #334155 100%); color: #fff; border:1px solid #94a3b8;">
+                            <h2>PLATINUM <i class="fa-solid fa-gem" style="color:#0ea5e9;"></i></h2>
+                            <h1 style="margin:5px 0;">₹599 <small style="font-size:1rem;">/Year</small></h1>
+                            <ul style="text-align:left; margin:10px 0; font-size:0.9rem; line-height:1.6;">
+                                <li>✨ <b>Free</b> Home Visits</li>
+                                <li>✨ <b>20-25%</b> Discount on Painting</li>
+                                <li>✨ <b>5% Cashback</b> on Orders</li>
+                            </ul>
+                            <button onclick="payWithRazorpay('Platinum')" class="btn" style="background:#0ea5e9; color:white; font-weight:800;">Get Platinum @ ₹599</button>
+                        </div>
+                    `;
+                }
+            });
         }
 
-        function loadCats() {
-            const b = document.getElementById('brand-sel').value;
-            const cats = Object.keys(catalog[b]);
-            document.getElementById('cat-sel').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
-            loadProds();
-        }
+        // --- PAYMENTS (RAZORPAY) ---
+        function payWithRazorpay(planType) {
+            if(!auth.currentUser) return;
+            
+            let amt = "39900"; // Default Gold
+            let desc = "Gold Membership (1 Year)";
+            if(planType === 'Platinum') {
+                amt = "59900";
+                desc = "Platinum Membership (1 Year)";
+            }
 
-        function loadProds() {
-            const b = document.getElementById('brand-sel').value;
-            const c = document.getElementById('cat-sel').value;
-            const prods = catalog[b][c];
-            document.getElementById('prod-sel').innerHTML = prods.map(p => `<option value="${p.p}">${p.n}</option>`).join('');
-            calc();
+            var options = {
+                "key": "rzp_test_S9bZgZmbrF8kPi", 
+                "amount": amt,
+                "currency": "INR",
+                "name": "UrbanPaintPro",
+                "description": desc,
+                "image": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+                "handler": function (response){
+                    const nextYear = new Date();
+                    nextYear.setFullYear(nextYear.getFullYear() + 1);
+                    db.ref('users/' + auth.currentUser.uid + '/plan').set({
+                        name: planType + " Member",
+                        exp: nextYear.toLocaleDateString(),
+                        payment_id: response.razorpay_payment_id,
+                        date: new Date().toLocaleString()
+                    }).then(() => { alert("🎉 Payment Successful! " + planType + " Plan Activated."); });
+                },
+                "prefill": { "name": auth.currentUser.displayName || "", "email": auth.currentUser.email || "" },
+                "theme": { "color": "#4F46E5" }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.on('payment.failed', function (response){ alert("Payment Failed. Try again."); });
+            rzp1.open();
         }
-
-        function calc() {
-            const p = parseFloat(document.getElementById('prod-sel').value) || 0;
-            const scope = parseFloat(document.getElementById('scope-sel').value) || 1;
-            const total = Math.round((p + 15) * currentQty * scope * 100); 
-            document.getElementById('total-price').innerText = "₹" + total.toLocaleString('en-IN');
-        }
-
+        
+        // --- BOOKING LOGIC (FIXED) ---
         function startBooking() {
-            if(!auth.currentUser) return openFS('fs-login');
+            if(!auth.currentUser) {
+                alert("Please Login to book a visit.");
+                openFS('fs-login');
+                return;
+            }
+            // Check plan for display text
+            const chargeText = document.getElementById('visit-charge-display');
+            if(userPlanDetails.name.includes("Member")) {
+                chargeText.innerHTML = "Visiting Charge: <strike>₹49</strike> <b>FREE</b> (Plan Active)";
+                chargeText.style.color = "green";
+            } else {
+                chargeText.innerHTML = "Visiting Charge: ₹49";
+                chargeText.style.color = "#64748B";
+            }
+            
             document.getElementById('overlay').style.display='block';
-            document.getElementById('sheet-book').classList.add('active');
+            document.getElementById('sheet-tnc').classList.add('active');
         }
 
         function placeOrder() {
             const addr = document.getElementById('b-addr').value;
             const pin = document.getElementById('b-pin').value;
-            if(!addr || !pin) return alert("Details missing");
+            if(!addr || !pin) return alert("Please enter Address and Pincode");
+
+            // Calculate Amount (Free for members)
+            let charge = 49;
+            if(userPlanDetails.name.includes("Member")) {
+                charge = 0;
+            }
 
             db.ref('orders').push({
                 user: auth.currentUser.email,
-                scope: document.getElementById('scope-sel').options[document.getElementById('scope-sel').selectedIndex].text,
-                quantity: currentQty,
-                paint: document.getElementById('prod-sel').options[document.getElementById('prod-sel').selectedIndex].text,
-                estimate: document.getElementById('total-price').innerText,
+                uid: auth.currentUser.uid,
                 addr: addr,
                 pin: pin,
-                amt: 49,
+                amt: charge,
                 status: "Pending",
-                date: new Date().toLocaleString()
+                date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString()
             }).then(() => {
-                document.getElementById('status-success').classList.add('active');
+                alert("Booking Confirmed! Check 'My Projects' tab.");
                 closeSheet();
-            });
+            }).catch(e => alert("Error: " + e.message));
         }
 
-        // --- EXISTING UTILS (Safe) ---
-        function loadRealData(uid) {
-            db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
-                const list = document.getElementById('order-list'); 
-                const myBookings = document.getElementById('my-booking-list');
-                if(snap.exists()) {
-                    const html = Object.values(snap.val()).reverse().map(o => `<div class="card" style="border-left:4px solid orange"><b>${o.status}</b><br>${o.date}</div>`).join('');
-                    if(list) list.innerHTML = html;
-                    if(myBookings) myBookings.innerHTML = html;
-                }
-            });
-            // Address logic...
-            db.ref('users/' + uid + '/addresses').on('value', snap => {
-                const c = document.getElementById('saved-addr-list');
-                if(snap.exists()) {
-                    let h = ""; snap.forEach(s => { h += `<div class="menu-item"><span>${s.val()}</span><i class="fa-solid fa-trash" onclick="delAddr('${s.key}')"></i></div>`; });
-                    c.innerHTML = h;
-                }
-            });
+        // --- UTILS ---
+        function saveNewAddress() {
+            if(!auth.currentUser) return;
+            const inp = document.getElementById('new-address-input');
+            if(inp.value.trim() !== "") {
+                db.ref('users/' + auth.currentUser.uid + '/addresses').push(inp.value)
+                  .then(() => { inp.value = ""; alert("Address Saved!"); });
+            }
         }
-        function saveNewAddress() { const v=document.getElementById('new-address-input').value; if(v) db.ref('users/'+auth.currentUser.uid+'/addresses').push(v); }
-        function delAddr(k) { db.ref('users/'+auth.currentUser.uid+'/addresses/'+k).remove(); }
-        
+        function deleteAddress(key) {
+            if(confirm("Delete?")) db.ref('users/' + auth.currentUser.uid + '/addresses/' + key).remove();
+        }
+        function loadCats() {
+            const brand = document.getElementById('brand-sel').value;
+            const cats = Object.keys(catalog[brand]);
+            document.getElementById('cat-sel').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+            loadProds();
+        }
+        function loadProds() {
+            const brand = document.getElementById('brand-sel').value;
+            const cat = document.getElementById('cat-sel').value;
+            const prods = catalog[brand][cat];
+            document.getElementById('prod-sel').innerHTML = prods.map(p => `<option value="${p.p}">${p.n}</option>`).join('');
+            calc();
+        }
+        function calc() {
+            const p = parseFloat(document.getElementById('prod-sel').value);
+            const s = parseFloat(document.getElementById('sqft').value) || 0;
+            const w = parseFloat(document.getElementById('work-type').value) || 1;
+            const t = Math.round((p + 12) * s * w); 
+            document.getElementById('total-price').innerText = "₹" + t.toLocaleString('en-IN');
+        }
+        function genInvoice() {
+            try {const doc = new window.jspdf.jsPDF(); doc.text("URBAN PAINTPRO - ESTIMATE", 15, 20); doc.text("Total: " + document.getElementById('total-price').innerText, 15, 30); doc.save("Estimate.pdf"); } catch(e) { alert("Bill generated"); }
+        }
         function switchAuth(type) { document.getElementById('fs-login').classList.remove('active'); document.getElementById('fs-signup').classList.remove('active'); document.getElementById('fs-'+type).classList.add('active'); }
         function login() { const e = document.getElementById('l-email').value, p = document.getElementById('l-pass').value; if(e) auth.signInWithEmailAndPassword(e,p).then(()=>closeFS('fs-login')).catch(e=>alert(e.message)); }
         function signup() { const n = document.getElementById('s-name').value, e = document.getElementById('s-email').value, p = document.getElementById('s-pass').value; if(n && e) auth.createUserWithEmailAndPassword(e,p).then(c => { c.user.updateProfile({displayName: n}); db.ref('users/'+c.user.uid).set({ profile: {name: n, email: e}, plan: {name: "Free Member", exp: "Lifetime"} }); closeFS('fs-signup'); }).catch(e=>alert(e.message)); }
         function logout() { auth.signOut().then(()=>location.reload()); }
-        function genInvoice() { alert("Invoice Generated!"); }
         function updateProfile() { const n = document.getElementById('edit-name').value; if(n && auth.currentUser) { auth.currentUser.updateProfile({displayName: n}); db.ref('users/'+auth.currentUser.uid+'/profile/name').set(n); alert("Updated!"); closeFS('fs-personal'); } }
         
         // UTILS
@@ -333,39 +580,3 @@
     </script>
 </body>
 </html>
-
-    <script>
-        const firebaseConfig = {
-          apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
-          authDomain: "professionalpainters-28488.firebaseapp.com",
-          projectId: "professionalpainters-28488",
-          databaseURL: "https://professionalpainters-28488-default-rtdb.firebaseio.com",
-          storageBucket: "professionalpainters-28488.firebasestorage.app",
-          messagingSenderId: "233510965012",
-          appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
-
-        let currentQty = 1;
-        let userPlanDetails = { name: "Free User" };
-
-        const catalog = {
-            "Asian": { "Interior": [{n:"Tractor Emulsion", p:14}, {n:"Royale Luxury", p:28}], "Exterior": [{n:"Ace Exterior", p:16}, {n:"Apex Ultima", p:32}] },
-            "Berger": { "Interior": [{n:"Bison Emulsion", p:15}, {n:"Silk Glamor", p:34}], "Exterior": [{n:"Walmasta", p:18}, {n:"Weathercoat", p:40}] }
-        };
-
-        window.onload = () => {
-            loadCats();
-            setTimeout(() => { document.getElementById('splash').style.display='none'; }, 2000);
-            auth.onAuthStateChanged(u => {
-                if(u) {
-                    document.getElementById('auth-ui').style.display='none';
-                    document.getElementById('profile-ui').style.display='block';
-                    updateUI(u);
-                    loadRealData(u.uid);
-                }
-            });
-        };
-        
