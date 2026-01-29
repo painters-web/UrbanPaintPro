@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -79,7 +80,7 @@
     </style>
 </head>
 <body>
-      <div id="splash"><div class="logo-load">UrbanPaintPro</div></div>
+    <div id="splash"><div class="logo-load">UrbanPaintPro</div></div>
 
     <div class="header">
         <div class="logo">Urban<span>PaintPro</span></div>
@@ -195,8 +196,8 @@
             <div id="my-booking-list"></div>
             <div id="dummy-booking-list"></div>
         </div>
-    </div>  
-    
+    </div>
+
     <div class="full-sheet" id="fs-addresses">
         <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-addresses')"></i> Manage Addresses</div>
         <div class="fs-body">
@@ -225,14 +226,6 @@
                 <div class="menu-item" style="justify-content:space-between;">
                     <div><i class="fa-solid fa-envelope" style="color:red"></i> <span>Email</span></div>
                     <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-                </div>
-                <div class="menu-item" style="justify-content:space-between;">
-                    <div><i class="fa-solid fa-comment-sms" style="color:blue"></i> <span>SMS</span></div>
-                    <label class="switch"><input type="checkbox"><span class="slider"></span></label>
-                </div>
-                <div class="menu-item" style="justify-content:space-between;">
-                    <div><i class="fa-solid fa-phone" style="color:purple"></i> <span>Voice Calls</span></div>
-                    <label class="switch"><input type="checkbox"><span class="slider"></span></label>
                 </div>
             </div>
         </div>
@@ -282,7 +275,6 @@
             <div class="card"><b>✅ Expert Painters</b><br><small>Verified, Trained & Professional</small></div>
             <div class="card"><b>✅ On-Time Completion</b><br><small>Strict timelines followed</small></div>
             <div class="card"><b>✅ Laser Measurement</b><br><small>Accurate pricing, no hidden costs</small></div>
-            <div class="card"><b>✅ 2 Year Warranty</b><br><small>On all premium services</small></div>
         </div>
     </div>
 
@@ -294,7 +286,6 @@
             1. <b>Service Area:</b> Delhi NCR only.<br>
             2. <b>Booking Fee:</b> ₹49 (Non-refundable).<br>
             3. <b>Quotation:</b> Final price upon measurement.<br>
-            4. <b>Material:</b> Genuine Asian/Berger paints.<br>
         </div>
         <button class="btn" onclick="acceptTNC()">I Accept & Continue</button>
     </div>
@@ -325,23 +316,18 @@
           messagingSenderId: "233510965012",
           appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
         };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
 
-        // --- 2. DUMMY DATA FOR NEW FEATURES (SIMULATION) ---
-        const userData = {
-            plan: "Gold Member",
-            subscriptionExp: "2026-12-30",
-            addresses: ["H.No 45, Sector 18, Noida, UP"],
-            dummyBookings: [
-                { service: "Full Home Painting", date: "2026-01-15", status: "Completed", amount: "₹12,000" },
-                { service: "Kitchen Deep Clean", date: "2025-12-20", status: "Completed", amount: "₹4,500" },
-                { service: "Bathroom Waterproofing", date: "2025-11-05", status: "Cancelled", amount: "₹2,500" }
-            ]
-        };
+        // Initialize Firebase safely
+        let auth, db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.database();
+        } catch (error) {
+            alert("Firebase Error: Internet check karein. " + error.message);
+        }
 
-        // --- 3. CATALOG & CALCULATOR ---
+        // --- 2. CATALOG DATA ---
         const catalog = {
             "Asian": {
                 "Interior": [{n:"Tractor Emulsion", p:14}, {n:"Royale Luxury", p:28}, {n:"Royale Aspira", p:38}],
@@ -355,10 +341,187 @@
             }
         };
 
+        // --- 3. LOADING LOGIC (FIXED) ---
         window.onload = () => {
-            loadCats();
-            setTimeout(() => document.getElementById('splash').style.display='none', 2000);
+            try {
+                loadCats();
+                
+                // FIX: Force open app after 3 seconds even if Firebase is slow
+                setTimeout(() => {
+                    document.getElementById('splash').style.display='none';
+                }, 3000);
+
+                // Firebase Listener
+                if(auth) {
+                    auth.onAuthStateChanged(u => {
+                        if(u) {
+                            document.getElementById('auth-ui').style.display='none';
+                            document.getElementById('profile-ui').style.display='block';
+                            updateUI(u);
+                            loadRealData(u.uid);
+                        } else {
+                            document.getElementById('auth-ui').style.display='block';
+                            document.getElementById('profile-ui').style.display='none';
+                        }
+                        // Hide splash immediately if connection is fast
+                        document.getElementById('splash').style.display='none';
+                    });
+                }
+            } catch (e) {
+                alert("App Error: " + e.message);
+                document.getElementById('splash').style.display='none'; // Force open on error
+            }
         };
+
+        function updateUI(u) {
+            document.getElementById('u-name').innerText = u.displayName || 'User';
+            document.getElementById('u-email').innerText = u.email;
+            // Fix for name error
+            let initial = 'U';
+            if(u.displayName) initial = u.displayName[0].toUpperCase();
+            document.getElementById('avatar').innerText = initial;
+        }
+
+        // --- 4. REAL DATABASE FUNCTIONS ---
+        function loadRealData(uid) {
+            // A. Load Orders
+            db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
+                const list = document.getElementById('order-list'); 
+                const myBookings = document.getElementById('my-booking-list');
+                
+                if(snap.exists()) {
+                    const html = Object.values(snap.val()).reverse().map(o => `
+                        <div class="card" style="border-left: 4px solid ${o.status==='Completed'?'green':'orange'}; margin-bottom:10px;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <b>₹${o.amt} Service</b> <small>${o.date}</small>
+                            </div>
+                            <div style="font-size:0.85rem; color:#666; margin-top:5px;">
+                                ${o.addr} <br>
+                                <span style="color:${o.status==='Pending'?'orange':'green'}">Status: ${o.status}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                    if(list) list.innerHTML = html;
+                    if(myBookings) myBookings.innerHTML = html;
+                    const dummy = document.getElementById('dummy-booking-list');
+                    if(dummy) dummy.style.display = 'none';
+                } else {
+                    const empty = '<p style="text-align:center; color:#ccc">No orders yet.</p>';
+                    if(list) list.innerHTML = empty; 
+                    if(myBookings) myBookings.innerHTML = empty;
+                }
+            });
+
+            // B. Load Addresses
+            db.ref('users/' + uid + '/addresses').on('value', snap => {
+                const container = document.getElementById('address-list');
+                if(snap.exists()) {
+                    let html = "";
+                    snap.forEach(childSnap => {
+                        html += `
+                        <div class="menu-item">
+                            <i class="fa-solid fa-location-dot" style="color:#e74c3c;"></i>
+                            <span>${childSnap.val()}</span>
+                            <i class="fa-solid fa-trash" onclick="deleteAddress('${childSnap.key}')" style="color:#ccc; font-size:12px;"></i>
+                        </div>`;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = "<small style='padding:10px; color:#999'>No saved addresses.</small>";
+                }
+            });
+
+            // C. Load Plan (RAZORPAY AUTOMATIC LOGIC)
+            db.ref('users/' + uid + '/plan').on('value', snap => {
+                const planData = snap.val() || { name: "Free User", status: "none" };
+                const container = document.getElementById('fs-plans-content');
+                
+                if (planData.name === "Gold Member") {
+                    container.innerHTML = `
+                        <div class="card" style="background: linear-gradient(135deg, #ffd700 0%, #fdb931 100%); color: #000;">
+                            <h3><i class="fa-solid fa-crown"></i> Gold Member</h3>
+                            <p>Valid till: ${planData.exp}</p>
+                            <div style="margin-top:10px; font-size:0.9rem;">
+                                ✅ Zero Visiting Charges<br>
+                                ✅ Priority Support Active<br>
+                                ✅ Premium Service
+                            </div>
+                        </div>`;
+                     } else {
+                    container.innerHTML = `
+                        <div class="card" style="border: 2px solid #ddd; text-align:center;">
+                            <h3>Free User</h3>
+                            <p style="color:#666;">Upgrade to unlock benefits</p>
+                        </div>
+                        
+                        <div class="card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: #fff; margin-top:20px;">
+                            <h2>Upgrade to Gold <i class="fa-solid fa-crown" style="color:gold;"></i></h2>
+                            <h1 style="margin:10px 0;">₹499 <small style="font-size:1rem;">/Year</small></h1>
+                            <ul style="text-align:left; margin:15px 0; line-height:1.8;">
+                                <li>⚡ Instant Activation</li>
+                                <li>✨ Zero Visiting Charges</li>
+                                <li>✨ Dedicated Manager</li>
+                            </ul>
+                            <button onclick="payWithRazorpay()" class="btn" style="background:gold; color:black; font-weight:800;">
+                                Pay ₹499 & Activate Now
+                            </button>
+                        </div>`;
+                }
+            });
+        }
+
+        // --- 5. RAZORPAY PAYMENT FUNCTION ---
+        function payWithRazorpay() {
+            if(!auth.currentUser) return;
+
+            var options = {
+                "key": "rzp_test_S9bZgZmbrF8kPi", // YOUR KEY ID
+                "amount": "49900", // 49900 paise = ₹499
+                "currency": "INR",
+                "name": "UrbanPaintPro",
+                "description": "Gold Membership (1 Year)",
+                "image": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+                "handler": function (response){
+                    // SUCCESS CALLBACK
+                    const nextYear = new Date();
+                    nextYear.setFullYear(nextYear.getFullYear() + 1);
+
+                    db.ref('users/' + auth.currentUser.uid + '/plan').set({
+                        name: "Gold Member",
+                        exp: nextYear.toLocaleDateString(),
+                        payment_id: response.razorpay_payment_id,
+                        date: new Date().toLocaleString()
+                    }).then(() => {
+                        alert("🎉 Payment Successful! Gold Membership Activated.");
+                    });
+                },
+                "prefill": {
+                    "name": auth.currentUser.displayName || "",
+                    "email": auth.currentUser.email || ""
+                },
+                "theme": { "color": "#4F46E5" }
+            };
+
+            var rzp1 = new Razorpay(options);
+            rzp1.on('payment.failed', function (response){
+                alert("Payment Failed. Please try again.");
+            });
+            rzp1.open();
+        }
+
+        // --- 6. UTILITY FUNCTIONS ---
+        function saveNewAddress() {
+            if(!auth.currentUser) return;
+            const inp = document.getElementById('new-address-input');
+            if(inp.value.trim() !== "") {
+                db.ref('users/' + auth.currentUser.uid + '/addresses').push(inp.value)
+                  .then(() => { inp.value = ""; alert("Address Saved!"); });
+            }
+        }
+
+        function deleteAddress(key) {
+            if(confirm("Delete this address?")) db.ref('users/' + auth.currentUser.uid + '/addresses/' + key).remove();
+        }
 
         function loadCats() {
             const brand = document.getElementById('brand-sel').value;
@@ -388,57 +551,9 @@
                 doc.text("URBAN PAINTPRO - ESTIMATE", 15, 20);
                 doc.text("Total: " + document.getElementById('total-price').innerText, 15, 30);
                 doc.save("Estimate.pdf");
-            } catch(e) { alert("Bill generated (Simulation)"); }
+            } catch(e) { alert("Bill generated"); }
         }
 
-        // --- 4. NEW FEATURE LOGIC ---
-
-        function loadMyPlans() {
-            const container = document.getElementById('fs-plans-content');
-            container.innerHTML = `
-                <div class="card" style="background: linear-gradient(135deg, #ffd700 0%, #fdb931 100%); color: #000;">
-                    <h3><i class="fa-solid fa-crown"></i> ${userData.plan}</h3>
-                    <p>Valid till: ${userData.subscriptionExp}</p>
-                    <button style="background:#000; color:#fff; border:none; padding:5px 10px; border-radius:5px; margin-top:10px;">Upgrade Plan</button>
-                </div>`;
-        }
-
-        function loadAddresses() {
-            const container = document.getElementById('address-list');
-            container.innerHTML = userData.addresses.map(a => `
-                <div class="menu-item">
-                    <i class="fa-solid fa-location-dot" style="color:#e74c3c;"></i>
-                    <span>${a}</span>
-                    <i class="fa-solid fa-trash" style="color:#ccc; font-size:12px;"></i>
-                </div>`).join('');
-        }
-
-        function saveNewAddress() {
-            const inp = document.getElementById('new-address-input');
-            if(inp.value) {
-                userData.addresses.push(inp.value);
-                inp.value = "";
-                loadAddresses();
-                alert("Address Saved!");
-            }
-        }
-
-        function loadDummyBookings() {
-            // This runs if Firebase has no orders, just to show UI
-            const container = document.getElementById('dummy-booking-list');
-            container.innerHTML = "<h4>Past History (imported)</h4>" + userData.dummyBookings.map(b => `
-                <div class="card" style="border-left: 4px solid ${b.status==='Completed'?'green':'red'}">
-                    <b>${b.service}</b> - ${b.amount}<br>
-                    <small>${b.date} • ${b.status}</small>
-                </div>
-            `).join('');
-        }
-
-        function startHybridAIChat() {
-            alert("🤖 Hybrid AI: Namaste! How can I help with payments or services today?");
-        }
-
-        // --- 5. AUTH & FIREBASE ---
         function switchAuth(type) {
             document.getElementById('fs-login').classList.remove('active');
             document.getElementById('fs-signup').classList.remove('active');
@@ -454,46 +569,26 @@
             const n = document.getElementById('s-name').value, e = document.getElementById('s-email').value, p = document.getElementById('s-pass').value;
             if(n && e) auth.createUserWithEmailAndPassword(e,p).then(c => {
                 c.user.updateProfile({displayName: n});
-                db.ref('users/'+c.user.uid).set({name: n, email: e});
+                db.ref('users/'+c.user.uid).set({
+                    profile: {name: n, email: e},
+                    plan: {name: "Free Member", exp: "Lifetime"}
+                });
                 closeFS('fs-signup');
             }).catch(e=>alert(e.message));
         }
 
         function logout() { auth.signOut().then(()=>location.reload()); }
-
-        auth.onAuthStateChanged(u => {
-            if(u) {
-                document.getElementById('auth-ui').style.display='none';
-                document.getElementById('profile-ui').style.display='block';
-                document.getElementById('u-name').innerText = u.displayName || 'User';
-                document.getElementById('u-email').innerText = u.email;
-                document.getElementById('avatar').innerText = (u.displayName||'U')[0];
-                loadOrders();
-            } else {
-                document.getElementById('auth-ui').style.display='block';
-                document.getElementById('profile-ui').style.display='none';
-            }
-        });
-
-        // --- 6. NAVIGATION & UTILS ---
-        function openFS(id) {
-            document.getElementById(id).classList.add('active');
-            // Trigger loads
-            if(id === 'fs-plans') loadMyPlans();
-            if(id === 'fs-addresses') loadAddresses();
-            if(id === 'fs-bookings') loadDummyBookings(); 
-        }
-
-        function closeFS(id) { document.getElementById(id).classList.remove('active'); }
         
-        function nav(p, e) {
-            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
-            document.getElementById(p).classList.add('active');
-            if(e) e.classList.add('active'); else document.querySelector(`.nav-item[onclick*='${p}']`)?.classList.add('active');
+        function updateProfile() {
+             const n = document.getElementById('edit-name').value;
+             if(n && auth.currentUser) { 
+                 auth.currentUser.updateProfile({displayName: n}); 
+                 db.ref('users/'+auth.currentUser.uid+'/profile/name').set(n);
+                 alert("Updated!"); 
+                 closeFS('fs-personal'); 
+            }
         }
 
-        // --- 7. BOOKING LOGIC ---
         function startBooking() {
             if(!auth.currentUser) return openFS('fs-login');
             document.getElementById('overlay').style.display='block';
@@ -514,39 +609,37 @@
         }
 
         function placeOrder() {
-            db.ref('orders/'+Date.now()).set({
+            const addr = document.getElementById('b-addr').value;
+            const pin = document.getElementById('b-pin').value;
+            if(!addr || !pin) return alert("Address and Pincode required");
+
+            db.ref('orders').push({
                 user: auth.currentUser.email,
-                addr: document.getElementById('b-addr').value,
+                uid: auth.currentUser.uid,
+                addr: addr,
+                pin: pin,
                 amt: 49,
                 status: "Pending",
-                date: new Date().toLocaleDateString()
-            });
-            alert("Booking Confirmed! Check Orders Tab.");
-            closeSheet();
-        }
-
-        function loadOrders() {
-            db.ref('orders').orderByChild('user').equalTo(auth.currentUser?.email).on('value', snap => {
-                const html = snap.val() ? Object.values(snap.val()).reverse().map(o => `
-                    <div class="card" style="display:flex; justify-content:space-between;">
-                        <div><b>₹${o.amt} Visit</b><br><small>${o.date}</small></div>
-                        <span style="color:${o.status==='Pending'?'orange':'green'}">${o.status}</span>
-                    </div>
-                `).join('') : '<p style="text-align:center; color:#ccc">No recent orders.</p>';
-                document.getElementById('order-list').innerHTML = html;
-                document.getElementById('my-booking-list').innerHTML = html; // Also sync with account booking list
+                date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString()
+            }).then(() => {
+                alert("Booking Confirmed! Saved to Cloud.");
+                closeSheet();
             });
         }
 
+        function openFS(id) { document.getElementById(id).classList.add('active'); }
+        function closeFS(id) { document.getElementById(id).classList.remove('active'); }
         function closeSheet() {
             document.getElementById('overlay').style.display='none';
             document.querySelectorAll('.sheet').forEach(s => s.classList.remove('active'));
         }
-        
-        function updateProfile() {
-             const n = document.getElementById('edit-name').value;
-             if(n && auth.currentUser) { auth.currentUser.updateProfile({displayName: n}); alert("Updated!"); closeFS('fs-personal'); }
+        function nav(p, e) {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            document.getElementById(p).classList.add('active');
+            if(e) e.classList.add('active'); else document.querySelector(`.nav-item[onclick*='${p}']`)?.classList.add('active');
         }
+        function startHybridAIChat() { alert("🤖 Hybrid AI connecting..."); }
     </script>
 </body>
 </html>
