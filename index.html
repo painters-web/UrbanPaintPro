@@ -10,8 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -73,7 +71,7 @@
         input:checked + .slider { background-color: var(--p); }
         input:checked + .slider:before { transform: translateX(21px); }
 
-        /* Tracking Timeline (Zomato Style) */
+        /* Tracking Timeline */
         .timeline { position: relative; padding-left: 20px; margin-top: 15px; border-left: 2px solid #E2E8F0; }
         .timeline-item { position: relative; margin-bottom: 20px; padding-left: 10px; }
         .timeline-item::before { content: ''; position: absolute; left: -26px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #CBD5E1; border: 2px solid white; box-shadow: 0 0 0 2px #E2E8F0; }
@@ -87,6 +85,11 @@
         .chat-ai { background: #EEF2FF; color: #1E293B; border-bottom-left-radius: 2px; align-self: flex-start; }
         .chat-user { background: var(--p); color: white; border-bottom-right-radius: 2px; align-self: flex-end; }
         .chat-input { display: flex; gap: 10px; padding: 15px; border-top: 1px solid #F1F5F9; background: white; }
+
+        /* UPI Payment UI */
+        .qr-frame { width: 220px; height: 220px; margin: 0 auto 20px; border: 2px solid #e0e0e0; padding: 10px; border-radius: 12px; }
+        .qr-frame img { width: 100%; height: 100%; object-fit: contain; }
+        .upi-copy-box { background: #eef2ff; padding: 12px; border-radius: 8px; border: 1px dashed var(--p); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 
         /* Nav */
         .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); border-top: 1px solid #F1F5F9; display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: 10px; }
@@ -123,7 +126,7 @@
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; align-items: center;">
                     <select id="scope-sel" class="inp" style="margin-bottom:0;" onchange="calc()">
                         <option value="1">Full Home Painting</option>
-                        <option value="0.3">Partial (1 Rooms)</option>
+                        <option value="0.3">Partial (1-2 Rooms)</option>
                         <option value="0.1">Single Wall Accent</option>
                     </select>
                     <div style="display:flex; align-items:center; justify-content:center; gap:10px; background:white; padding:8px; border-radius:12px; border:1px solid #E2E8F0;">
@@ -214,6 +217,33 @@
         </div>
     </div>
 
+    <div class="full-sheet" id="fs-payment">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-payment')"></i> Scan & Pay</div>
+        <div class="fs-body" style="text-align:center;">
+            <h2 id="pay-amt-display" style="margin-bottom:5px; color:var(--p);">₹0</h2>
+            <p style="margin-bottom:20px; color:#666;">Pay via PhonePe / Paytm / GPay</p>
+            
+            <div class="qr-frame">
+                <img src="payment_qr.png" alt="Scan QR Code">
+            </div>
+
+            <div class="upi-copy-box">
+                <span style="font-weight:bold; color:var(--p); font-size:14px;" id="upi-id-text">kingkhan33648@okicici</span>
+                <button onclick="copyUPI()" style="background:var(--p); color:white; border:none; padding:5px 10px; border-radius:5px; font-weight:bold; font-size:12px;">COPY</button>
+            </div>
+
+            <div style="text-align:left; margin-top:20px;">
+                <label style="font-weight:700; color:#444;">Enter UTR / Reference No (12 Digits)</label>
+                <input type="number" id="utr-input" class="inp" placeholder="Ex: 345678912345" style="margin-top:5px;">
+                <div style="background:#fff3cd; color:#856404; padding:10px; border-radius:8px; font-size:0.8rem; margin-top:5px; border-left:3px solid #ffc107;">
+                    ⚠️ Payment करने के बाद अपने बैंक SMS से 12 अंकों का UTR नंबर यहाँ जरूर डालें।
+                </div>
+            </div>
+
+            <button class="btn" onclick="verifyPayment()" style="background:#22c55e; margin-top:20px;">Verify & Submit</button>
+        </div>
+    </div>
+
     <div class="full-sheet" id="fs-login">
         <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-login')"></i> Login</div>
         <div class="fs-body" style="display:flex; flex-direction:column; justify-content:center;">
@@ -284,7 +314,7 @@
     <div class="full-sheet" id="fs-about"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-about')"></i> About</div><div class="fs-body">UrbanPaintPro v3.0</div></div>
 
     <div id="status-success" class="status-screen"><div class="icon-circle success-icon"><i class="fa-solid fa-check"></i></div><h2 style="color:var(--success)">Success!</h2><p style="margin-top:10px; color:#64748B;">Order confirmed.</p><button class="btn" onclick="window.location.reload()">Done</button></div>
-    <div id="status-failed" class="status-screen"><div class="icon-circle error-icon"><i class="fa-solid fa-xmark"></i></div><h2 style="color:var(--error)">Failed!</h2><p style="margin-top:10px; color:#64748B;">Payment Failed.</p><button class="btn" onclick="closeStatus()">Retry</button></div>
+    <div id="status-failed" class="status-screen"><div class="icon-circle error-icon"><i class="fa-solid fa-xmark"></i></div><h2 style="color:var(--error)">Failed!</h2><p style="margin-top:10px; color:#64748B;">Verification Failed.</p><button class="btn" onclick="closeStatus()">Retry</button></div>
 
     <div class="overlay" id="overlay" onclick="closeSheet()"></div>
     <div class="sheet" id="sheet-book">
@@ -316,7 +346,7 @@
           apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
           authDomain: "professionalpainters-28488.firebaseapp.com",
           projectId: "professionalpainters-28488",
-          databaseURL: "https://professionalpainters-28488-default-rtdb.asia-southeast1.firebasedatabase.app",
+          databaseURL: "https://professionalpainters-28488-default-rtdb.firebaseio.com",
           storageBucket: "professionalpainters-28488.firebasestorage.app",
           messagingSenderId: "233510965012",
           appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
@@ -328,6 +358,7 @@
         let currentQty = 1;
         let userPlanDetails = { name: "Free User", status: "none" };
         let currentLang = 'en';
+        let pendingPayment = null; // Store details of current payment attempt
 
         // 7 Languages
         const dict = {
@@ -392,8 +423,8 @@
             });
             closeFS('fs-language');
         }
-
-        // --- REAL TIME TRACKING & DATA ---
+        
+  // --- REAL TIME TRACKING & DATA ---
         function loadRealData(uid) {
             db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
                 const list = document.getElementById('order-list'); 
@@ -432,8 +463,8 @@
                 } else {
                     document.getElementById('u-plan-badge').innerHTML = "";
                     container.innerHTML = `
-                        <div class="card" style="border:1px solid gold;"><h3>Gold (₹399)</h3><ul><li>Free Visits</li><li>15% Off</li></ul><button class="btn" onclick="payWithRazorpay('Gold', 399)">Buy</button></div>
-                        <div class="card" style="border:1px solid #0ea5e9;"><h3>Platinum (₹599)</h3><ul><li>Free Visits</li><li>20% Off</li><li>Priority</li></ul><button class="btn" onclick="payWithRazorpay('Platinum', 599)">Buy</button></div>`;
+                        <div class="card" style="border:1px solid gold;"><h3>Gold (₹399)</h3><ul><li>Free Visits</li><li>15% Off</li></ul><button class="btn" onclick="openUPIPayment('Gold Plan', 399, 'plan')">Buy</button></div>
+                        <div class="card" style="border:1px solid #0ea5e9;"><h3>Platinum (₹599)</h3><ul><li>Free Visits</li><li>20% Off</li><li>Priority</li></ul><button class="btn" onclick="openUPIPayment('Platinum Plan', 599, 'plan')">Buy</button></div>`;
                 }
             });
             
@@ -446,7 +477,46 @@
             });
         }
 
-        // --- PAYMENT & BOOKING ---
+        // --- NEW UPI PAYMENT SYSTEM ---
+        
+        function openUPIPayment(desc, amt, type) {
+            // Save details needed for after verification
+            pendingPayment = { desc: desc, amt: amt, type: type };
+            
+            // Show details on Payment Sheet
+            document.getElementById('pay-amt-display').innerText = "₹" + amt;
+            document.getElementById('utr-input').value = ""; // Clear old input
+            
+            // Open Sheet
+            openFS('fs-payment');
+        }
+
+        function copyUPI() {
+            navigator.clipboard.writeText("kingkhan33648@okicici");
+            alert("UPI ID Copied!");
+        }
+
+        function verifyPayment() {
+            const utr = document.getElementById('utr-input').value;
+            
+            // Simple validation: Ensure UTR is 12 digits
+            if(!utr || utr.length < 12) {
+                alert("Please enter a valid 12-digit UTR number from your Bank SMS.");
+                return;
+            }
+
+            // Close Payment Sheet
+            closeFS('fs-payment');
+
+            // Process the order based on type
+            if(pendingPayment.type === 'booking') {
+                confirmOrderDB(pendingPayment.amt, "UPI-" + utr);
+            } else if (pendingPayment.type === 'plan') {
+                activatePlan(pendingPayment.desc.replace(' Plan', ''), "UPI-" + utr);
+            }
+        }
+
+        // --- BOOKING ---
         function startBooking() {
             if(!auth.currentUser) return openFS('fs-login');
             document.getElementById('overlay').style.display='block';
@@ -464,17 +534,14 @@
             const addr = document.getElementById('b-addr').value;
             const pin = document.getElementById('b-pin').value;
             if(!addr || !pin) return alert("Enter Details");
-            if(userPlanDetails.name.includes("Member")) confirmOrderDB(0, "Member_Free");
-            else payWithRazorpay('Visit Charge', 49, true);
-        }
-
-        function payWithRazorpay(desc, amt, isBooking=false) {
-            var options = {
-                "key": "rzp_test_S9bZgZmbrF8kPi", "amount": amt * 100, "name": "UrbanPaintPro", "description": desc,
-                "handler": function (res){ if(isBooking) confirmOrderDB(amt, res.razorpay_payment_id); else activatePlan(desc, res.razorpay_payment_id); },
-                "theme": { "color": "#4F46E5" }
-            };
-            var rzp = new Razorpay(options); rzp.open();
+            
+            // If Member, Free. If Not, Pay 49 via UPI
+            if(userPlanDetails.name.includes("Member")) {
+                confirmOrderDB(0, "Member_Free");
+            } else {
+                // Open UPI Sheet instead of Razorpay
+                openUPIPayment('Visit Charge', 49, 'booking');
+            }
         }
 
         function confirmOrderDB(amt, payId) {
@@ -485,13 +552,19 @@
                 paint: document.getElementById('prod-sel').options[document.getElementById('prod-sel').selectedIndex].text,
                 estimate: document.getElementById('total-price').innerText,
                 addr: document.getElementById('b-addr').value, pin: document.getElementById('b-pin').value,
-                amt: amt, payId: payId, status: "Pending", date: new Date().toLocaleDateString()
-            }).then(() => { closeSheet(); document.getElementById('status-success').classList.add('active'); });
+                amt: amt, payId: payId, status: "Pending (Verifying UTR)", date: new Date().toLocaleDateString()
+            }).then(() => { 
+                closeSheet(); 
+                document.getElementById('status-success').classList.add('active'); 
+            });
         }
 
         function activatePlan(plan, payId) {
             const exp = new Date(); exp.setFullYear(exp.getFullYear() + 1);
-            db.ref('users/' + auth.currentUser.uid + '/plan').set({ name: plan + " Member", exp: exp.toLocaleDateString(), payId: payId }).then(()=>alert("Activated!"));
+            db.ref('users/' + auth.currentUser.uid + '/plan').set({ name: plan + " Member", exp: exp.toLocaleDateString(), payId: payId }).then(()=> {
+                alert("Request Submitted! Plan will be active after UTR verification.");
+                closeFS('fs-plans');
+            });
         }
 
         // --- INVOICE & CHAT ---
@@ -532,7 +605,6 @@
             const total = Math.round((p + 8) * currentQty * area); 
             document.getElementById('total-price').innerText = "₹" + total.toLocaleString('en-IN');
         }
-
         function autoLoc() { if(navigator.geolocation) { navigator.geolocation.getCurrentPosition(p => { document.getElementById('b-addr').value = "GPS: "+p.coords.latitude.toFixed(4); }); } }
         function nav(p, e) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active')); document.getElementById(p).classList.add('active'); if(e) e.classList.add('active'); else document.querySelector(`.nav-item[onclick*='${p}']`)?.classList.add('active'); }
         function openFS(id) { document.getElementById(id).classList.add('active'); }
