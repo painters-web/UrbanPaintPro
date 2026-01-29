@@ -20,7 +20,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        /* Splash */
+        /* Splash Screen */
         #splash { position: fixed; inset: 0; background: var(--white); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
         .logo-load { font-size: 2rem; font-weight: 800; color: var(--p); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
@@ -32,31 +32,22 @@
 
         /* Pages */
         .page { height: 100%; padding: 80px 20px 100px; overflow-y: auto; display: none; }
-        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
 
-        /* Cards & Inputs */
+        /* Cards & UI Elements */
         .card { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .inp { width: 100%; padding: 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; font-weight: 600; font-size: 0.9rem; outline: none; margin-bottom: 10px; transition: 0.3s; }
+        .inp { width: 100%; padding: 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; font-weight: 600; font-size: 0.9rem; outline: none; margin-bottom: 10px; }
         .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--p); color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; }
-        .btn.outline { background: transparent; border: 2px solid #E2E8F0; color: var(--text); }
-
-        /* Full Screen Sheets */
-        .full-sheet { position: fixed; inset: 0; background: var(--white); z-index: 5000; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        
+        /* Navigation & Overlays */
+        .full-sheet { position: fixed; inset: 0; background: var(--white); z-index: 5000; transform: translateX(100%); transition: 0.3s; display: flex; flex-direction: column; }
         .full-sheet.active { transform: translateX(0); }
-        .fs-header { padding: 15px 20px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 15px; font-weight: 700; font-size: 1.1rem; }
+        .fs-header { padding: 15px 20px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 15px; font-weight: 700; }
         .fs-body { flex: 1; overflow-y: auto; padding: 20px; }
-
-        /* Bottom Sheet */
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; backdrop-filter: blur(2px); }
-        .sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); border-radius: 25px 25px 0 0; padding: 25px; z-index: 2001; transform: translateY(100%); transition: 0.4s; max-height: 85vh; overflow-y: auto; }
+        .sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); border-radius: 25px 25px 0 0; padding: 25px; z-index: 2001; transform: translateY(100%); transition: 0.4s; }
         .sheet.active { transform: translateY(0); }
-
-        /* Menu Items */
         .menu-item { display: flex; align-items: center; gap: 15px; padding: 18px; border-bottom: 1px solid #F8FAFC; cursor: pointer; }
-        .menu-item i { width: 25px; font-size: 1.2rem; }
-        .menu-item span { flex: 1; font-weight: 600; font-size: 0.95rem; }
-
-        /* Nav Bar */
         .nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--white); border-top: 1px solid #F1F5F9; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
         .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; }
         .nav-item.active { color: var(--p); }
@@ -73,17 +64,17 @@
 
     <div id="home" class="page active">
         <div class="card" style="background: linear-gradient(135deg, #1E1B4B, #312E81); color: white;">
-            <h2 style="margin-bottom:15px;">Cost Calculator</h2>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+            <h2>Cost Calculator</h2>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:15px 0;">
                 <select id="brand-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadCats()">
-                    <option value="Asian" style="color:black">Asian Paints</option>
-                    <option value="Berger" style="color:black">Berger Paints</option>
+                    <option value="Asian">Asian Paints</option>
+                    <option value="Berger">Berger Paints</option>
                 </select>
                 <select id="cat-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadProds()"></select>
             </div>
             <select id="prod-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="calc()"></select>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <input type="number" id="sqft" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" placeholder="Area (Sqft)" oninput="calc()">
+                <input type="number" id="sqft" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" placeholder="Sq.ft" oninput="calc()">
                 <select id="work-type" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="calc()">
                     <option value="1">Repaint</option>
                     <option value="1.5">Repaint + Primer</option>
@@ -91,12 +82,12 @@
                 </select>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; border-top:1px solid rgba(255,255,255,0.2); padding-top:15px;">
-                <div><small>Estimated</small><h2 id="total-price">₹0</h2></div>
+                <div><small>Estimated Total</small><h2 id="total-price">₹0</h2></div>
                 <button class="btn" style="background:white; color:var(--p); width:auto; padding:8px 15px;" onclick="genInvoice()">Bill</button>
             </div>
         </div>
         <button class="btn" onclick="startBooking()">Book Home Visit</button>
-        <p style="text-align:center; font-size:0.8rem; margin-top:8px; color:#64748B;">Charge: ₹49 (Free for Members)</p>
+        <p style="text-align:center; font-size:0.8rem; margin-top:10px; color:#64748B;">Charge: ₹49 (Waived for Subscribers)</p>
     </div>
 
     <div id="orders" class="page">
@@ -106,21 +97,18 @@
 
     <div id="account" class="page">
         <div id="auth-ui" style="text-align:center; padding:40px 0;">
-            <h2>Login</h2>
+            <h2>Access Dashboard</h2>
             <button class="btn" onclick="openFS('fs-login')">Login / Sign Up</button>
         </div>
-
         <div id="profile-ui" style="display:none;">
             <div style="text-align:center; margin-bottom:30px;">
                 <div id="avatar" style="width:80px; height:80px; background:var(--p); color:white; font-size:2rem; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto;">U</div>
                 <h3 id="u-name" style="margin-top:10px;">User</h3>
                 <div id="u-plan-badge" style="margin-top:5px;"></div>
             </div>
-            
             <div class="card" style="padding:0;">
                 <div class="menu-item" onclick="openFS('fs-plans')"><i class="fa-solid fa-crown" style="color:gold;"></i><span>My Plans</span><i class="fa-solid fa-chevron-right"></i></div>
                 <div class="menu-item" onclick="openFS('fs-bookings')"><i class="fa-solid fa-calendar-check"></i><span>My Bookings</span><i class="fa-solid fa-chevron-right"></i></div>
-                <div class="menu-item" onclick="openFS('fs-help')"><i class="fa-solid fa-headset" style="color:#10b981;"></i><span>Help Center</span><i class="fa-solid fa-chevron-right"></i></div>
                 <div class="menu-item" onclick="logout()" style="color:red;"><i class="fa-solid fa-power-off"></i><span>Logout</span></div>
             </div>
         </div>
@@ -147,34 +135,26 @@
     </div>
 
     <div class="full-sheet" id="fs-plans">
-        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-plans')"></i> Plans</div>
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-plans')"></i> Available Plans</div>
         <div class="fs-body" id="fs-plans-content"></div>
     </div>
 
     <div class="full-sheet" id="fs-bookings">
-        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-bookings')"></i> Bookings</div>
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-bookings')"></i> All Bookings</div>
         <div class="fs-body" id="my-booking-list"></div>
-    </div>
-
-    <div class="full-sheet" id="fs-help">
-        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-help')"></i> Help</div>
-        <div class="fs-body">
-            <div class="card"><a href="https://wa.me/919711904092" style="text-decoration:none; color:inherit;"><b>WhatsApp Support</b></a></div>
-            <div class="card"><a href="mailto:urbanpaintpro.inbox@gmail.com" style="text-decoration:none; color:inherit;"><b>Email Support</b></a></div>
-        </div>
     </div>
 
     <div class="overlay" id="overlay" onclick="closeSheet()"></div>
     <div class="sheet" id="sheet-tnc">
-        <h3>Terms & Policy</h3>
-        <p style="margin:15px 0; font-size:0.9rem;">Booking charge is ₹49 (Waived for Subscribers).</p>
+        <h3>Booking Terms</h3>
+        <p style="margin:15px 0; font-size:0.9rem; color:#64748B;">Home visit fee is ₹49. This is fully waived for Gold and Platinum subscribers.</p>
         <button class="btn" onclick="acceptTNC()">Accept & Continue</button>
     </div>
     <div class="sheet" id="sheet-book">
-        <h3 id="visit-charge-display">Confirm Booking</h3>
-        <input type="text" id="b-addr" class="inp" placeholder="Address" style="margin-top:15px;">
+        <h3 id="visit-charge-display">Confirm Details</h3>
+        <input type="text" id="b-addr" class="inp" placeholder="Complete Address" style="margin-top:15px;">
         <input type="number" id="b-pin" class="inp" placeholder="Pincode">
-        <button class="btn" onclick="placeOrder()">Confirm</button>
+        <button class="btn" onclick="placeOrder()">Place Order</button>
     </div>
 
     <div class="nav">
@@ -212,8 +192,8 @@
                     document.getElementById('auth-ui').style.display='none';
                     document.getElementById('profile-ui').style.display='block';
                     document.getElementById('u-name').innerText = u.displayName || 'User';
-                    document.getElementById('avatar').innerText = u.displayName ? u.displayName[0] : 'U';
-                    loadData(u.uid);
+                    document.getElementById('avatar').innerText = u.displayName ? u.displayName[0].toUpperCase() : 'U';
+                    loadUserData(u.uid);
                 } else {
                     document.getElementById('auth-ui').style.display='block';
                     document.getElementById('profile-ui').style.display='none';
@@ -221,67 +201,99 @@
             });
         };
 
-        function loadData(uid) {
+        function loadUserData(uid) {
             db.ref('users/' + uid + '/plan').on('value', snap => {
                 userPlan = snap.val() || { name: "Free User" };
                 const cont = document.getElementById('fs-plans-content');
                 const badge = document.getElementById('u-plan-badge');
                 
                 if(userPlan.name !== "Free User") {
-                    badge.innerHTML = `<span style="background:gold; padding:2px 8px; border-radius:10px; font-size:0.7rem;">${userPlan.name}</span>`;
-                    cont.innerHTML = `<div class="card" style="background:gold;"><h3>${userPlan.name} Active</h3><p>Exp: ${userPlan.exp}</p></div>`;
+                    badge.innerHTML = `<span style="background:gold; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:bold;">${userPlan.name} Active</span>`;
+                    cont.innerHTML = `<div class="card" style="background:#EEF2FF; border:1px solid var(--p);"><h3>${userPlan.name} Active</h3><p>Expiration: ${userPlan.exp}</p></div>`;
                 } else {
                     badge.innerHTML = "";
                     cont.innerHTML = `
-                        <div class="card" style="background:#1e1b4b; color:white;">
-                            <h3>Gold @ ₹399</h3><p>Free visits + 10-20% off</p>
-                            <button class="btn" onclick="pay('Gold', 39900)" style="background:gold; color:black;">Buy Gold</button>
-                        </div>
-                        <div class="card" style="background:#0f172a; color:white;">
-                            <h3>Platinum @ ₹599</h3><p>Free visits + 20-25% off + 5% Cashback</p>
-                            <button class="btn" onclick="pay('Platinum', 59900)" style="background:#0ea5e9;">Buy Platinum</button>
+                        <div class="card" style="background: linear-gradient(135deg, #FFD700, #FDB931); color: #000;">
+                            <h3>Gold Member @ ₹399</h3>
+                            <ul style="margin:10px 0; font-size:0.9rem; list-style:none;">
+                                <li>✅ <b>Free Home Visits</b> (Save ₹49 each)</li>
+                                <li>✅ <b>10-20% Discount</b> on services</li>
+                                <li>✅ Priority Support</li>
+                            </ul>
+                            <button class="btn" onclick="pay('Gold', 39900)" style="background:#000; color:#fff;">Get Gold</button>
+    </div>
+       <div class="card" style="background: linear-gradient(135deg, #0F172A, #334155); color: #fff;">
+                            <h3 style="color:#0EA5E9;">Platinum Member @ ₹599</h3>
+                            <ul style="margin:10px 0; font-size:0.9rem; list-style:none;">
+                                <li>✅ <b>Free Home Visits</b></li>
+                                <li>✅ <b>20-25% Discount</b> on services</li>
+                                <li>✅ <b>5% Cashback</b> on every project</li>
+                            </ul>
+                            <button class="btn" onclick="pay('Platinum', 59900)" style="background:#0EA5E9; color:white;">Get Platinum</button>
                         </div>`;
                 }
             });
 
             db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
-                const html = snap.exists() ? Object.values(snap.val()).reverse().map(o => `<div class="card"><b>₹${o.amt} Booking</b><br><small>${o.date} - ${o.status}</small></div>`).join('') : "No bookings";
+                const html = snap.exists() ? Object.values(snap.val()).reverse().map(o => `
+                    <div class="card" style="border-left: 5px solid ${o.amt === 0 ? '#10B981' : '#F59E0B'};">
+                        <div style="display:flex; justify-content:space-between;">
+                            <b>${o.amt === 0 ? 'Free Visit' : 'Paid Visit'}</b>
+                            <span>₹${o.amt}</span>
+                        </div>
+                        <p style="font-size:0.8rem; color:#64748B; margin-top:5px;">${o.date} • ${o.status}</p>
+                    </div>`).join('') : '<p style="text-align:center; color:#94A3B8;">No bookings found.</p>';
                 document.getElementById('order-list').innerHTML = html;
                 document.getElementById('my-booking-list').innerHTML = html;
             });
         }
-    function pay(plan, amt) {
+
+        function pay(plan, amt) {
             new Razorpay({
                 "key": "rzp_test_S9bZgZmbrF8kPi",
                 "amount": amt,
                 "name": "UrbanPaintPro",
+                "description": plan + " Subscription",
                 "handler": function (res){
-                    const exp = new Date(); exp.setFullYear(exp.getFullYear()+1);
-                    db.ref('users/'+auth.currentUser.uid+'/plan').set({ name: plan + " Member", exp: exp.toLocaleDateString() });
-                }
+                    const expDate = new Date(); expDate.setFullYear(expDate.getFullYear() + 1);
+                    db.ref('users/' + auth.currentUser.uid + '/plan').set({
+                        name: plan + " Member",
+                        exp: expDate.toLocaleDateString(),
+                        active: true
+                    }).then(() => alert(plan + " Activated!"));
+                },
+                "theme": { "color": "#4F46E5" }
             }).open();
         }
 
         function startBooking() {
             if(!auth.currentUser) return openFS('fs-login');
-            document.getElementById('visit-charge-display').innerHTML = userPlan.name !== "Free User" ? "Confirm Booking (FREE for Member)" : "Confirm Booking (Charge: ₹49)";
-            document.getElementById('overlay').style.display='block';
+            const costMsg = userPlan.name !== "Free User" ? "Confirm Booking (Member Benefit: ₹0)" : "Confirm Booking (Visiting Fee: ₹49)";
+            document.getElementById('visit-charge-display').innerText = costMsg;
+            document.getElementById('overlay').style.display = 'block';
             document.getElementById('sheet-tnc').classList.add('active');
         }
 
         function placeOrder() {
             const addr = document.getElementById('b-addr').value;
-            if(!addr) return alert("Enter address");
+            const pin = document.getElementById('b-pin').value;
+            if(!addr || !pin) return alert("Please provide your full address and pincode.");
+            
+            const charge = userPlan.name !== "Free User" ? 0 : 49;
             db.ref('orders').push({
                 user: auth.currentUser.email,
                 addr: addr,
-                amt: userPlan.name !== "Free User" ? 0 : 49,
+                pincode: pin,
+                amt: charge,
                 status: "Pending",
                 date: new Date().toLocaleString()
-            }).then(() => { alert("Confirmed!"); closeSheet(); });
+            }).then(() => {
+                alert("Order Placed Successfully!");
+                closeSheet();
+            }).catch(e => alert("Error: " + e.message));
         }
 
-        // CALCULATOR LOGIC
+        // CALC LOGIC
         function loadCats() {
             const brand = document.getElementById('brand-sel').value;
             const cats = Object.keys(catalog[brand]);
@@ -301,6 +313,7 @@
             document.getElementById('total-price').innerText = "₹" + Math.round((p + 12) * s * w).toLocaleString('en-IN');
         }
 
+        // NAV & UI UTILS
         function nav(p, e) {
             document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
@@ -315,7 +328,7 @@
         function login() { auth.signInWithEmailAndPassword(document.getElementById('l-email').value, document.getElementById('l-pass').value).then(()=>closeFS('fs-login')); }
         function logout() { auth.signOut().then(()=>location.reload()); }
         function switchAuth(t) { closeFS('fs-login'); openFS('fs-'+t); }
+        function genInvoice() { /* logic ... */ }
     </script>
 </body>
 </html>
-
