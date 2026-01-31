@@ -3,379 +3,345 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>UrbanPaintPro | India's #1 Premium Painting App</title>
+    <title>UrbanPaintPro | India's #1 Painting App</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        :root { 
-            --p: #4F46E5; 
-            --p-light: #EEF2FF;
-            --bg: #F8FAFC; 
-            --text: #0F172A; 
-            --white: #FFFFFF; 
-            --success: #22c55e; 
-            --error: #ef4444; 
-            --warn: #f59e0b;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-        }
-
+        :root { --p: #4F46E5; --bg: #F8FAFC; --text: #0F172A; --white: #FFFFFF; --success: #22c55e; --error: #ef4444; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        /* --- SPLASH SCREEN --- */
+        /* Splash */
         #splash { position: fixed; inset: 0; background: var(--white); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
-        .logo-load { font-size: 2.5rem; font-weight: 800; color: var(--p); letter-spacing: -1px; animation: pulse 1.5s infinite; }
-        .logo-load span { color: var(--text); }
-        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.7; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.7; } }
+        .logo-load { font-size: 2rem; font-weight: 800; color: var(--p); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } }
 
-        /* --- HEADER --- */
-        .header { position: absolute; top: 0; width: 100%; height: 70px; background: rgba(255,255,255,0.9); backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000; border-bottom: 1px solid #F1F5F9; }
-        .logo { font-weight: 800; font-size: 1.4rem; color: var(--p); }
-        .logo span { color: var(--text); }
-        .user-icon { width: 40px; height: 40px; border-radius: 12px; background: var(--p-light); display: flex; align-items: center; justify-content: center; color: var(--p); cursor: pointer; transition: 0.3s; }
-        .user-icon:active { transform: scale(0.9); }
+        /* Header */
+        .header { position: absolute; top: 0; width: 100%; height: 60px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; border-bottom: 1px solid #F1F5F9; }
+        .logo { font-weight: 800; font-size: 1.2rem; color: var(--p); }
+        .user-icon { width: 32px; height: 32px; border-radius: 50%; background: #EEF2FF; display: flex; align-items: center; justify-content: center; color: var(--p); cursor: pointer; border: 1px solid #E2E8F0; }
 
-        /* --- PAGE SYSTEM --- */
-        .page { height: 100%; padding: 90px 20px 100px; overflow-y: auto; display: none; scroll-behavior: smooth; }
-        .page.active { display: block; animation: slideUp 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* Pages */
+        .page { height: 100%; padding: 80px 20px 100px; overflow-y: auto; display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- PREMIUM CARDS --- */
-        .card { background: var(--white); border-radius: 24px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid #F1F5F9; position: relative; overflow: hidden; }
-        .card-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .card-title i { color: var(--p); }
+        /* Cards & Inputs */
+        .card { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .inp { width: 100%; padding: 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; font-weight: 600; font-size: 0.9rem; outline: none; margin-bottom: 10px; transition: 0.3s; }
+        .inp:focus { background: var(--white); border-color: var(--p); }
+        .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--p); color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn:active { transform: scale(0.98); }
+        .btn.outline { background: transparent; border: 2px solid #E2E8F0; color: var(--text); }
 
-        /* --- INPUTS & BUTTONS --- */
-        .inp-label { font-size: 0.75rem; font-weight: 700; color: #64748B; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-        .inp { width: 100%; padding: 16px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 16px; font-weight: 600; font-size: 1rem; outline: none; margin-bottom: 15px; transition: 0.3s; color: var(--text); }
-        .inp:focus { background: var(--white); border-color: var(--p); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
-        
-        .btn { width: 100%; padding: 18px; border-radius: 18px; border: none; background: var(--p); color: white; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39); }
-        .btn:active { transform: scale(0.96); opacity: 0.9; }
-        .btn.outline { background: transparent; border: 2px solid #E2E8F0; color: var(--text); box-shadow: none; }
-        .btn.secondary { background: #1E293B; color: white; }
+        /* Merged Scope Section */
+        .merged-section { background: #EEF2FF; border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px dashed var(--p); }
+        .merged-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .merged-label { font-weight: 700; font-size: 0.85rem; color: var(--p); }
 
-        /* --- SMART CALCULATOR SPECIALS --- */
-        .price-badge { background: var(--p-light); color: var(--p); padding: 15px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border: 1px solid rgba(79, 70, 229, 0.1); }
-        .price-val { font-size: 1.5rem; font-weight: 800; }
-
-        /* --- PARTNER SECTION --- */
-        .partner-box { background: #F0FDFA; border: 1px solid #14B8A6; border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 15px; margin-top: 15px; animation: fadeIn 0.5s; }
-        .partner-img { width: 60px; height: 60px; border-radius: 15px; object-fit: cover; background: #ddd; border: 2px solid white; }
-        .rating-star { color: #FBBF24; font-size: 0.8rem; }
-
-        /* --- FULL SCREEN SHEETS (For Policies & Login) --- */
-        .full-sheet { position: fixed; inset: 0; background: var(--white); z-index: 5000; transform: translateX(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        /* Full Screen Sheets */
+        .full-sheet { position: fixed; inset: 0; background: var(--white); z-index: 5000; transform: translateX(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
         .full-sheet.active { transform: translateX(0); }
-        .fs-header { padding: 20px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 15px; font-weight: 800; font-size: 1.2rem; }
-        .fs-body { flex: 1; overflow-y: auto; padding: 25px; line-height: 1.6; color: #475569; }
-        .policy-p { margin-bottom: 20px; font-size: 0.95rem; }
+        .fs-header { padding: 15px 20px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 15px; font-weight: 700; font-size: 1.1rem; }
+        .fs-body { flex: 1; overflow-y: auto; padding: 20px; }
 
-        /* --- NAVIGATION --- */
-        .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: var(--white); border-top: 1px solid #F1F5F9; display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding: 0 10px 15px; }
-        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 25%; transition: 0.3s; }
-        .nav-item.active { color: var(--p); }
-        .nav-item i { display: block; font-size: 1.5rem; margin-bottom: 5px; }
-        .nav-item.active i { transform: translateY(-5px); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        /* Bottom Sheet & Overlay */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; backdrop-filter: blur(2px); }
+        .sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); border-radius: 25px 25px 0 0; padding: 25px; z-index: 2001; transform: translateY(100%); transition: 0.4s; }
+        .sheet.active { transform: translateY(0); }
 
-        /* --- REVIEWS --- */
-        .review-card { min-width: 280px; background: var(--bg); padding: 20px; border-radius: 20px; margin-right: 15px; }
+        /* Menu Items */
+        .menu-item { display: flex; align-items: center; gap: 15px; padding: 18px; border-bottom: 1px solid #F8FAFC; cursor: pointer; transition: 0.2s; }
+        .menu-item:active { background: #F8FAFC; }
+        .menu-item i { width: 25px; font-size: 1.2rem; }
+        .menu-item span { flex: 1; font-weight: 600; font-size: 0.95rem; }
+
+        /* Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 45px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--p); }
+        input:checked + .slider:before { transform: translateX(21px); }
+
+        /* Tracking Timeline */
+        .timeline { position: relative; padding-left: 20px; margin-top: 15px; border-left: 2px solid #E2E8F0; }
+        .timeline-item { position: relative; margin-bottom: 20px; padding-left: 10px; }
+        .timeline-item::before { content: ''; position: absolute; left: -26px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #CBD5E1; border: 2px solid white; box-shadow: 0 0 0 2px #E2E8F0; }
+        .timeline-item.active::before { background: var(--success); box-shadow: 0 0 0 2px #dcfce7; }
+        .timeline-item h5 { font-size: 0.9rem; color: #94A3B8; margin-bottom: 2px; }
+        .timeline-item.active h5 { color: var(--text); font-weight: 700; }
         
-        /* --- REFER BOX --- */
-        .refer-card { background: linear-gradient(135deg, #6366F1, #4F46E5); color: white; padding: 30px; text-align: center; border-radius: 24px; position: relative; }
-        .refer-code-box { background: rgba(255,255,255,0.15); border: 2px dashed rgba(255,255,255,0.4); padding: 15px; border-radius: 12px; font-size: 1.8rem; font-weight: 800; letter-spacing: 4px; margin: 20px 0; }
+        /* Chatbot UI */
+        .chat-container { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
+        .chat-msg { padding: 12px 16px; border-radius: 12px; max-width: 80%; font-size: 0.9rem; line-height: 1.4; }
+        .chat-ai { background: #EEF2FF; color: #1E293B; border-bottom-left-radius: 2px; align-self: flex-start; }
+        .chat-user { background: var(--p); color: white; border-bottom-right-radius: 2px; align-self: flex-end; }
+        .chat-input { display: flex; gap: 10px; padding: 15px; border-top: 1px solid #F1F5F9; background: white; }
 
-        /* --- PAYMENT UI --- */
-        .qr-container { width: 240px; height: 240px; margin: 0 auto 20px; background: white; padding: 15px; border-radius: 20px; box-shadow: var(--shadow); }
-        .qr-container img { width: 100%; height: 100%; object-fit: contain; }
+        /* UPI Payment UI */
+        .qr-frame { width: 220px; height: 220px; margin: 0 auto 20px; border: 2px solid #e0e0e0; padding: 10px; border-radius: 12px; }
+        .qr-frame img { width: 100%; height: 100%; object-fit: contain; }
+        .upi-copy-box { background: #eef2ff; padding: 12px; border-radius: 8px; border: 1px dashed var(--p); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 
-        /* --- STATUS SCREEN --- */
-        .status-screen { position: fixed; inset: 0; background: white; z-index: 9000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
+        /* Nav */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); border-top: 1px solid #F1F5F9; display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: 10px; }
+        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; }
+        .nav-item.active { color: var(--p); transform: translateY(-2px); transition: 0.3s; }
+        .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+
+        /* Status Animations */
+        .status-screen { position: fixed; inset: 0; background: white; z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
         .status-screen.active { display: flex; }
-        .status-icon { width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin-bottom: 25px; }
-        .s-success { background: #dcfce7; color: var(--success); }
-
-        /* Support Float */
-        .support-float { position: fixed; bottom: 100px; right: 20px; width: 60px; height: 60px; background: #25D366; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); z-index: 100; transition: 0.3s; }
-        .support-float:active { transform: scale(0.9); }
-
+        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 20px; animation: scaleIn 0.5s; }
+        .success-icon { background: #dcfce7; color: var(--success); }
+        .error-icon { background: #fee2e2; color: var(--error); }
+        @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="splash"><div class="logo-load">Urban<span>PaintPro</span></div><p style="margin-top:15px; color:#64748B; font-weight:600;">Premium Painting Services</p></div>
+    <div id="splash"><div class="logo-load">UrbanPaintPro</div></div>
 
     <div class="header">
         <div class="logo">Urban<span>PaintPro</span></div>
-        <div class="user-icon" onclick="nav('account')"><i class="fa-solid fa-user-tie"></i></div>
+        <div class="user-icon" onclick="nav('account')"><i class="fa-regular fa-user"></i></div>
     </div>
 
     <div id="home" class="page active">
-        <div class="card">
-            <div class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Smart Estimator</div>
-            
-            <label class="inp-label">Project Type</label>
-            <select id="condition-sel" class="inp" onchange="calc()">
-                <option value="1">Repainting (Refresh Old Walls)</option>
-                <option value="1.6">Fresh Painting (New Plaster Walls)</option>
-                <option value="0.8">Rental Basic (One Coat Only)</option>
-            </select>
-
-            <label class="inp-label">Work Scope</label>
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 15px;">
-                <select id="scope-sel" class="inp" style="margin-bottom:0;" onchange="calc()">
-                    <option value="1">Full Home Service</option>
-                    <option value="0.3">Single Room</option>
-                    <option value="0.1">Feature/Accent Wall</option>
-                </select>
-                <div style="display:flex; align-items:center; justify-content:center; gap:12px; background:#F1F5F9; border-radius:16px;">
-                    <button onclick="updateQty(-1)" style="border:none; background:none; font-size:1.2rem; font-weight:800; color:var(--p); cursor:pointer;">-</button>
-                    <b id="qty-val">1</b>
-                    <button onclick="updateQty(1)" style="border:none; background:none; font-size:1.2rem; font-weight:800; color:var(--p); cursor:pointer;">+</button>
+        <div class="card" style="margin-bottom: 10px; border-bottom: 3px solid var(--p);">
+            <h3 style="margin-bottom:15px;" data-lang="work_area"><i class="fa-solid fa-layer-group"></i> Define Work Area</h3>
+            <div class="merged-section">
+                <div class="merged-header">
+                    <span class="merged-label" data-lang="scope">Select Scope</span>
+                    <span class="merged-label" data-lang="qty">Unit Count</span>
                 </div>
-            </div>
-
-            <label class="inp-label">Select Paint Category</label>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <select id="brand-sel" class="inp" onchange="loadCats()">
-                    <option value="Asian">Asian Paints</option>
-                    <option value="Berger">Berger Paints</option>
-                </select>
-                <select id="cat-sel" class="inp" onchange="loadProds()"></select>
-            </div>
-            <select id="prod-sel" class="inp" onchange="calc()"></select>
-
-            <div class="price-badge">
-                <span>Estimated Cost:</span>
-                <span class="price-val" id="total-price">₹0</span>
-            </div>
-            <button class="btn outline" style="margin-top:15px; border-radius:12px; padding:12px;" onclick="genInvoice()"><i class="fa-solid fa-file-pdf"></i> Download PDF Estimate</button>
-        </div>
-
-        <button class="btn" onclick="startBooking()"><i class="fa-solid fa-calendar-check"></i> Book Professional Inspection</button>
-        <p style="text-align:center; font-size:0.8rem; margin-top:12px; color:#64748B;">Urban Company Standard Visit Fee: <strike>₹150</strike> <b>₹49 Only</b></p>
-
-        <h3 style="margin: 30px 0 15px 5px; font-weight: 800;">Real Transformations</h3>
-        <div style="display: flex; overflow-x: auto; padding-bottom: 15px; -ms-overflow-style: none; scrollbar-width: none;">
-            <div class="review-card">
-                <div style="color:#FBBF24; margin-bottom:8px;"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                <p style="font-size:0.9rem; color:#334155; font-weight:500;">"Brilliant experience. The smart calculator gave the exact same quote as the final bill. The painter Arbaz was top class."</p>
-                <div style="display:flex; align-items:center; gap:10px; margin-top:15px;">
-                    <div style="width:30px; height:30px; border-radius:50%; background:var(--p); color:white; display:flex; align-items:center; justify-content:center; font-size:0.7rem;">M</div>
-                    <b>Manish, Dwarka</b>
-                </div>
-            </div>
-            <div class="review-card">
-                <div style="color:#FBBF24; margin-bottom:8px;"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                <p style="font-size:0.9rem; color:#334155; font-weight:500;">"Clean work! They covered all furniture with plastic before starting. 5/5 for professionalism."</p>
-                <div style="display:flex; align-items:center; gap:10px; margin-top:15px;">
-                    <div style="width:30px; height:30px; border-radius:50%; background:#10b981; color:white; display:flex; align-items:center; justify-content:center; font-size:0.7rem;">S</div>
-                    <b>Mahira, Noida</b>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; align-items: center;">
+                    <select id="scope-sel" class="inp" style="margin-bottom:0;" onchange="calc()">
+                        <option value="1">Full Home Painting</option>
+                        <option value="0.3">Partial (1-2 Rooms)</option>
+                        <option value="0.1">Single Wall Accent</option>
+                    </select>
+                    <div style="display:flex; align-items:center; justify-content:center; gap:10px; background:white; padding:8px; border-radius:12px; border:1px solid #E2E8F0;">
+                        <button onclick="updateQty(-1)" style="border:none; background:none; color:var(--p); font-weight:800; cursor:pointer;">-</button>
+                        <b id="qty-val" style="min-width:20px; text-align:center;">1</b>
+                        <button onclick="updateQty(1)" style="border:none; background:none; color:var(--p); font-weight:800; cursor:pointer;">+</button>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="card" style="background: linear-gradient(135deg, #1E1B4B, #312E81); color: white;">
+            <h3 style="margin-bottom:15px; color: #A5B4FC;" data-lang="paint_sel"><i class="fa-solid fa-fill-drip"></i> Paint Selection</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                    <label style="font-size:0.7rem; opacity:0.8;">BRAND</label>
+                    <select id="brand-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadCats()">
+                        <option value="Asian">Asian Paints</option>
+                        <option value="Berger">Berger Paints</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:0.7rem; opacity:0.8;">CATEGORY</label>
+                    <select id="cat-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="loadProds()"></select>
+                </div>
+            </div>
+            <label style="font-size:0.7rem; opacity:0.8;">CHOOSE PRODUCT</label>
+            <select id="prod-sel" class="inp" style="background:rgba(255,255,255,0.1); color:white; border:none;" onchange="calc()"></select>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; border-top:1px solid rgba(255,255,255,0.2); padding-top:15px;">
+                <div><small data-lang="est">Estimated Price</small><h2 id="total-price">₹0</h2></div>
+                <button class="btn" style="background:white; color:var(--p); width:auto; padding:8px 15px; font-size:0.8rem;" onclick="genInvoice()" data-lang="bill"><i class="fa-solid fa-file-invoice"></i> Bill</button>
+            </div>
+        </div>
+        <button class="btn" onclick="startBooking()" data-lang="book_visit">Book Inspection Visit</button>
+        <p style="text-align:center; font-size:0.8rem; margin-top:10px; color:#64748B;">Charges: ₹49 (Free for Gold/Platinum)</p>
     </div>
 
     <div id="orders" class="page">
-        <h2 style="font-weight: 800; margin-bottom: 20px;">Project Timeline</h2>
-        <div id="order-list"></div>
+        <h2 data-lang="projects">My Projects</h2>
+        <div id="order-list" style="margin-top:20px;"></div>
     </div>
 
     <div id="account" class="page">
-        <div id="auth-ui" style="text-align:center; padding:50px 0;">
-            <i class="fa-solid fa-circle-user" style="font-size: 5rem; color: #E2E8F0; margin-bottom: 20px;"></i>
-            <h2>Join UrbanPaintPro</h2>
-            <p style="color:#64748B; margin-bottom:30px;">Login to track your home renovation</p>
+        <div id="auth-ui" style="text-align:center; padding:40px 0;">
+            <img src="https://cdn-icons-png.flaticon.com/512/295/295128.png" width="80" style="margin-bottom:15px;">
+            <h2>Welcome Back</h2>
+            <p style="color:#64748B;">Login to manage bookings</p>
             <button class="btn" onclick="openFS('fs-login')">Login / Sign Up</button>
         </div>
 
         <div id="profile-ui" style="display:none;">
             <div style="text-align:center; margin-bottom:30px;">
-                <div style="width:90px; height:90px; background:var(--p); color:white; font-size:2.5rem; font-weight:800; border-radius:30px; display:flex; align-items:center; justify-content:center; margin:0 auto; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);" id="avatar">U</div>
-                <h2 id="u-name" style="margin-top:15px; font-weight:800;">User Name</h2>
-                <p id="u-email" style="color:#64748B; font-weight:600;"></p>
-                <div id="u-plan-badge"></div>
-            </div>
-
-            <div class="card" style="padding:0;">
-                <div class="menu-item" onclick="openFS('fs-refer')" style="background: var(--p-light); border-radius: 20px 20px 0 0;">
-                    <i class="fa-solid fa-gift" style="color: var(--p);"></i><span><b>Refer & Earn ₹100</b></span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
-                </div>
-                <div class="menu-item" onclick="openFS('fs-plans')"><i class="fa-solid fa-crown" style="color: gold;"></i><span>Subscription Plans</span></div>
-                <div class="menu-item" onclick="openFS('fs-bookings')"><i class="fa-solid fa-clock-rotate-left" style="color: #6366f1;"></i><span>Booking History</span></div>
-                <div class="menu-item" onclick="openFS('fs-addresses')"><i class="fa-solid fa-location-dot" style="color: #ef4444;"></i><span>Saved Addresses</span></div>
-                <div class="menu-item" onclick="openFS('fs-help')"><i class="fa-solid fa-headset" style="color: #10b981;"></i><span>Help & Support</span></div>
-                
-                <div class="menu-item" onclick="openFS('fs-policy-terms')"><i class="fa-solid fa-file-shield"></i><span>Terms & Conditions</span></div>
-                <div class="menu-item" onclick="openFS('fs-policy-privacy')"><i class="fa-solid fa-lock"></i><span>Privacy Policy</span></div>
-                <div class="menu-item" onclick="openFS('fs-policy-refund')"><i class="fa-solid fa-money-bill-transfer"></i><span>Refund Policy</span></div>
-
-                <div class="menu-item" onclick="logout()" style="color:var(--error); border-bottom: none;"><i class="fa-solid fa-power-off"></i><span>Logout</span></div>
+                <div style="width:80px; height:80px; background:var(--p); color:white; font-size:2rem; font-weight:800; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto;" id="avatar">U</div>
+                <h3 id="u-name" style="margin-top:10px;">User</h3>
+                <p id="u-email" style="color:#64748B; font-size:0.9rem;"></p>
+                <div id="u-plan-badge" style="margin-top:5px;"></div>
             </div>
             
-            <p style="text-align:center; font-size:0.7rem; color:#94A3B8; margin-top:20px;">App Version 4.0.0 (Premium)</p>
-        </div>
-    </div>
-
-    <div class="full-sheet" id="fs-refer">
-        <div class="fs-header"><i class="fa-solid fa-xmark" onclick="closeFS('fs-refer')"></i> Rewards</div>
-        <div class="fs-body" style="text-align:center;">
-            <img src="https://cdn-icons-png.flaticon.com/512/3893/3893069.png" width="200" style="margin-bottom:20px;">
-            <div class="refer-card">
-                <h2>Invite your neighbor</h2>
-                <p style="margin-top:10px;">Get ₹100 in your wallet for every successful painting project referred!</p>
-                <div class="refer-code-box" id="my-refer-code">UPP-NEW</div>
-                <button class="btn" style="background:white; color:var(--p);" onclick="shareApp()">Share Referral Code</button>
+            <div class="card" style="padding:0;">
+                <div class="menu-item" onclick="openFS('fs-plans')">
+                    <i class="fa-solid fa-crown" style="color: gold;"></i><span>My Plans</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-bookings')">
+                    <i class="fa-solid fa-calendar-check" style="color: var(--p);"></i><span>My Bookings</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-language')">
+                    <i class="fa-solid fa-language" style="color: #8B5CF6;"></i><span data-lang="language">Language / भाषा</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-addresses')">
+                    <i class="fa-solid fa-map-location-dot" style="color: #e74c3c;"></i><span>Manage Addresses</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-settings')">
+                    <i class="fa-solid fa-gear" style="color: #64748B;"></i><span>Settings</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-help')">
+                    <i class="fa-solid fa-headset" style="color: #10b981;"></i><span>Help Center</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-personal')">
+                    <i class="fa-solid fa-user-pen"></i><span>Edit Profile</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="openFS('fs-about')">
+                    <i class="fa-solid fa-circle-info"></i><span>About App</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i>
+                </div>
+                <div class="menu-item" onclick="logout()" style="color:red;">
+                    <i class="fa-solid fa-power-off" style="color:red"></i><span>Logout</span>
+                </div>
             </div>
-        </div>
-    </div>
-
-    <div class="full-sheet" id="fs-login">
-        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-login')"></i> Account Access</div>
-        <div class="fs-body">
-            <h2 style="font-weight:800; margin-bottom:10px;">Welcome Back!</h2>
-            <p style="margin-bottom:30px;">Login with your registered credentials</p>
-            <label class="inp-label">Email Address</label>
-            <input type="email" id="l-email" class="inp" placeholder="name@example.com">
-            <label class="inp-label">Password</label>
-            <input type="password" id="l-pass" class="inp" placeholder="Min. 6 characters">
-            <button class="btn" onclick="login()">Log In Securely</button>
-            <button class="btn outline" style="margin-top:15px;" onclick="googleLogin()"><i class="fa-brands fa-google"></i> Login with Google</button>
-            <p style="text-align:center; margin-top:25px;">New to the app? <b style="color:var(--p);" onclick="switchAuth('signup')">Create Account</b></p>
-        </div>
-    </div>
-
-    <div class="full-sheet" id="fs-signup">
-        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-signup')"></i> Registration</div>
-        <div class="fs-body">
-            <h2 style="font-weight:800; margin-bottom:10px;">Create Profile</h2>
-            <p style="margin-bottom:30px;">Start your premium painting experience</p>
-            <input type="text" id="s-name" class="inp" placeholder="Full Name">
-            <input type="email" id="s-email" class="inp" placeholder="Email Address">
-            <input type="password" id="s-pass" class="inp" placeholder="Set Password">
-            <button class="btn" onclick="signup()">Register Now</button>
-        </div>
-    </div>
-
-    <div class="full-sheet" id="fs-policy-terms">
-        <div class="fs-header"><i class="fa-solid fa-chevron-left" onclick="closeFS('fs-policy-terms')"></i> Terms & Conditions</div>
-        <div class="fs-body">
-            <h3>1. Introduction</h3>
-            <p class="policy-p">By using UrbanPaintPro, you agree to our standard terms of service. Our inspection visit is mandatory for a final quote.</p>
-            <h3>2. Visit Charges</h3>
-            <p class="policy-p">The ₹49 visit charge is non-refundable but will be fully adjusted (minus) from your final painting bill.</p>
-            <h3>3. Service Areas</h3>
-            <p class="policy-p">Currently, we serve Delhi NCR (Delhi, Noida, Gurgaon, Ghaziabad, Faridabad) only.</p>
-        </div>
-    </div>
-
-    <div class="full-sheet" id="fs-policy-privacy">
-        <div class="fs-header"><i class="fa-solid fa-chevron-left" onclick="closeFS('fs-policy-privacy')"></i> Privacy Policy</div>
-        <div class="fs-body">
-            <h3>Data Protection</h3>
-            <p class="policy-p">We collect your address and contact details only to provide painting services. We do not sell your data to any third party.</p>
-            <h3>Security</h3>
-            <p class="policy-p">All payments are secure. We do not store your bank or card details on our servers.</p>
-        </div>
-    </div>
-
-    <div class="full-sheet" id="fs-policy-refund">
-        <div class="fs-header"><i class="fa-solid fa-chevron-left" onclick="closeFS('fs-policy-refund')"></i> Refund & Cancellation</div>
-        <div class="fs-body">
-            <h3>Cancellation</h3>
-            <p class="policy-p">You can cancel your visit up to 2 hours before the scheduled time. However, the ₹49 booking fee is non-refundable.</p>
-            <h3>Material Refund</h3>
-            <p class="policy-p">Once paint material is unsealed at your site, it cannot be refunded or returned.</p>
         </div>
     </div>
 
     <div class="full-sheet" id="fs-payment">
-        <div class="fs-header"><i class="fa-solid fa-xmark" onclick="closeFS('fs-payment')"></i> Final Step: Secure Payment</div>
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-payment')"></i> Scan & Pay</div>
         <div class="fs-body" style="text-align:center;">
-            <div style="background:var(--p-light); padding:20px; border-radius:20px; margin-bottom:20px;">
-                <h3 style="color:#64748B;">Amount to Pay</h3>
-                <h1 id="pay-amt-display" style="font-size:2.5rem; color:var(--p);">₹49</h1>
-            </div>
+            <h2 id="pay-amt-display" style="margin-bottom:5px; color:var(--p);">₹0</h2>
+            <p style="margin-bottom:20px; color:#666;">Pay via PhonePe / Paytm / GPay</p>
             
-            <div class="qr-container"><img src="payment_qr.png" alt="Scan QR Code"></div>
-            
-            <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px;">
-                <span style="font-weight:bold; color:var(--p);">kingkhan33648@okicici</span>
-                <i class="fa-regular fa-copy" style="cursor:pointer; color:var(--p);" onclick="copyUPI()"></i>
+            <div class="qr-frame">
+                <img src="payment_qr.png" alt="Scan QR Code">
             </div>
 
-            <div style="text-align:left;">
-                <label class="inp-label">UTR / Transaction ID (12 Digits)</label>
-                <input type="number" id="utr-input" class="inp" placeholder="Example: 345678912345">
-                <div style="background:#fff3cd; color:#856404; padding:15px; border-radius:12px; font-size:0.85rem; border-left:4px solid #f59e0b;">
-                    <b>IMP:</b> After payment, check your Bank SMS for the 12-digit UTR number and enter it above to confirm your booking.
+            <div class="upi-copy-box">
+                <span style="font-weight:bold; color:var(--p); font-size:14px;" id="upi-id-text">kingkhan33648@okicici</span>
+                <button onclick="copyUPI()" style="background:var(--p); color:white; border:none; padding:5px 10px; border-radius:5px; font-weight:bold; font-size:12px;">COPY</button>
+            </div>
+
+            <div style="text-align:left; margin-top:20px;">
+                <label style="font-weight:700; color:#444;">Enter UTR / Reference No (12 Digits)</label>
+                <input type="number" id="utr-input" class="inp" placeholder="Ex: 345678912345" style="margin-top:5px;">
+                <div style="background:#fff3cd; color:#856404; padding:10px; border-radius:8px; font-size:0.8rem; margin-top:5px; border-left:3px solid #ffc107;">
+                    ⚠️ Payment करने के बाद अपने बैंक SMS से 12 अंकों का UTR नंबर यहाँ जरूर डालें।
                 </div>
             </div>
 
-            <button class="btn" style="background:#22c55e; margin-top:25px;" onclick="verifyPayment()">Confirm & Complete Booking</button>
+            <button class="btn" onclick="verifyPayment()" style="background:#22c55e; margin-top:20px;">Verify & Submit</button>
         </div>
     </div>
 
-    <div class="overlay" id="overlay" onclick="closeSheet()"></div>
-    
-    <div class="sheet" id="sheet-book">
-        <h3 style="font-weight:800; margin-bottom:10px;">Schedule Inspection</h3>
-        <p style="color:#64748B; margin-bottom:20px;" id="visit-charge-display">Inspection Charge: ₹49</p>
-        
-        <label class="inp-label">Choose Date</label>
-        <input type="date" id="b-date" class="inp">
-        
-        <label class="inp-label">Choose Time Slot</label>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-            <select id="b-time" class="inp" style="margin-bottom:0;">
-                <option>09:00 AM - 11:00 AM</option>
-                <option>11:00 AM - 01:00 PM</option>
-                <option>02:00 PM - 04:00 PM</option>
-                <option>05:00 PM - 07:00 PM</option>
-            </select>
-            <button class="btn outline" style="margin:0; padding:0;" onclick="autoLoc()"><i class="fa-solid fa-location-crosshairs"></i> GPS</button>
+    <div class="full-sheet" id="fs-login">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-login')"></i> Login</div>
+        <div class="fs-body" style="display:flex; flex-direction:column; justify-content:center;">
+            <h2 style="margin-bottom:20px;">Welcome Back</h2>
+            <input type="email" id="l-email" class="inp" placeholder="Email Address">
+            <input type="password" id="l-pass" class="inp" placeholder="Password">
+            <div style="text-align:right; margin-bottom:20px;"><span style="color:var(--p); font-size:0.9rem;" onclick="resetPass()">Forgot Password?</span></div>
+            <button class="btn" onclick="login()">Log In</button>
+            <button class="btn outline" onclick="googleLogin()"><i class="fa-brands fa-google"></i> Google Login</button>
+            <p style="text-align:center; margin-top:20px;">Don't have an account? <b style="color:var(--p);" onclick="switchAuth('signup')">Sign Up</b></p>
         </div>
+    </div>
 
-        <input type="text" id="b-addr" class="inp" placeholder="Full Address (House No, Street)">
-        <input type="number" id="b-pin" class="inp" placeholder="6-Digit Pincode">
-        
-        <button class="btn" onclick="placeOrder()">Proceed to Payment</button>
+    <div class="full-sheet" id="fs-signup">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-signup')"></i> Create Account</div>
+        <div class="fs-body">
+            <h2 style="margin-bottom:20px;">New Account</h2>
+            <input type="text" id="s-name" class="inp" placeholder="Full Name">
+            <input type="email" id="s-email" class="inp" placeholder="Email Address">
+            <input type="password" id="s-pass" class="inp" placeholder="Password (Min 6 chars)">
+            <button class="btn" onclick="signup()">Create Account</button>
+            <p style="text-align:center; margin-top:20px;">Already have an account? <b style="color:var(--p);" onclick="switchAuth('login')">Log In</b></p>
+        </div>
+    </div>
+
+    <div class="full-sheet" id="fs-language">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-language')"></i> Select Language</div>
+        <div class="fs-body">
+            <div class="menu-item" onclick="setLang('en')"><span>🇬🇧 English</span></div>
+            <div class="menu-item" onclick="setLang('hi')"><span>🇮🇳 Hindi (हिंदी)</span></div>
+            <div class="menu-item" onclick="setLang('hing')"><span>🇮🇳 Hinglish</span></div>
+            <div class="menu-item" onclick="setLang('mr')"><span>🇮🇳 Marathi (मराठी)</span></div>
+            <div class="menu-item" onclick="setLang('bn')"><span>🇮🇳 Bengali (বাংলা)</span></div>
+            <div class="menu-item" onclick="setLang('ta')"><span>🇮🇳 Tamil (தமிழ்)</span></div>
+            <div class="menu-item" onclick="setLang('te')"><span>🇮🇳 Telugu (తెలుగు)</span></div>
+        </div>
+    </div>
+
+    <div class="full-sheet" id="fs-chat">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-chat')"></i> AI Assistant</div>
+        <div class="fs-body chat-container" id="chat-box">
+            <div class="chat-msg chat-ai">Hello! Ask me about booking, warranty, or pricing.</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chat-in" class="inp" style="margin:0;" placeholder="Type..." onkeypress="handleChat(event)">
+            <button class="btn" style="width:50px; margin:0;" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="full-sheet" id="fs-plans"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-plans')"></i> Plans</div><div class="fs-body" id="fs-plans-content"></div></div>
+    
+    <div class="full-sheet" id="fs-bookings"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-bookings')"></i> My Bookings</div><div class="fs-body" id="my-booking-list"></div></div>
+    
+    <div class="full-sheet" id="fs-help">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-help')"></i> Help Center</div>
+        <div class="fs-body">
+            <div class="card" style="padding:0;">
+                <div class="menu-item" onclick="openFS('fs-chat')"><i class="fa-solid fa-robot" style="color: #6c5ce7;"></i><span>AI Chat Support</span><i class="fa-solid fa-chevron-right" style="color:#ccc"></i></div>
+                <a href="https://wa.me/919711904092" target="_blank" style="text-decoration:none; color:inherit;"><div class="menu-item"><i class="fa-brands fa-whatsapp" style="color: #25D366;"></i><span>WhatsApp Support</span></div></a>
+                <a href="mailto:support@urbanpaintpro.in" style="text-decoration:none; color:inherit;"><div class="menu-item"><i class="fa-solid fa-envelope" style="color: #ea4335;"></i><span>Email Support</span></div></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="full-sheet" id="fs-settings"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-settings')"></i> Settings</div><div class="fs-body"><div class="card"><div class="menu-item" style="justify-content:space-between;"><span>Notifications</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div></div></div></div>
+    <div class="full-sheet" id="fs-personal"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-personal')"></i> Edit Profile</div><div class="fs-body"><input type="text" id="edit-name" class="inp" placeholder="Name"><button class="btn" onclick="updateProfile()">Save Changes</button></div></div>
+    <div class="full-sheet" id="fs-addresses"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-addresses')"></i> Addresses</div><div class="fs-body"><div class="card"><input type="text" id="new-address-input" placeholder="New address..." class="inp"><button onclick="saveNewAddress()" class="btn" style="margin-top:0;">Save</button></div><div id="address-list" class="card" style="padding:0; margin-top:10px;"></div></div></div>
+    <div class="full-sheet" id="fs-about"><div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-about')"></i> About</div><div class="fs-body">UrbanPaintPro v3.0</div></div>
+
+    <div id="status-success" class="status-screen"><div class="icon-circle success-icon"><i class="fa-solid fa-check"></i></div><h2 style="color:var(--success)">Success!</h2><p style="margin-top:10px; color:#64748B;">Order confirmed.</p><button class="btn" onclick="window.location.reload()">Done</button></div>
+    <div id="status-failed" class="status-screen"><div class="icon-circle error-icon"><i class="fa-solid fa-xmark"></i></div><h2 style="color:var(--error)">Failed!</h2><p style="margin-top:10px; color:#64748B;">Verification Failed.</p><button class="btn" onclick="closeStatus()">Retry</button></div>
+
+    <div class="overlay" id="overlay" onclick="closeSheet()"></div>
+    <div class="sheet" id="sheet-book">
+        <h3>Confirm Booking</h3>
+        <p style="margin-bottom:15px; font-size:0.9rem;" id="visit-charge-display">Visiting Charge: ₹49</p>
+        <button class="btn outline" style="margin-bottom:10px; border-color:var(--p); color:var(--p);" onclick="autoLoc()"><i class="fa-solid fa-location-dot"></i> Auto Detect Location</button>
+        <input type="text" id="b-addr" class="inp" placeholder="Full Address">
+        <input type="number" id="b-pin" class="inp" placeholder="Pincode (NCR)">
+        <button class="btn" onclick="placeOrder()">Pay & Confirm</button>
     </div>
 
     <div class="sheet" id="sheet-tnc">
-        <h3>Standard Terms</h3>
-        <p style="margin:15px 0; color:#64748B;">Our professional will measure the exact area and provide a final quote. Visit fee ₹49 is adjustable in the final bill.</p>
-        <div style="display:flex; gap:12px;">
-            <button class="btn outline" onclick="closeSheet()">Decline</button>
-            <button class="btn" onclick="acceptTNC()">Accept & Continue</button>
+        <h3>Terms & Conditions</h3>
+        <p style="margin:10px 0; color:#666;">1. Visit charges are non-refundable.<br>2. Final quote after measurement.<br>3. We serve NCR only.</p>
+        <div style="display:flex; gap:10px;">
+            <button class="btn outline" onclick="closeSheet()">Deny</button>
+            <button class="btn" onclick="acceptTNC()">Accept</button>
         </div>
     </div>
 
-    <div id="status-success" class="status-screen">
-        <div class="status-icon s-success"><i class="fa-solid fa-check"></i></div>
-        <h2 style="font-weight:800;">Project Scheduled!</h2>
-        <p style="color:#64748B; margin:15px 0 25px;">Our expert will visit your home at the selected time. Check "Orders" for details.</p>
-        <button class="btn" onclick="window.location.reload()">Back to Dashboard</button>
-    </div>
-
-    <a href="https://wa.me/919711904092" class="support-float"><i class="fa-brands fa-whatsapp"></i></a>
-
     <div class="nav">
-        <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house-chimney"></i>Home</div>
-        <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-briefcase"></i>Orders</div>
-        <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-circle-user"></i>Profile</div>
+        <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i>Home</div>
+        <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-box-open"></i>Orders</div>
+        <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-user"></i>Account</div>
     </div>
 
     <script>
-        // --- FIREBASE CONFIG (Original) ---
         const firebaseConfig = {
           apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
           authDomain: "professionalpainters-28488.firebaseapp.com",
@@ -391,33 +357,45 @@
 
         let currentQty = 1;
         let userPlanDetails = { name: "Free User", status: "none" };
-        let pendingPayment = null;
+        let currentLang = 'en';
+        let pendingPayment = null; // Store details of current payment attempt
 
-        // CATALOG (Keeping original logic but ensuring ultra accuracy)
+        // 7 Languages
+        const dict = {
+            en: { work_area:"Define Work Area", scope:"Select Scope", qty:"Unit Count", paint_sel:"Paint Selection", est:"Estimated Price", bill:"Download Bill", book_visit:"Book Inspection Visit", projects:"My Projects", language:"Language / भाषा" },
+            hi: { work_area:"कार्य क्षेत्र चुनें", scope:"दायरा चुनें", qty:"संख्या", paint_sel:"पेंट चुनें", est:"अनुमानित कीमत", bill:"बिल डाउनलोड करें", book_visit:"इंस्पेक्शन बुक करें", projects:"मेरे प्रोजेक्ट्स", language:"भाषा / Language" },
+            hing: { work_area:"Work Area Select Karo", scope:"Scope Chunen", qty:"Kitne Rooms?", paint_sel:"Paint Select Karo", est:"Lagbhag Price", bill:"Bill Download Karo", book_visit:"Book Now", projects:"Mere Orders", language:"Bhasha Badlein" },
+            mr: { work_area:"कामाचे क्षेत्र निवडा", scope:"व्याप्ती", qty:"संख्या", paint_sel:"रंग निवडा", est:"अंदाजित किंमत", bill:"बिल डाउनलोड करा", book_visit:"भेट बुक करा", projects:"माझे प्रकल्प", language:"भाषा" },
+            bn: { work_area:"কাজের এলাকা", scope:"পরিধি", qty:"সংখ্যা", paint_sel:"পেইন্ট নির্বাচন", est:"আনুমানিক দাম", bill:"বিল ডাউনলোড", book_visit:"বুক করুন", projects:"আমার প্রকল্প", language:"भाषा" },
+            ta: { work_area:"வேலை பகுதியை வரையறுக்கவும்", scope:"நோக்கம்", qty:"எண்ணிக்கை", paint_sel:"பெயிண்ட் தேர்வு", est:"மதிப்பிடப்பட்ட விலை", bill:"பில் பதிவிறக்கவும்", book_visit:"முன்பதிவு", projects:"திட்டங்கள்", language:"மொழி" },
+            te: { work_area:"పని ప్రాంతం", scope:"పరిధి", qty:"సంఖ్య", paint_sel:"పెయింట్ ఎంపిక", est:"అంచనా ధర", bill:"బిల్ డౌన్‌లోడ్", book_visit:"బుక్ చేయండి", projects:"ప్రాజెక్టులు", language:"భాష" }
+        };
+
+        // FULL CATALOG (Expanded)
         const catalog = {
             "Asian": { 
-                "Interior": [{n:"Tractor Emulsion", p:12}, {n:"Apcolite Premium", p:20}, {n:"Royale Luxury", p:28}], 
-                "Exterior": [{n:"Ace Exterior", p:15}, {n:"Apex Ultima", p:32}] 
+                "Interior": [{n:"Tractor Emulsion", p:12}, {n:"Apcolite Premium", p:20}, {n:"Royale Luxury", p:26}], 
+                "Exterior": [{n:"Ace Exterior", p:15}, {n:"Apex Ultima", p:30}],
+                "Waterproofing": [{n:"Damp Block", p:80}, {n:"Crack Fill", p:110}],
+                "Wood/Metal": [{n:"Enamel", p:18}, {n:"PU Gloss", p:150}]
             },
             "Berger": { 
-                "Interior": [{n:"Bison Emulsion", p:13}, {n:"Silk Glamor", p:30}], 
-                "Exterior": [{n:"Walmasta", p:16}, {n:"Weathercoat", p:35}] 
+                "Interior": [{n:"Bison Emulsion", p:13}, {n:"Silk Glamor", p:28}], 
+                "Exterior": [{n:"Walmasta", p:16}, {n:"Weathercoat", p:35}],
+                "Waterproofing": [{n:"Home Shield", p:85}],
+                "Wood/Metal": [{n:"Luxol", p:20}, {n:"Imperia", p:140}]
             }
         };
 
         window.onload = () => {
             loadCats();
-            document.getElementById('b-date').min = new Date().toISOString().split("T")[0]; 
-            setTimeout(() => { document.getElementById('splash').style.opacity='0'; setTimeout(()=>document.getElementById('splash').style.display='none',500); }, 2500);
-            
+            requestPermissions();
+            setTimeout(() => { document.getElementById('splash').style.display='none'; }, 2000);
             auth.onAuthStateChanged(u => {
                 if(u) {
                     document.getElementById('auth-ui').style.display='none';
                     document.getElementById('profile-ui').style.display='block';
-                    document.getElementById('u-name').innerText = u.displayName || 'Home Owner';
-                    document.getElementById('u-email').innerText = u.email;
-                    document.getElementById('avatar').innerText = u.displayName ? u.displayName[0].toUpperCase() : 'U';
-                    document.getElementById('my-refer-code').innerText = "UPP" + u.uid.substring(0,6).toUpperCase();
+                    updateUI(u);
                     loadRealData(u.uid);
                 } else {
                     document.getElementById('auth-ui').style.display='block';
@@ -425,159 +403,224 @@
                 }
             });
         };
+       function updateUI(u) {
+            document.getElementById('u-name').innerText = u.displayName || 'User';
+            document.getElementById('u-email').innerText = u.email;
+            document.getElementById('avatar').innerText = u.displayName ? u.displayName[0].toUpperCase() : 'U';
+        }
 
-        // --- CORE LOGIC ---
+        function requestPermissions() {
+            if ("geolocation" in navigator) navigator.geolocation.getCurrentPosition(()=>{}, ()=>{});
+            if ("Notification" in window) Notification.requestPermission();
+        }
+
+        function setLang(l) {
+            currentLang = l;
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if(dict[l][key]) el.innerText = dict[l][key];
+            });
+            closeFS('fs-language');
+        }
+
+        // --- REAL TIME TRACKING & DATA ---
         function loadRealData(uid) {
             db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
                 const list = document.getElementById('order-list'); 
+                const myList = document.getElementById('my-booking-list');
                 if(snap.exists()) {
-                    let html = "";
-                    snap.forEach(child => {
-                        const o = child.val();
+                    const html = Object.values(snap.val()).reverse().map(o => {
                         const s = o.status;
-                        let partnerInfo = "";
-                        
-                        // Smart Partner Assignment Logic
-                        if(s.includes("Accepted") || s.includes("Scheduled") || s.includes("Verifying")) {
-                            partnerInfo = `
-                            <div class="partner-box">
-                                <img src="https://i.pravatar.cc/100?u=${child.key}" class="partner-img">
-                                <div>
-                                    <h4 style="margin:0;">Assigned Partner: Ramesh K.</h4>
-                                    <div class="rating-star"><i class="fa-solid fa-star"></i> 4.9 Rating • Professional</div>
-                                    <small style="color:#14B8A6; font-weight:700;">Arriving at selected slot</small>
-                                </div>
-                                <a href="tel:97119092" style="margin-left:auto; color:#14B8A6; font-size:1.2rem;"><i class="fa-solid fa-phone"></i></a>
-                            </div>`;
-                        }
-
-                        html += `
-                        <div class="card" style="border-left: 5px solid ${s.includes('Pending') ? 'var(--warn)' : 'var(--success)'};">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                                <div>
-                                    <b style="font-size:0.8rem; color:#64748B;">ID: #${child.key.substring(1,8)}</b>
-                                    <h3 style="margin:5px 0;">${o.paint}</h3>
-                                </div>
-                                <span style="background:var(--p-light); color:var(--p); padding:5px 10px; border-radius:10px; font-size:0.75rem; font-weight:800;">${s}</span>
+                        const s1='active', s2=(s==='Accepted'||s==='Completed')?'active':'', s3=(s==='Completed')?'active':'';
+                        return `
+                        <div class="card" style="border-left: 4px solid ${s==='Completed'?'green':'orange'}; margin-bottom:10px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <b>#${o.date.split(',')[0]}</b> <span style="color:var(--p)">${s}</span>
                             </div>
-                            <div style="margin:15px 0; font-size:0.9rem; display:flex; gap:15px;">
-                                <span><i class="fa-solid fa-calendar"></i> ${o.slotDate}</span>
-                                <span><i class="fa-solid fa-clock"></i> ${o.slotTime}</span>
+                            <div class="timeline">
+                                <div class="timeline-item ${s1}"><h5>Booking Received</h5></div>
+                                <div class="timeline-item ${s2}"><h5>Partner Assigned</h5></div>
+                                <div class="timeline-item ${s3}"><h5>Work Completed</h5></div>
                             </div>
-                            <div style="background:#F8FAFC; padding:12px; border-radius:12px; font-size:0.85rem; color:#64748B;">
-                                <i class="fa-solid fa-location-dot"></i> ${o.addr}
-                            </div>
-                            ${partnerInfo}
+                            <small style="display:block; margin-top:10px; color:#666;">${o.paint} | ₹${o.estimate}</small>
                         </div>`;
-                    });
+                    }).join('');
                     list.innerHTML = html;
+                    myList.innerHTML = html;
                 } else {
-                    list.innerHTML = `<div style="text-align:center; padding:50px 0;"><i class="fa-solid fa-folder-open" style="font-size:3rem; color:#E2E8F0; margin-bottom:15px;"></i><p style="color:#64748B;">No active projects found.</p></div>`;
+                    const empty = '<p style="text-align:center; color:#ccc">No orders yet.</p>';
+                    list.innerHTML = empty; myList.innerHTML = empty;
                 }
             });
 
-            // Subscription Plan logic
             db.ref('users/' + uid + '/plan').on('value', snap => {
                 userPlanDetails = snap.val() || { name: "Free User" };
-                const c = document.getElementById('fs-plans-content');
+                const container = document.getElementById('fs-plans-content');
                 if(userPlanDetails.name.includes("Member")) {
-                    document.getElementById('u-plan-badge').innerHTML = `<div style="background: gold; color: #856404; display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; margin-top: 10px;"><i class="fa-solid fa-crown"></i> ${userPlanDetails.name}</div>`;
-                    c.innerHTML = `<div class="card" style="text-align:center;"><h3>Active Membership: ${userPlanDetails.name}</h3><p>Expiration: ${userPlanDetails.exp}</p></div>`;
+                    document.getElementById('u-plan-badge').innerHTML = `<span style="background:gold; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:bold;">${userPlanDetails.name}</span>`;
+                    container.innerHTML = `<div class="card"><h3>Active: ${userPlanDetails.name}</h3><p>Valid till: ${userPlanDetails.exp}</p></div>`;
                 } else {
-                    c.innerHTML = `
-                        <div class="card" style="border:2px solid gold;">
-                            <h3>Gold Membership</h3>
-                            <p style="margin:10px 0;">Free unlimited inspections, 10% discount on labor, and priority scheduling.</p>
-                            <button class="btn" style="background:gold; color:#856404;" onclick="openUPIPayment('Gold Plan', 399, 'plan')">Buy for ₹399/yr</button>
-                        </div>`;
+                    document.getElementById('u-plan-badge').innerHTML = "";
+                    container.innerHTML = `
+                        <div class="card" style="border:1px solid gold;"><h3>Gold (₹399)</h3><ul><li>Free Visits</li><li>15% Off</li></ul><button class="btn" onclick="openUPIPayment('Gold Plan', 399, 'plan')">Buy</button></div>
+                        <div class="card" style="border:1px solid #0ea5e9;"><h3>Platinum (₹599)</h3><ul><li>Free Visits</li><li>20% Off</li><li>Priority</li></ul><button class="btn" onclick="openUPIPayment('Platinum Plan', 599, 'plan')">Buy</button></div>`;
                 }
+            });
+            
+            db.ref('users/' + uid + '/addresses').on('value', snap => {
+                const container = document.getElementById('address-list');
+                if(snap.exists()) {
+                    let html = ""; snap.forEach(c => { html += `<div class="menu-item"><i class="fa-solid fa-location-dot"></i><span>${c.val()}</span><i class="fa-solid fa-trash" onclick="deleteAddress('${c.key}')"></i></div>`; });
+                    container.innerHTML = html;
+                } else container.innerHTML = "<small>No addresses.</small>";
             });
         }
 
-        // --- CALCULATOR ENGINE ---
-        function calc() {
-            const p = parseFloat(document.getElementById('prod-sel').value) || 0;
-            const scope = parseFloat(document.getElementById('scope-sel').value) || 1;
-            const conditionMult = parseFloat(document.getElementById('condition-sel').value) || 1; 
+        // --- NEW UPI PAYMENT SYSTEM ---
+        
+        function openUPIPayment(desc, amt, type) {
+            // Save details needed for after verification
+            pendingPayment = { desc: desc, amt: amt, type: type };
             
-            let area = 1500;
-            if(scope === 0.3) area = 450;
-            if(scope === 0.1) area = 120;
+            // Show details on Payment Sheet
+            document.getElementById('pay-amt-display').innerText = "₹" + amt;
+            document.getElementById('utr-input').value = ""; // Clear old input
             
-            // Professional Formula: (Material Cost + Labor(9)) * Area * Quantity * Condition Multiplier
-            const total = Math.round((p + 9) * currentQty * area * conditionMult); 
-            document.getElementById('total-price').innerText = "₹" + total.toLocaleString('en-IN');
+            // Open Sheet
+            openFS('fs-payment');
         }
 
-        function updateQty(v) { currentQty = Math.max(1, currentQty + v); document.getElementById('qty-val').innerText = currentQty; calc(); }
-        function loadCats() { const b = document.getElementById('brand-sel').value; const cats = Object.keys(catalog[b]); document.getElementById('cat-sel').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join(''); loadProds(); }
-        function loadProds() { const b = document.getElementById('brand-sel').value; const c = document.getElementById('cat-sel').value; const prods = catalog[b][c]; document.getElementById('prod-sel').innerHTML = prods.map(p => `<option value="${p.p}">${p.n}</option>`).join(''); calc(); }
-
-        // --- BOOKING & PAYMENT ---
-        function startBooking() { if(!auth.currentUser) return openFS('fs-login'); document.getElementById('overlay').style.display='block'; document.getElementById('sheet-tnc').classList.add('active'); }
-        function acceptTNC() { closeSheet(); document.getElementById('overlay').style.display='block'; document.getElementById('sheet-book').classList.add('active'); }
-        function openUPIPayment(desc, amt, type) { pendingPayment = { desc, amt, type }; document.getElementById('pay-amt-display').innerText = "₹" + amt; openFS('fs-payment'); }
-        function copyUPI() { navigator.clipboard.writeText("kingkhan33648@okicici"); alert("UPI ID Copied!"); }
-
-        function placeOrder() {
-            const addr = document.getElementById('b-addr').value;
-            const date = document.getElementById('b-date').value;
-            if(!addr || !date) return alert("Please fill all details!");
-            
-            if(userPlanDetails.name.includes("Member")) confirmOrderDB(0, "MEMBER_FREE_VISIT");
-            else openUPIPayment('Inspection Visit', 49, 'booking');
+        function copyUPI() {
+            navigator.clipboard.writeText("kingkhan33648@okicici");
+            alert("UPI ID Copied!");
         }
 
         function verifyPayment() {
             const utr = document.getElementById('utr-input').value;
-            if(!utr || utr.length < 12) return alert("Please enter valid 12-digit UTR No.");
             
+            // Simple validation: Ensure UTR is 12 digits
+            if(!utr || utr.length < 12) {
+                alert("Please enter a valid 12-digit UTR number from your Bank SMS.");
+                return;
+            }
+
+            // Close Payment Sheet
             closeFS('fs-payment');
-            if(pendingPayment.type === 'booking') confirmOrderDB(pendingPayment.amt, "UTR-" + utr);
-            else activatePlan(pendingPayment.desc, "UTR-" + utr);
+
+            // Process the order based on type
+            if(pendingPayment.type === 'booking') {
+                confirmOrderDB(pendingPayment.amt, "UPI-" + utr);
+            } else if (pendingPayment.type === 'plan') {
+                activatePlan(pendingPayment.desc.replace(' Plan', ''), "UPI-" + utr);
+            }
+        }
+
+        // --- BOOKING ---
+        function startBooking() {
+            if(!auth.currentUser) return openFS('fs-login');
+            document.getElementById('overlay').style.display='block';
+            document.getElementById('sheet-tnc').classList.add('active');
+        }
+
+        function acceptTNC() {
+            document.getElementById('sheet-tnc').classList.remove('active');
+            const chargeText = document.getElementById('visit-charge-display');
+            chargeText.innerHTML = userPlanDetails.name.includes("Member") ? "Visiting Charge: <strike>₹49</strike> <b>FREE</b>" : "Visiting Charge: ₹49";
+            document.getElementById('sheet-book').classList.add('active');
+        }
+
+        function placeOrder() {
+            const addr = document.getElementById('b-addr').value;
+            const pin = document.getElementById('b-pin').value;
+            if(!addr || !pin) return alert("Enter Details");
+            
+            // If Member, Free. If Not, Pay 49 via UPI
+            if(userPlanDetails.name.includes("Member")) {
+                confirmOrderDB(0, "Member_Free");
+            } else {
+                // Open UPI Sheet instead of Razorpay
+                openUPIPayment('Visit Charge', 49, 'booking');
+            }
         }
 
         function confirmOrderDB(amt, payId) {
             db.ref('orders').push({
                 user: auth.currentUser.email,
-                slotDate: document.getElementById('b-date').value,
-                slotTime: document.getElementById('b-time').value,
+                scope: document.getElementById('scope-sel').options[document.getElementById('scope-sel').selectedIndex].text,
+                quantity: currentQty,
                 paint: document.getElementById('prod-sel').options[document.getElementById('prod-sel').selectedIndex].text,
                 estimate: document.getElementById('total-price').innerText,
-                addr: document.getElementById('b-addr').value,
-                status: "Scheduled (UTR Verification Pending)",
-                payId: payId,
-                date: new Date().toLocaleDateString()
-            }).then(() => { closeSheet(); document.getElementById('status-success').classList.add('active'); });
+                addr: document.getElementById('b-addr').value, pin: document.getElementById('b-pin').value,
+                amt: amt, payId: payId, status: "Pending (Verifying UTR)", date: new Date().toLocaleDateString()
+            }).then(() => { 
+                closeSheet(); 
+                document.getElementById('status-success').classList.add('active'); 
+            });
         }
 
-        function activatePlan(planName, payId) {
+        function activatePlan(plan, payId) {
             const exp = new Date(); exp.setFullYear(exp.getFullYear() + 1);
-            db.ref('users/' + auth.currentUser.uid + '/plan').set({ 
-                name: planName + " Member", 
-                exp: exp.toLocaleDateString(), 
-                payId: payId 
-            }).then(()=> { alert("Membership Request Submitted!"); closeFS('fs-plans'); });
+            db.ref('users/' + auth.currentUser.uid + '/plan').set({ name: plan + " Member", exp: exp.toLocaleDateString(), payId: payId }).then(()=> {
+                alert("Request Submitted! Plan will be active after UTR verification.");
+                closeFS('fs-plans');
+            });
+        }
+
+        // --- INVOICE & CHAT ---
+        function genInvoice() {
+            try {
+                const doc = new window.jspdf.jsPDF();
+                doc.setFontSize(22); doc.setTextColor(79, 70, 229); doc.text("UrbanPaintPro", 15, 20);
+                doc.setFontSize(10); doc.setTextColor(100); doc.text("Date: "+new Date().toLocaleDateString(), 15, 30);
+                doc.autoTable({ startY: 40, head: [['Item', 'Details']], body: [['Service', document.getElementById('scope-sel').selectedOptions[0].text], ['Paint', document.getElementById('prod-sel').selectedOptions[0].text], ['Est. Cost', document.getElementById('total-price').innerText]] });
+                doc.text("Disclaimer: This is a computer generated bill.", 15, doc.lastAutoTable.finalY + 10);
+                doc.text("Professional visit at home required for final quote.", 15, doc.lastAutoTable.finalY + 16);
+                doc.save("Invoice.pdf");
+            } catch(e) { alert("Error generating bill"); }
+        }
+
+        function handleChat(e) { if(e.key === 'Enter') sendChat(); }
+        function sendChat() {
+            const inp = document.getElementById('chat-in'); const box = document.getElementById('chat-box');
+            if(!inp.value) return;
+            box.innerHTML += `<div class="chat-msg chat-user">${inp.value}</div>`;
+            setTimeout(() => { box.innerHTML += `<div class="chat-msg chat-ai">I can help with Pricing & Booking.</div>`; box.scrollTop = box.scrollHeight; }, 800);
+            inp.value = "";
         }
 
         // --- UTILS ---
-        function shareApp() { const c = document.getElementById('my-refer-code').innerText; alert("Share Code: " + c); }
-        function genInvoice() { const doc = new window.jspdf.jsPDF(); doc.setFontSize(22); doc.text("UrbanPaintPro Estimate", 20, 20); doc.setFontSize(12); doc.text("Estimate: " + document.getElementById('total-price').innerText, 20, 40); doc.save("Estimate.pdf"); }
-        function autoLoc() { if(navigator.geolocation) navigator.geolocation.getCurrentPosition(p => { document.getElementById('b-addr').value = `GPS Location: ${p.coords.latitude.toFixed(4)}, ${p.coords.longitude.toFixed(4)}`; }); }
+        function updateQty(v) { currentQty = Math.max(1, currentQty + v); document.getElementById('qty-val').innerText = currentQty; calc(); }
+        function loadCats() { const b = document.getElementById('brand-sel').value; const cats = Object.keys(catalog[b]); document.getElementById('cat-sel').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join(''); loadProds(); }
+        function loadProds() { const b = document.getElementById('brand-sel').value; const c = document.getElementById('cat-sel').value; const prods = catalog[b][c]; document.getElementById('prod-sel').innerHTML = prods.map(p => `<option value="${p.p}">${p.n}</option>`).join(''); calc(); }
         
-        function nav(p, e) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active')); document.getElementById(p).classList.add('active'); if(e) e.classList.add('active'); }
+        // FIXED CALC FORMULA
+        function calc() {
+            const p = parseFloat(document.getElementById('prod-sel').value) || 0;
+            const scope = parseFloat(document.getElementById('scope-sel').value) || 1;
+            // Area: Wall=120, Room=450, Home=1500
+            let area = 1500;
+            if(scope === 0.3) area = 450;
+            if(scope === 0.1) area = 120;
+            const total = Math.round((p + 8) * currentQty * area); 
+            document.getElementById('total-price').innerText = "₹" + total.toLocaleString('en-IN');
+        }
+
+        function autoLoc() { if(navigator.geolocation) { navigator.geolocation.getCurrentPosition(p => { document.getElementById('b-addr').value = "GPS: "+p.coords.latitude.toFixed(4); }); } }
+        function nav(p, e) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active')); document.getElementById(p).classList.add('active'); if(e) e.classList.add('active'); else document.querySelector(`.nav-item[onclick*='${p}']`)?.classList.add('active'); }
         function openFS(id) { document.getElementById(id).classList.add('active'); }
         function closeFS(id) { document.getElementById(id).classList.remove('active'); }
         function closeSheet() { document.getElementById('overlay').style.display='none'; document.querySelectorAll('.sheet').forEach(s => s.classList.remove('active')); }
+        function closeStatus() { document.querySelectorAll('.status-screen').forEach(s => s.classList.remove('active')); }
         
-        // --- AUTH ---
-        function login() { const e = document.getElementById('l-email').value, p = document.getElementById('l-pass').value; auth.signInWithEmailAndPassword(e,p).then(()=>closeFS('fs-login')).catch(e=>alert(e.message)); }
+        function login() { const e = document.getElementById('l-email').value, p = document.getElementById('l-pass').value; if(e) auth.signInWithEmailAndPassword(e,p).then(()=>closeFS('fs-login')).catch(e=>alert(e.message)); }
         function googleLogin() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(()=>closeFS('fs-login')); }
-        function signup() { const n = document.getElementById('s-name').value, e = document.getElementById('s-email').value, p = document.getElementById('s-pass').value; auth.createUserWithEmailAndPassword(e,p).then(c => { c.user.updateProfile({displayName: n}); closeFS('fs-signup'); }); }
-        function switchAuth(type) { closeFS('fs-login'); openFS('fs-' + type); }
+        function signup() { const n = document.getElementById('s-name').value, e = document.getElementById('s-email').value, p = document.getElementById('s-pass').value; if(n && e) auth.createUserWithEmailAndPassword(e,p).then(c => { c.user.updateProfile({displayName: n}); db.ref('users/'+c.user.uid).set({ profile: {name: n, email: e} }); closeFS('fs-signup'); }); }
+        function switchAuth(type) { document.getElementById('fs-login').classList.remove('active'); document.getElementById('fs-signup').classList.remove('active'); document.getElementById('fs-'+type).classList.add('active'); }
+        function resetPass() { const e = document.getElementById('l-email').value; if(e) auth.sendPasswordResetEmail(e).then(()=>alert("Link sent!")); else alert("Enter Email"); }
         function logout() { auth.signOut().then(()=>location.reload()); }
-        function saveNewAddress() { const v = document.getElementById('new-address-input').value; if(v) db.ref('users/'+auth.currentUser.uid+'/addresses').push(v); }
-
+        function saveNewAddress() { const v=document.getElementById('new-address-input').value; if(v) db.ref('users/'+auth.currentUser.uid+'/addresses').push(v); }
+        function deleteAddress(k) { if(confirm("Delete?")) db.ref('users/'+auth.currentUser.uid+'/addresses/'+k).remove(); }
+        function updateProfile() { const n = document.getElementById('edit-name').value; if(n && auth.currentUser) { auth.currentUser.updateProfile({displayName: n}); alert("Updated!"); closeFS('fs-personal'); } }
     </script>
 </body>
 </html>
