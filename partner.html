@@ -62,14 +62,23 @@
 
 <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyA2DT2ITLS2LgZF3yEkDA_K9kbPIsfpDig",
-      authDomain: "professionalpainters-28488.firebaseapp.com",
-      projectId: "professionalpainters-28488",
-      databaseURL: "https://professionalpainters-28488-default-rtdb.asia-southeast1.firebasedatabase.app/",
-      storageBucket: "professionalpainters-28488.firebasestorage.app",
-      messagingSenderId: "233510965012",
-      appId: "1:233510965012:web:ccc02da0f3e86a3b4a7c01"
-    };
+  apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+  authDomain: "urbanpaintpro.in", // Aapka naya domain
+  databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "urban-paint-pro",
+  storageBucket: "urban-paint-pro.firebasestorage.app",
+  messagingSenderId: "929763117480",
+  appId: "1:929763117480:web:560057baeb12672078b59d",
+  measurementId: "G-GZPV12GLPP"
+};
+
+// Initialize Firebase (Agar pehle se nahi hai)
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.database();
+    
+    
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
