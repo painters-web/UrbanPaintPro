@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>UrbanPaintPro | India's #1 Painting App</title>
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -385,7 +385,7 @@
     }
 const firebaseConfig = {
   apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
-  authDomain: "urban-paint-pro.firebaseapp.com", // <--- Ise default rehne dein
+  authDomain: "urban-paint-pro.firebaseapp.com",
   databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "urban-paint-pro",
   storageBucket: "urban-paint-pro.firebasestorage.app",
@@ -395,15 +395,16 @@ const firebaseConfig = {
 };
         
 
-// Initialize Firebase (Agar pehle se nahi hai)
+
+// Check karein ki Firebase pehle se start toh nahi hai
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
+
+// Database aur Auth variables setup karein
 const db = firebase.database();
+const auth = firebase.auth();
         
-        
-        const auth = firebase.auth();
-        const db = firebase.database();
 
         let currentQty = 1;
         let userPlanDetails = { name: "Free User", status: "none" };
