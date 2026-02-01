@@ -61,85 +61,80 @@
 </div>
 
 <script>
+    
+    // --- FIREBASE CONFIGURATION (Singapore Region) ---
     const firebaseConfig = {
-  apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
-  authDomain: "urbanpaintpro.in", // Aapka naya domain
-  databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "urban-paint-pro",
-  storageBucket: "urban-paint-pro.firebasestorage.app",
-  messagingSenderId: "929763117480",
-  appId: "1:929763117480:web:560057baeb12672078b59d",
-  measurementId: "G-GZPV12GLPP"
-};
-
-// Initialize Firebase (Agar pehle se nahi hai)
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const db = firebase.database();
+    apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+    authDomain: "urban-paint-pro.firebaseapp.com",
+    // Notice: 'asia-southeast1' likha hai, jo Singapore ka code hai
+    databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "urban-paint-pro",
+    storageBucket: "urban-paint-pro.firebasestorage.app",
+    messagingSenderId: "929763117480",
+    appId: "1:929763117480:web:560057baeb12672078b59d"
+    };
     
-    
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.database();
+    
 
     let currentTab = 'new';
 
-    // Listen for Realtime Leads
-    db.ref('orders').on('value', snap => {
-        const data = snap.val();
-        renderLeads(data);
-    });
+// --- LIVE PARTNER LOGIC ---
 
-    function renderLeads(data) {
-        const container = document.getElementById('leads-container');
-        if(!data) return;
-
-        const allOrders = Object.values(data);
-        // Filter based on tab
-        const leads = allOrders.filter(o => currentTab === 'new' ? o.status === 'Pending' : o.status === 'Accepted');
-        
-        document.getElementById('lead-count').innerText = allOrders.filter(o => o.status === 'Pending').length;
-
-        if(leads.length === 0) {
-            container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-check-circle"></i><p>No jobs found here.</p></div>`;
-            return;
-        }
-
-        container.innerHTML = leads.map(o => `
-            <div class="lead-card">
-                <div class="lead-head">
-                    <span class="lead-tag">${o.service}</span>
-                    <span class="lead-price">₹49 Visit</span>
-                </div>
-                <div class="lead-row"><i class="fa-solid fa-user"></i> ${o.name}</div>
-                <div class="lead-row"><i class="fa-solid fa-map-pin"></i> ${o.address}</div>
-                <div class="lead-row"><i class="fa-solid fa-calendar"></i> ${o.date}</div>
-                ${currentTab === 'new' 
-                    ? `<button class="accept-btn" onclick="acceptJob('${o.id}')">ACCEPT LEAD</button>` 
-                    : `<a href="tel:${o.phone}"><button class="accept-btn" style="background:#374151">CALL CUSTOMER</button></a>`
+// Firebase Auth se Current User nikalo
+function getLivePartner() {
+    const user = firebase.auth().currentUser;
+    if(user) {
+        return {
+            name: user.displayName || "Verified Partner",
+            // Agar photo nahi hai to default lagao
+            photo: user.photoURL || "https://cdn-icons-png.flaticon.com/512/149/149071.png", 
+            phone: user.phoneNumber || "9876543210",
+            // Live GPS Location (Browser se)
+            getLocation: function(callback) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                        callback({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                    });
+                } else {
+                    callback({ lat: 28.6139, lng: 77.2090 }); // Default Delhi
                 }
-            </div>
-        `).join('');
+            }
+        };
+    } else {
+        alert("Please Login as Partner First!");
+        return null;
     }
+}
 
-    function acceptJob(id) {
-        if(confirm("Are you sure you want to accept this lead?")) {
-            // Update status in Realtime Database
-            db.ref('orders/' + id).update({
+// Updated Accept Function
+function acceptJob(orderId) {
+    const partner = getLivePartner();
+    if(!partner) return; // Agar login nahi hai to ruk jao
+
+    if(confirm("Accept this painting job?")) {
+        
+        // Pehle Location nikalo, phir Database update karo
+        partner.getLocation((loc) => {
+            db.ref('orders/' + orderId).update({
                 status: "Accepted",
-                partner: "Partner1" // In real app, this would be Partner ID
+                partnerName: partner.name,
+                partnerPhoto: partner.photo,
+                partnerPhone: partner.phone,
+                partnerLocation: loc,
+                otp: Math.floor(1000 + Math.random() * 9000)
+            }).then(() => {
+                alert("Lead Accepted! Customer notified.");
+                // Yahan tab switch ka logic lagayein
+                if(typeof switchTab === 'function') switchTab('jobs');
             });
-            alert("Lead Accepted! Check 'My Jobs' tab.");
-        }
+        });
     }
+}
 
-    function switchTab(tab) {
-        currentTab = tab;
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        event.target.classList.add('active');
-        // Re-trigger render
-        db.ref('orders').once('value', snap => renderLeads(snap.val()));
-    }
 </script>
 </body>
 </html>
