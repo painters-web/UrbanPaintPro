@@ -383,9 +383,9 @@
     localStorage.setItem("city", currentCity);
     calc(); // existing calc() reuse
     }
-        const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
-  authDomain: "urbanpaintpro.in", // Aapka naya domain
+  authDomain: "urban-paint-pro.firebaseapp.com", // <--- Ise default rehne dein
   databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "urban-paint-pro",
   storageBucket: "urban-paint-pro.firebasestorage.app",
@@ -393,6 +393,7 @@
   appId: "1:929763117480:web:560057baeb12672078b59d",
   measurementId: "G-GZPV12GLPP"
 };
+        
 
 // Initialize Firebase (Agar pehle se nahi hai)
 if (!firebase.apps.length) {
@@ -400,7 +401,7 @@ if (!firebase.apps.length) {
 }
 const db = firebase.database();
         
-        try { firebase.initializeApp(firebaseConfig); } catch(e){}
+        
         const auth = firebase.auth();
         const db = firebase.database();
 
