@@ -384,27 +384,28 @@
     calc(); // existing calc() reuse
     }
 
-        const firebaseConfig = {
+        // 1. Config (Sirf ek baar)
+const firebaseConfig = {
   apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
-  authDomain: "urban-paint-pro.firebaseapp.com", // <--- YAHI SABSE ZAROORI HAI (Isse change mat karna)
+  authDomain: "urban-paint-pro.firebaseapp.com", // <--- Ye Sahi Hai
   databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "urban-paint-pro",
   storageBucket: "urban-paint-pro.firebasestorage.app",
   messagingSenderId: "929763117480",
-  appId: "1:929763117480:web:560057baeb12672078b59d"
+  appId: "1:929763117480:web:560057baeb12672078b59d",
+  measurementId: "G-GZPV12GLPP"
 };
-        
-        
 
-
-// Check karein ki Firebase pehle se start toh nahi hai
+// 2. Initialize (Sirf ek baar)
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-
+// 3. Variables (Sirf ek baar)
+// Yahan dhyan dein: 'db' aur 'auth' sirf yahin hone chahiye
+const auth = firebase.auth();
+const db = firebase.database();
         
-
         let currentQty = 1;
         let userPlanDetails = { name: "Free User", status: "none" };
         let currentLang = 'en';
