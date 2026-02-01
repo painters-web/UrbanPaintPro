@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>UrbanPaintPro | India's #1 Painting App</title>
+        <meta name="description" content="Book professional home painters, waterproofing, and wall texture designs online. India's #1 Painting App competing with Urban Company. Get a Free Quote!">
+    <meta name="keywords" content="painters near me, home painting services, house painters, wall texture design, waterproofing contractors, urban paint pro, interior painting, exterior painting">
+    <meta name="author" content="Urban Paint Pro">
+    <meta name="robots" content="index, follow">
+
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+
+    <meta property="og:title" content="Urban Paint Pro - Professional Painting Services">
+    <meta property="og:description" content="Book expert painters for your home. Quality work, best prices.">
+    <meta property="og:image" content="https://urbanpaintpro.in/assets/logo.png">
+    <meta property="og:url" content="https://urbanpaintpro.in">
+    <meta property="og:type" content="website">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -74,12 +87,90 @@
         input:checked + .slider:before { transform: translateX(21px); }
 
         /* Tracking Timeline */
-        .timeline { position: relative; padding-left: 20px; margin-top: 15px; border-left: 2px solid #E2E8F0; }
-        .timeline-item { position: relative; margin-bottom: 20px; padding-left: 10px; }
-        .timeline-item::before { content: ''; position: absolute; left: -26px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #CBD5E1; border: 2px solid white; box-shadow: 0 0 0 2px #E2E8F0; }
-        .timeline-item.active::before { background: var(--success); box-shadow: 0 0 0 2px #dcfce7; }
-        .timeline-item h5 { font-size: 0.9rem; color: #94A3B8; margin-bottom: 2px; }
-        .timeline-item.active h5 { color: var(--text); font-weight: 700; }
+.uber-card {
+    background: white; border-radius: 24px; overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12); margin-bottom: 25px;
+    position: relative; border: 1px solid rgba(0,0,0,0.05);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* 🗺️ Map Area */
+.map-zone {
+    height: 260px; width: 100%;
+    background-image: url('https://i.imgur.com/8J5b8wN.png'); /* Fake Map */
+    background-size: cover; background-position: center;
+    position: relative; overflow: hidden;
+}
+
+/* 📡 Radar Animation */
+.radar-scan {
+    position: absolute; top: 50%; left: 50%; width: 120px; height: 120px;
+    background: rgba(79, 70, 229, 0.1); border-radius: 50%; transform: translate(-50%, -50%);
+    border: 1px solid rgba(79, 70, 229, 0.3);
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.radar-icon {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 24px; color: #4F46E5; background: white; width: 50px; height: 50px;
+    display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2); z-index: 2;
+}
+
+/* 📍 Live Marker */
+.live-marker {
+    position: absolute; top: 50%; left: 50%; width: 55px; height: 55px;
+    border: 3px solid white; border-radius: 50%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    transform: translate(-50%, -50%); z-index: 10;
+    animation: bounce 2s infinite; background: white;
+}
+.live-marker img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+/* 👤 Floating Glass Card */
+.partner-float {
+    position: absolute; bottom: 20px; left: 15px; right: 15px;
+    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px);
+    padding: 15px; border-radius: 18px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.6);
+    transform: translateY(100px); opacity: 0; transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.partner-float.visible { transform: translateY(0); opacity: 1; }
+
+.p-details { display: flex; align-items: center; gap: 12px; }
+.p-name { font-weight: 700; color: #1F2937; font-size: 15px; margin-bottom: 2px; }
+.p-otp { font-size: 11px; color: #6B7280; background: #F3F4F6; padding: 4px 8px; border-radius: 6px; display: inline-block; }
+.call-btn {
+    width: 45px; height: 45px; background: linear-gradient(135deg, #10B981, #059669);
+    border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); font-size: 18px; text-decoration: none;
+}
+
+/* 📝 Status Sheet */
+.status-sheet {
+    padding: 25px 20px; background: white; position: relative; z-index: 5;
+    border-radius: 24px 24px 0 0; margin-top: -20px;
+}
+.drag-bar { width: 40px; height: 4px; background: #E5E7EB; border-radius: 10px; margin: 0 auto 20px; }
+
+/* Timeline Logic */
+.u-step { display: flex; gap: 15px; margin-bottom: 25px; position: relative; opacity: 0.5; transition: 0.3s; }
+.u-step.active { opacity: 1; }
+.u-step.done { opacity: 1; }
+.u-line { position: absolute; left: 15px; top: 35px; bottom: -25px; width: 2px; background: #E5E7EB; }
+.u-step:last-child .u-line { display: none; }
+
+.u-icon {
+    width: 32px; height: 32px; background: #F3F4F6; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; z-index: 2; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: 0.3s;
+}
+.u-step.active .u-icon { background: #4F46E5; color: white; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15); transform: scale(1.1); }
+.u-step.done .u-icon { background: #10B981; color: white; }
+
+@keyframes ping { 75%, 100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; } }
+@keyframes bounce { 0%, 100% { transform: translate(-50%, -50%) translateY(0); } 50% { transform: translate(-50%, -50%) translateY(-10px); } }
         
         /* Chatbot UI */
         .chat-container { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
@@ -138,9 +229,9 @@
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; align-items: center;">
                     <select id="scope-sel" class="inp" style="margin-bottom:0;" onchange="calc()">
                         <option value="1">Full Home Painting</option>
-                        <option value="0.3">Partial (1-2 Rooms)</option>
+                        <option value="0.3">Partial (1Room)</option>
                         <option value="0.1">Single Wall Accent</option>
-                    </select>
+                    </select>.status-screen { position: fixed; inset: 0; background: white; z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
                     <div style="display:flex; align-items:center; justify-content:center; gap:10px; background:white; padding:8px; border-radius:12px; border:1px solid #E2E8F0;">
                         <button onclick="updateQty(-1)" style="border:none; background:none; color:var(--p); font-weight:800; cursor:pointer;">-</button>
                         <b id="qty-val" style="min-width:20px; text-align:center;">1</b>
@@ -339,8 +430,18 @@
     
     <input type="date" id="slotDate" class="inp">
     <select id="slotTime" class="inp">
-    <option>10AM – 1PM</option>
-    <option>2PM – 5PM</option>
+    <option>9AM</option>
+    <option>10AM</option>
+    <option>11AM</option>
+    <option>12PM</option>
+    <option>1PM</option>
+    <option>2PM</option>
+    <option>3PM</option>
+    <option>4PM</option>
+    <option>5PM</option>
+    <option>6PM</option>
+    <option>7PM</option>
+    <option>8PM</option>
     </select>
         <h3>Confirm Booking</h3>
         <p style="margin-bottom:15px; font-size:0.9rem;" id="visit-charge-display">Visiting Charge: ₹49</p>
@@ -385,26 +486,23 @@
     }
 
         // 1. Config (Sirf ek baar)
+// --- FIREBASE CONFIGURATION (Singapore Region) ---
 const firebaseConfig = {
   apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
-  authDomain: "urban-paint-pro.firebaseapp.com", // <--- Ye Sahi Hai
+  authDomain: "urban-paint-pro.firebaseapp.com",
+  // Notice: 'asia-southeast1' likha hai, jo Singapore ka code hai
   databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "urban-paint-pro",
   storageBucket: "urban-paint-pro.firebasestorage.app",
   messagingSenderId: "929763117480",
-  appId: "1:929763117480:web:560057baeb12672078b59d",
-  measurementId: "G-GZPV12GLPP"
+  appId: "1:929763117480:web:560057baeb12672078b59d"
 };
 
-// 2. Initialize (Sirf ek baar)
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-
-// 3. Variables (Sirf ek baar)
-// Yahan dhyan dein: 'db' aur 'auth' sirf yahin hone chahiye
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
+        
         
         let currentQty = 1;
         let userPlanDetails = { name: "Free User", status: "none" };
@@ -475,36 +573,116 @@ const db = firebase.database();
             closeFS('fs-language');
         }
 
-        // --- REAL TIME TRACKING & DATA ---
-        function loadRealData(uid) {
-            db.ref('orders').orderByChild('user').equalTo(auth.currentUser.email).on('value', snap => {
-                const list = document.getElementById('order-list'); 
-                const myList = document.getElementById('my-booking-list');
-                if(snap.exists()) {
-                    const html = Object.values(snap.val()).reverse().map(o => {
-                        const s = o.status;
-                        const s1='active', s2=(s==='Accepted'||s==='Completed')?'active':'', s3=(s==='Completed')?'active':'';
-                        return `
-                        <div class="card" style="border-left: 4px solid ${s==='Completed'?'green':'orange'}; margin-bottom:10px;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                                <b>#${o.date.split(',')[0]}</b> <span style="color:var(--p)">${s}</span>
-                            </div>
-                            <div class="timeline">
-                                <div class="timeline-item ${s1}"><h5>Booking Received</h5></div>
-                                <div class="timeline-item ${s2}"><h5>Partner Assigned</h5></div>
-                                <div class="timeline-item ${s3}"><h5>Work Completed</h5></div>
-                            </div>
-                            <small style="display:block; margin-top:10px; color:#666;">${o.paint} | ₹${o.estimate}</small>
-                        </div>`;
-                    }).join('');
-                    list.innerHTML = html;
-                    myList.innerHTML = html;
-                } else {
-                    const empty = '<p style="text-align:center; color:#ccc">No orders yet.</p>';
-                    list.innerHTML = empty; myList.innerHTML = empty;
-                }
-            });
+        
+        // --- ULTRA PROFESSIONAL TRACKING LOGIC ---
+function loadRealData(userEmail) {
+    if(!userEmail) return;
 
+    db.ref('orders').orderByChild('user').equalTo(userEmail).on('value', snap => {
+        const list = document.getElementById('order-list');
+        list.innerHTML = "";
+
+        if(snap.exists()) {
+            const orders = Object.values(snap.val()).reverse();
+
+            orders.forEach(o => {
+                const s = o.status || 'Pending';
+                
+                // --- 1. PARTNER CHECK ---
+                // Agar status Accepted/Partner Assigned hai, toh Partner Live hai
+                const isLive = (s === 'Accepted' || s === 'Partner Assigned' || s === 'Completed');
+                
+                // Data Fetch (Fallback agar data na ho)
+                const pName = o.partnerName || "Searching...";
+                const pPhoto = o.partnerPhoto || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                const pPhone = o.partnerPhone || "#";
+                const otp = o.otp || "WAIT";
+
+                // --- 2. STATUS ANIMATION LOGIC ---
+                let s1='done', s2='', s3='';
+                let statusMsg = "We are finding the best painter for you...";
+                
+                if (isLive) {
+                    s1='done'; s2='active';
+                    statusMsg = `${pName} is on the way to your location.`;
+                }
+                if (s === 'Completed') {
+                    s1='done'; s2='done'; s3='done';
+                    statusMsg = "Service completed successfully. Rate your experience!";
+                }
+
+                // --- 3. HTML GENERATION ---
+                list.innerHTML += `
+                <div class="uber-card">
+                    
+                    <div class="map-zone">
+                        
+                        <div class="radar-scan" style="display: ${isLive ? 'none' : 'block'}"></div>
+                        <div class="radar-icon" style="display: ${isLive ? 'none' : 'flex'}">
+                            <i class="fas fa-search"></i>
+                        </div>
+
+                        <div class="live-marker" style="display: ${isLive ? 'block' : 'none'}">
+                            <img src="${pPhoto}">
+                        </div>
+
+                        <div class="partner-float ${isLive ? 'visible' : ''}">
+                            <div class="p-details">
+                                <img src="${pPhoto}" style="width:42px; height:42px; border-radius:12px; object-fit:cover;">
+                                <div>
+                                    <div class="p-name">${pName}</div>
+                                    <div class="p-otp">OTP: <b style="color:#4F46E5">${otp}</b></div>
+                                </div>
+                            </div>
+                            <a href="tel:${pPhone}" class="call-btn"><i class="fas fa-phone-alt"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="status-sheet">
+                        <div class="drag-bar"></div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <h3 style="margin:0; font-size:18px;">${s}</h3>
+                            <span style="font-size:12px; color:#6B7280; background:#F3F4F6; padding:4px 8px; border-radius:6px;">#${o.date.split(',')[0]}</span>
+                        </div>
+                        <p style="color:#6B7280; font-size:13px; margin-bottom:25px; line-height:1.5;">${statusMsg}</p>
+
+                        <div class="u-step ${s1}">
+                            <div class="u-line"></div>
+                            <div class="u-icon"><i class="fas fa-check"></i></div>
+                            <div>
+                                <div style="font-weight:600; font-size:14px; color:#1F2937;">Booking Confirmed</div>
+                                <div style="font-size:12px; color:#9CA3AF;">Request received</div>
+                            </div>
+                        </div>
+
+                        <div class="u-step ${s2}">
+                            <div class="u-line"></div>
+                            <div class="u-icon"><i class="fas fa-user"></i></div>
+                            <div>
+                                <div style="font-weight:600; font-size:14px; color:#1F2937;">Partner Assigned</div>
+                                <div style="font-size:12px; color:#9CA3AF;">Expert is on the way</div>
+                            </div>
+                        </div>
+
+                        <div class="u-step ${s3}">
+                            <div class="u-icon"><i class="fas fa-paint-roller"></i></div>
+                            <div>
+                                <div style="font-weight:600; font-size:14px; color:#1F2937;">Work Completed</div>
+                                <div style="font-size:12px; color:#9CA3AF;">Final finish & check</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>`;
+            });
+        } else {
+            list.innerHTML = `<div style="text-align:center; padding:40px; color:#9CA3AF;">
+                <i class="fas fa-box-open" style="font-size:40px; margin-bottom:15px; opacity:0.5;"></i>
+                <p>No active bookings found.</p>
+            </div>`;
+        }
+    });
+}
             db.ref('users/' + uid + '/plan').on('value', snap => {
                 userPlanDetails = snap.val() || { name: "Free User" };
                 const container = document.getElementById('fs-plans-content');
