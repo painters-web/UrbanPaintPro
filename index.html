@@ -230,8 +230,7 @@
                     <select id="scope-sel" class="inp" style="margin-bottom:0;" onchange="calc()">
                         <option value="1">Full Home Painting</option>
                         <option value="0.3">Partial (1Room)</option>
-                        <option value="0.1">Single Wall Accent</option>
-                    </select>.status-screen { position: fixed; inset: 0; background: white; z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+                        <option value="0.1">Single Wall </option>
                     <div style="display:flex; align-items:center; justify-content:center; gap:10px; background:white; padding:8px; border-radius:12px; border:1px solid #E2E8F0;">
                         <button onclick="updateQty(-1)" style="border:none; background:none; color:var(--p); font-weight:800; cursor:pointer;">-</button>
                         <b id="qty-val" style="min-width:20px; text-align:center;">1</b>
@@ -536,16 +535,21 @@ const db = firebase.database();
             }
         };
 
-        window.onload = () => {
-            loadCats();
-            requestPermissions();
-            setTimeout(() => { document.getElementById('splash').style.display='none'; }, 2000);
+        document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        const splash = document.getElementById("splash");
+        if (splash) {
+            splash.style.opacity = "0";
+            setTimeout(() => splash.remove(), 400);
+        }
+    }, 1500);
+});
             auth.onAuthStateChanged(u => {
                 if(u) {
                     document.getElementById('auth-ui').style.display='none';
                     document.getElementById('profile-ui').style.display='block';
                     updateUI(u);
-                    loadRealData(u.uid);
+                    loadRealData(u.email);
                 } else {
                     document.getElementById('auth-ui').style.display='block';
                     document.getElementById('profile-ui').style.display='none';
@@ -683,7 +687,12 @@ function loadRealData(userEmail) {
         }
     });
 }
-            db.ref('users/' + uid + '/plan').on('value', snap => {
+            auth.onAuthStateChanged(user => {
+    if (!user) return;
+
+    const uid = user.uid;
+
+    db.ref('users/' + uid + '/plan').on('value', snap => {
                 userPlanDetails = snap.val() || { name: "Free User" };
                 const container = document.getElementById('fs-plans-content');
                 if(userPlanDetails.name.includes("Member")) {
@@ -888,6 +897,11 @@ function loadRealData(userEmail) {
         function saveNewAddress() { const v=document.getElementById('new-address-input').value; if(v) db.ref('users/'+auth.currentUser.uid+'/addresses').push(v); }
         function deleteAddress(k) { if(confirm("Delete?")) db.ref('users/'+auth.currentUser.uid+'/addresses/'+k).remove(); }
         function updateProfile() { const n = document.getElementById('edit-name').value; if(n && auth.currentUser) { auth.currentUser.updateProfile({displayName: n}); alert("Updated!"); closeFS('fs-personal'); } }
-    </script>
+  <script>
+setTimeout(() => {
+    document.getElementById("splash")?.remove();
+}, 3000);
+</script>
+        </script>
 </body>
 </html>
