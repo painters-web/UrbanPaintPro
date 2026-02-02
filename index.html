@@ -556,7 +556,7 @@ const db = firebase.database();
                     document.getElementById('profile-ui').style.display='none';
                 }
             });
-        };
+        
 
         function updateUI(u) {
             document.getElementById('u-name').innerText = u.displayName || 'User';
@@ -700,9 +700,22 @@ function loadRealData(userEmail) {
                     document.getElementById('u-plan-badge').innerHTML = `<span style="background:gold; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:bold;">${userPlanDetails.name}</span>`;
                     container.innerHTML = `<div class="card"><h3>Active: ${userPlanDetails.name}</h3><p>Valid till: ${userPlanDetails.exp}</p></div>`;
                 } else {
-                    document.getElementById('u-plan-badge').innerHTML = "";
-                    container.innerHTML = `
-                        <div class="card" style="border:1px solid gold;"><h3>Gold (₹399)</h3><ul><li>Free Visits</li><li>15% Off</li></ul><button class="btn" onclick="openUPIPayment('Gold Plan', 399, 'plan')">Buy</button></div>
+                    } else {
+    document.getElementById('u-plan-badge').innerHTML = "";
+    // 👇 यहाँ Backtick ( ` ) का इस्तेमाल हुआ है
+    container.innerHTML = `
+        <div class="card" style="border:1px solid gold;">
+            <h3>Gold (₹399)</h3>
+            <ul><li>Free Visits</li><li>15% Off</li></ul>
+            <button class="btn" onclick="openUPIPayment('Gold Plan', 399, 'plan')">Buy</button>
+        </div>
+        <div class="card" style="border:1px solid #0ea5e9;">
+            <h3>Platinum (₹599)</h3>
+            <ul><li>Free Visits</li><li>20% Off</li><li>Priority</li></ul>
+            <button class="btn" onclick="openUPIPayment('Platinum Plan', 599, 'plan')">Buy</button>
+        </div>`;  // 👈 यहाँ भी Backtick से बंद किया
+}
+
                         <div class="card" style="border:1px solid #0ea5e9;"><h3>Platinum (₹599)</h3><ul><li>Free Visits</li><li>20% Off</li><li>Priority</li></ul><button class="btn" onclick="openUPIPayment('Platinum Plan', 599, 'plan')">Buy</button></div>`;
                 }
             });
