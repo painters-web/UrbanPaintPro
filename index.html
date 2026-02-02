@@ -690,7 +690,11 @@ function loadRealData(userEmail) {
 }
                         auth.onAuthStateChanged(user => {
                 if (!user) return;
-
+                document.getElementById('auth-ui').style.display='none';
+                document.getElementById('profile-ui').style.display='block';
+                updateUI(user);
+                loadRealData(user.email);
+                            
                 const uid = user.uid;
 
                 // --- 1. PLAN CHECK LOGIC ---
