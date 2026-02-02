@@ -688,55 +688,65 @@ function loadRealData(userEmail) {
         }
     });
 }
-                        auth.onAuthStateChanged(user => {
-                if (!user) return;
-                document.getElementById('auth-ui').style.display='none';
-                document.getElementById('profile-ui').style.display='block';
-                updateUI(user);
-                loadRealData(user.email);
-                            
-                const uid = user.uid;
+                        // ✅ इसे कॉपी करें और Line 691 पर पेस्ट करें
+auth.onAuthStateChanged(user => {
+    // 1. अगर यूजर लॉगिन नहीं है
+    if (!user) {
+        document.getElementById('auth-ui').style.display='block';
+        document.getElementById('profile-ui').style.display='none';
+        return;
+    }
 
-                // --- 1. PLAN CHECK LOGIC ---
-                db.ref('users/' + uid + '/plan').on('value', snap => {
-                    userPlanDetails = snap.val() || { name: "Free User" };
-                    const container = document.getElementById('fs-plans-content');
-                    
-                    if(userPlanDetails.name.includes("Member")) {
-                        // Agar User Member hai
-                        document.getElementById('u-plan-badge').innerHTML = `<span style="background:gold; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:bold;">${userPlanDetails.name}</span>`;
-                        container.innerHTML = `<div class="card"><h3>Active: ${userPlanDetails.name}</h3><p>Valid till: ${userPlanDetails.exp}</p></div>`;
-                    } else {
-                        // Agar Free User hai (Show Buy Buttons)
-                        document.getElementById('u-plan-badge').innerHTML = "";
-                        container.innerHTML = `
-                            <div class="card" style="border:1px solid gold;">
-                                <h3>Gold (₹399)</h3>
-                                <ul><li>Free Visits</li><li>15% Off</li></ul>
-                                <button class="btn" onclick="openUPIPayment('Gold Plan', 399, 'plan')">Buy</button>
-                            </div>
-                            <div class="card" style="border:1px solid #0ea5e9;">
-                                <h3>Platinum (₹599)</h3>
-                                <ul><li>Free Visits</li><li>20% Off</li><li>Priority</li></ul>
-                                <button class="btn" onclick="openUPIPayment('Platinum Plan', 599, 'plan')">Buy</button>
-                            </div>`; 
-                    }
-                });
-                
-                // --- 2. ADDRESS LOGIC ---
-                db.ref('users/' + uid + '/addresses').on('value', snap => {
-                    const container = document.getElementById('address-list');
-                    if(snap.exists()) {
-                        let html = ""; 
-                        snap.forEach(c => { 
-                            html += `<div class="menu-item"><i class="fa-solid fa-location-dot"></i><span>${c.val()}</span><i class="fa-solid fa-trash" onclick="deleteAddress('${c.key}')"></i></div>`; 
-                        });
-                        container.innerHTML = html;
-                    } else {
-                        container.innerHTML = "<small>No addresses.</small>";
-                    }
-                });
+    // 2. अगर यूजर लॉगिन है (UI अपडेट करें)
+    document.getElementById('auth-ui').style.display='none';
+    document.getElementById('profile-ui').style.display='block';
+    updateUI(user);
+    loadRealData(user.email);
+
+    const uid = user.uid;
+
+    // --- PLAN CHECK LOGIC ---
+    db.ref('users/' + uid + '/plan').on('value', snap => {
+        userPlanDetails = snap.val() || { name: "Free User" };
+        const container = document.getElementById('fs-plans-content');
+        
+        if(userPlanDetails.name.includes("Member")) {
+            // Agar Member Hai
+            document.getElementById('u-plan-badge').innerHTML = `<span style="background:gold; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:bold;">${userPlanDetails.name}</span>`;
+            container.innerHTML = `<div class="card"><h3>Active: ${userPlanDetails.name}</h3><p>Valid till: ${userPlanDetails.exp}</p></div>`;
+        } else {
+            // Agar Free User Hai (Backticks ka dhyaan rakhein)
+            document.getElementById('u-plan-badge').innerHTML = "";
+            container.innerHTML = `
+                <div class="card" style="border:1px solid gold;">
+                    <h3>Gold (₹399)</h3>
+                    <ul><li>Free Visits</li><li>15% Off</li></ul>
+                    <button class="btn" onclick="openUPIPayment('Gold Plan', 399, 'plan')">Buy</button>
+                </div>
+                <div class="card" style="border:1px solid #0ea5e9;">
+                    <h3>Platinum (₹599)</h3>
+                    <ul><li>Free Visits</li><li>20% Off</li><li>Priority</li></ul>
+                    <button class="btn" onclick="openUPIPayment('Platinum Plan', 599, 'plan')">Buy</button>
+                </div>`;
+        }
+    });
+
+    // --- ADDRESS LOGIC ---
+    db.ref('users/' + uid + '/addresses').on('value', snap => {
+        const container = document.getElementById('address-list');
+        if(snap.exists()) {
+            let html = ""; 
+            snap.forEach(c => { 
+                html += `<div class="menu-item"><i class="fa-solid fa-location-dot"></i><span>${c.val()}</span><i class="fa-solid fa-trash" onclick="deleteAddress('${c.key}')"></i></div>`; 
             });
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = "<small>No addresses.</small>";
+        }
+    });
+
+}); // <-- यह auth.onAuthStateChanged को बंद कर रहा है
+
 
 
         // --- NEW UPI PAYMENT SYSTEM ---
