@@ -897,11 +897,10 @@ function loadRealData(userEmail) {
         function saveNewAddress() { const v=document.getElementById('new-address-input').value; if(v) db.ref('users/'+auth.currentUser.uid+'/addresses').push(v); }
         function deleteAddress(k) { if(confirm("Delete?")) db.ref('users/'+auth.currentUser.uid+'/addresses/'+k).remove(); }
         function updateProfile() { const n = document.getElementById('edit-name').value; if(n && auth.currentUser) { auth.currentUser.updateProfile({displayName: n}); alert("Updated!"); closeFS('fs-personal'); } }
-  <script>
+  
 setTimeout(() => {
     document.getElementById("splash")?.remove();
-}, 3000);
-</script>
+}, 3000); 
         </script>
 </body>
 </html>
