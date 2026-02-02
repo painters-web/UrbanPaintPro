@@ -887,28 +887,23 @@ function loadRealData(userEmail) {
         function closeStatus() { document.querySelectorAll('.status-screen').forEach(s => s.classList.remove('active')); }
         
         function login() { const e = document.getElementById('l-email').value, p = document.getElementById('l-pass').value; if(e) auth.signInWithEmailAndPassword(e,p).then(()=>closeFS('fs-login')).catch(e=>alert(e.message)); }
-        function googleLogin() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    // Popup window ko force karne ke liye ye zaroori hai
-    provider.setCustomParameters({ prompt: 'select_account' });
-    
-    auth.signInWithPopup(provider)
-        .then((result) => {
-            console.log("Success:", result.user.displayName);
-            closeFS('fs-login');
-            // User ko dashboard dikhane ke liye reload zaroori hai
-           // location.reload(); 
-        })
-        .catch((error) => {
-            console.error("Login Error:", error.code, error.message);
-            // Agar popup block ho raha hai toh alert dikhayega
-            if (error.code === 'auth/popup-blocked') {
-                alert("Please allow popups for this website to login.");
-            } else {
-                alert("Login failed: " + error.message);
-            }
-        });
+                function googleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            // purana 'prompt' wala line hata diya hai
+            
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    // Login Success
+                    console.log("Logged in:", result.user.displayName);
+                    closeFS('fs-login');
+                    // location.reload() KI ZARURAT NAHI HAI (ise hata diya)
+                })
+                .catch((error) => {
+                    console.error(error);
+                    alert("Login Error: " + error.message);
+                });
         }
+
         
         function signup() { const n = document.getElementById('s-name').value, e = document.getElementById('s-email').value, p = document.getElementById('s-pass').value; if(n && e) auth.createUserWithEmailAndPassword(e,p).then(c => { c.user.updateProfile({displayName: n}); db.ref('users/'+c.user.uid).set({ profile: {name: n, email: e} }); closeFS('fs-signup'); }); }
         function switchAuth(type) { document.getElementById('fs-login').classList.remove('active'); document.getElementById('fs-signup').classList.remove('active'); document.getElementById('fs-'+type).classList.add('active'); }
