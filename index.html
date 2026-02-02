@@ -897,7 +897,7 @@ function loadRealData(userEmail) {
             console.log("Success:", result.user.displayName);
             closeFS('fs-login');
             // User ko dashboard dikhane ke liye reload zaroori hai
-            location.reload(); 
+           // location.reload(); 
         })
         .catch((error) => {
             console.error("Login Error:", error.code, error.message);
