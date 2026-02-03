@@ -2,69 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Urban Partner | Dashboard</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --p: #10B981; --bg: #111827; --card: #1F2937; --text: #F9FAFB; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
-        
-        .header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #374151; background: #1F2937; }
-        .logo { font-weight: 800; font-size: 1.1rem; color: var(--p); letter-spacing: 1px; }
-        .status-toggle { background: rgba(16, 185, 129, 0.2); color: var(--p); padding: 5px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 5px; }
-        .dot { width: 8px; height: 8px; background: var(--p); border-radius: 50%; box-shadow: 0 0 10px var(--p); }
-
-        .tabs { display: flex; padding: 10px; gap: 10px; }
-        .tab { flex: 1; padding: 12px; text-align: center; background: #374151; border-radius: 12px; font-size: 0.85rem; font-weight: 600; color: #9CA3AF; cursor: pointer; }
-        .tab.active { background: var(--p); color: white; }
-
-        .content { height: calc(100vh - 140px); overflow-y: auto; padding: 10px 20px; }
-        
-        /* Lead Card */
-        .lead-card { background: var(--card); padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #374151; animation: popIn 0.3s ease; }
-        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        .lead-head { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #374151; padding-bottom: 10px; }
-        .lead-tag { background: #374151; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; color: #D1D5DB; }
-        .lead-price { font-size: 1.2rem; font-weight: 700; color: var(--p); }
-        
-        .lead-row { display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #D1D5DB; align-items: center; }
-        .lead-row i { color: #6B7280; width: 20px; }
-
-        .accept-btn { width: 100%; background: var(--p); color: white; padding: 14px; border: none; border-radius: 12px; font-weight: 800; font-size: 1rem; margin-top: 15px; cursor: pointer; }
-        .accept-btn:active { opacity: 0.9; transform: scale(0.98); }
-        
+        body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; margin:0; }
+        .header { padding: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #374151; background: #1F2937; }
+        .logo { font-weight: 800; color: var(--p); }
+        .content { padding: 20px; }
+        .lead-card { background: var(--card); padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #374151; }
+        .lead-price { font-size: 1.2rem; font-weight: 700; color: var(--p); float: right; }
+        .lead-row { margin-bottom: 8px; color: #D1D5DB; }
+        .accept-btn { width: 100%; background: var(--p); color: white; padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 15px; }
         .empty-state { text-align: center; margin-top: 50px; color: #6B7280; }
-        .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
     </style>
 </head>
 <body>
+
 <div class="header">
     <div class="logo">URBAN PARTNER</div>
-    <div class="status-toggle"><div class="dot"></div> ONLINE</div>
-</div>
-
-<div class="tabs">
-    <div class="tab active" onclick="switchTab('new')">New Leads ( <span id="lead-count">0</span> )</div>
-    <div class="tab" onclick="switchTab('jobs')">My Jobs</div>
+    <div style="color:var(--p); font-size:0.8rem;">● LIVE</div>
 </div>
 
 <div class="content" id="leads-container">
-    <div class="empty-state">
-        <i class="fa-solid fa-radar"></i>
-        <p>Searching for leads nearby...</p>
-    </div>
+    <div class="empty-state">Loading leads...</div>
 </div>
 
 <script>
-    // --- 1. CONFIGURATION ---
+    // --- 1. CONFIGURATION (Same as Customer App) ---
     const firebaseConfig = {
         apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
-        authDomain: "urban-paint-pro.firebaseapp.com", // Updated Domain
+        authDomain: "urban-paint-pro.firebaseapp.com",
         databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
         projectId: "urban-paint-pro",
         storageBucket: "urban-paint-pro.firebasestorage.app",
@@ -73,83 +47,80 @@
     };
     
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
     const db = firebase.database();
+    const auth = firebase.auth();
 
-    // --- 2. LOGIN CHECK (Temporary Auto-Login for Testing) ---
-    // Asli app mein yahan login form hona chahiye
+    // --- 2. AUTO LOGIN & LISTEN ---
+    // Testing ke liye hum user ko secretly login karwa rahe hain
+    auth.signInAnonymously().catch(e => console.error("Login Error:", e));
+
     auth.onAuthStateChanged(user => {
         if (user) {
-            console.log("Partner Logged In:", user.email);
-            loadLeads(); // Login hote hi leads load karo
-        } else {
-            // Testing ke liye automatic anonymous login
-            auth.signInAnonymously().catch(e => alert(e.message));
+            console.log("Partner Connected:", user.uid);
+            startListening();
         }
     });
 
-    // --- 3. LEAD LISTENER (Ye missing tha!) ---
-    function loadLeads() {
+    // --- 3. LISTEN FOR ORDERS ---
+    function startListening() {
         const container = document.getElementById('leads-container');
         
-        // Website ab 'orders' folder mein data bhej rahi hai
+        // Website 'orders' folder mein bhej rahi hai, hum wahin sunenge
         db.ref('orders').on('value', (snapshot) => {
-            container.innerHTML = ""; // Purana data saaf karo
-            
+            container.innerHTML = ""; // Screen saaf karo
+
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 let hasLeads = false;
 
-                // Data object ko array mein badal kar reverse (latest first) karein
+                // Latest order upar dikhane ke liye reverse kiya
                 Object.entries(data).reverse().forEach(([key, order]) => {
                     
-                    // Filter: Sirf wo leads dikhao jo 'Pending' hain
+                    // Filter: Sirf wo dikhao jo 'Pending' hain
                     if (order.status && order.status.includes("Pending")) {
                         hasLeads = true;
                         
-                        // HTML Card Create Karo
-                        const card = `
+                        // Card Banana
+                        const html = `
                         <div class="lead-card">
-                            <div class="lead-head">
-                                <span class="lead-tag">PAINTING</span>
-                                <div class="lead-price">${order.estimate}</div>
-                            </div>
+                            <div class="lead-price">${order.estimate}</div>
+                            <div style="font-weight:700; margin-bottom:10px;">PAINTING JOB</div>
+                            
                             <div class="lead-row"><i class="fa-solid fa-map-pin"></i> ${order.addr}</div>
-                            <div class="lead-row"><i class="fa-solid fa-ruler-combined"></i> ${order.scope} (${order.quantity} Units)</div>
-                            <div class="lead-row"><i class="fa-solid fa-calendar"></i> ${order.date}</div>
-                            <button class="accept-btn" onclick="acceptJob('${key}')">ACCEPT JOB</button>
+                            <div class="lead-row"><i class="fa-solid fa-layer-group"></i> ${order.scope} (${order.quantity} Units)</div>
+                            <div class="lead-row"><i class="fa-solid fa-clock"></i> ${order.date}</div>
+                            
+                            <div style="background:#374151; padding:8px; border-radius:8px; font-size:0.8rem; margin-top:10px;">
+                                Status: <span style="color:orange">${order.status}</span>
+                            </div>
+
+                            <button class="accept-btn" onclick="acceptJob('${key}')">ACCEPT LEAD</button>
                         </div>`;
                         
-                        container.innerHTML += card;
+                        container.innerHTML += html;
                     }
                 });
 
-                if (!hasLeads) container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-check-circle"></i><p>No pending leads right now.</p></div>';
+                if (!hasLeads) container.innerHTML = '<div class="empty-state">No Pending Leads</div>';
             } else {
-                container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-radar"></i><p>Waiting for bookings...</p></div>';
+                container.innerHTML = '<div class="empty-state">No Orders Found</div>';
             }
         });
     }
 
-    // --- 4. ACCEPT JOB LOGIC ---
+    // --- 4. ACCEPT FUNCTION ---
     function acceptJob(orderId) {
-        if(confirm("Accept this job? Customer will be notified.")) {
-            // Partner ki location aur details update karo
+        if(confirm("Accept this job?")) {
+            // Job accept karte hi status update hoga
             db.ref('orders/' + orderId).update({
                 status: "Accepted",
-                partnerName: "Verified Partner", // Baad mein dynamic naam ayega
-                partnerPhone: "9876543210",
+                partnerName: "Verified Partner",
+                partnerPhone: "9812345678",
                 otp: Math.floor(1000 + Math.random() * 9000)
             }).then(() => {
-                alert("Job Accepted! Check 'My Jobs' tab.");
-                // Yahan aap My Jobs tab par redirect kar sakte hain
-            });
+                alert("Lead Accepted!");
+            }).catch(e => alert("Error: " + e.message));
         }
-    }
-
-    function switchTab(t) {
-        // Tab switching logic (abhi simple rakha hai)
-        alert("Tab switched to " + t);
     }
 </script>
 </body>
