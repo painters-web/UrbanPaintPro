@@ -54,6 +54,19 @@
         .divider::before, .divider::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: #374151; }
         .divider::before { left: 0; } .divider::after { right: 0; }
         .toggle-text { text-align: center; color: var(--gray); font-size: 0.9rem; cursor: pointer; margin-top: 10px; }
+                /* PROFESSIONAL MENU STYLE */
+        .menu-list { background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid #374151; margin-bottom: 20px; }
+        .menu-item { padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #374151; cursor: pointer; transition: 0.2s; color: white; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:active { background: #374151; }
+        .menu-left { display: flex; align-items: center; gap: 15px; }
+        .icon-box { width: 35px; height: 35px; background: #374151; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--p); }
+        
+        /* FULL SCREEN SHEET (KYC Form ke liye) */
+        .full-sheet { position: fixed; inset: 0; background: var(--bg); z-index: 3000; transform: translateX(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        .full-sheet.active { transform: translateX(0); }
+        .fs-header { padding: 15px 20px; border-bottom: 1px solid #374151; display: flex; align-items: center; gap: 15px; font-weight: 700; font-size: 1.1rem; background: var(--card); }
+        .fs-body { padding: 20px; overflow-y: auto; flex: 1; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -134,12 +147,85 @@
             </div>
         </div>
 
-        <div id="tab-account" class="section">
-            <div style="text-align:center; margin-bottom:20px;">
-                <img id="p-photo" src="" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--p);">
-                <h3 id="display-name" style="margin-top:10px;">Partner</h3>
-                <p id="kyc-status-text" style="color:var(--gray); font-size:0.9rem;">Status: Checking...</p>
+                <div id="tab-account" class="section">
+            <div style="text-align:center; margin-bottom:25px; margin-top:10px;">
+                <img id="p-photo" src="" style="width:90px; height:90px; border-radius:50%; border:3px solid var(--p); object-fit:cover;">
+                <h2 id="display-name" style="margin-top:10px; font-size:1.3rem;">Partner</h2>
+                <div id="verification-badge" style="color:var(--gray); font-size:0.9rem; margin-top:5px;">
+                    <i class="fa-solid fa-circle-exclamation" style="color:#F59E0B"></i> Action Required
+                </div>
             </div>
+
+            <div class="menu-list">
+                <div class="menu-item" onclick="openFS()">
+                    <div class="menu-left">
+                        <div class="icon-box"><i class="fa-solid fa-id-card"></i></div>
+                        <div>
+                            <div style="font-weight:600;">KYC & Documents</div>
+                            <div style="font-size:0.75rem; color:var(--gray);">Bank, Aadhaar, PAN</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color:var(--gray)"></i>
+                </div>
+
+                <div class="menu-item" onclick="alert('Support Chat Feature Coming Soon!')">
+                    <div class="menu-left">
+                        <div class="icon-box" style="color:#60A5FA"><i class="fa-solid fa-headset"></i></div>
+                        <span>Help & Support</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color:var(--gray)"></i>
+                </div>
+                
+                <div class="menu-item" onclick="alert('Opening Terms...')">
+                    <div class="menu-left">
+                        <div class="icon-box" style="color:#A78BFA"><i class="fa-solid fa-file-contract"></i></div>
+                        <span>Terms & Conditions</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color:var(--gray)"></i>
+                </div>
+            </div>
+
+            <button class="btn" style="background:#EF4444; margin-top:10px;" onclick="firebase.auth().signOut()">
+                <i class="fa-solid fa-power-off"></i> Logout Account
+            </button>
+        </div>
+
+        <div id="fs-kyc" class="full-sheet">
+            <div class="fs-header">
+                <i class="fa-solid fa-arrow-left" onclick="closeFS()"></i> 
+                Submit Documents
+            </div>
+            <div class="fs-body">
+                <div class="card">
+                    <h4 style="margin-bottom:15px; color:white;">Personal Information</h4>
+                    
+                    <label class="label">Full Name (As per Govt ID)</label>
+                    <input type="text" id="inp-name" class="inp" placeholder="Your Name">
+
+                    <label class="label">Phone Number</label>
+                    <input type="number" id="inp-phone" class="inp" placeholder="Active Mobile Number">
+
+                    <h4 style="margin:20px 0 15px; color:white;">Identity Proofs</h4>
+
+                    <label class="label">Aadhaar Number</label>
+                    <input type="number" id="inp-aadhaar" class="inp" placeholder="12 Digit Aadhaar">
+
+                    <label class="label">PAN Number</label>
+                    <input type="text" id="inp-pan" class="inp" placeholder="ABCDE1234F" style="text-transform:uppercase;">
+
+                    <h4 style="margin:20px 0 15px; color:white;">Bank Details (For Payouts)</h4>
+
+                    <label class="label">Bank Account Number</label>
+                    <input type="number" id="inp-bank" class="inp" placeholder="Account Number">
+
+                    <label class="label">IFSC Code</label>
+                    <input type="text" id="inp-ifsc" class="inp" placeholder="IFSC Code" style="text-transform:uppercase;">
+
+                    <button id="btn-save-kyc" class="btn btn-primary" style="margin-top:10px;" onclick="submitKYC()">SUBMIT FOR VERIFICATION</button>
+                </div>
+            </div>
+        </div>
+
 
             <div class="card">
                 <h4 style="margin-bottom:15px; color:white;">KYC & Banking</h4>
@@ -222,6 +308,7 @@
         }
 
         // 3. Email/Password Handler (Login & Signup Ek Saath)
+                // --- 1. HANDLE EMAIL AUTH (Registration Fix) ---
         function handleEmailAuth() {
             const email = document.getElementById('l-email').value;
             const pass = document.getElementById('l-pass').value;
@@ -230,14 +317,26 @@
             if(!email || !pass) return alert("Please enter Email & Password");
 
             if(isRegistering) {
-                // --- SIGN UP LOGIC ---
+                // --- SIGN UP LOGIC (Yahan change hai) ---
                 if(!name) return alert("Please enter your Full Name");
                 
                 auth.createUserWithEmailAndPassword(email, pass)
                     .then((res) => {
-                        // Profile mein Naam Update karein
-                        res.user.updateProfile({ displayName: name })
-                        .then(() => location.reload()); // Refresh taaki naam dikhe
+                        // 1. Naam update karein
+                        res.user.updateProfile({ displayName: name });
+                        
+                        // 2. IMPORTANT: Partner ka data database mein banayein
+                        db.ref('partners/' + res.user.uid).set({
+                            name: name,
+                            email: email,
+                            rating: 5.0,
+                            earnings: 0,
+                            kycStatus: "pending", // Shuru mein Pending rahega
+                            joined: new Date().toLocaleDateString()
+                        }).then(() => {
+                            alert("Account Created! Logging in...");
+                            location.reload(); // Page refresh taaki login ho jaye
+                        });
                     })
                     .catch(e => alert("Signup Error: " + e.message));
             } else {
@@ -275,37 +374,39 @@
             }
         });
 
-        // --- 2. LOAD PROFILE & CHECK KYC STATUS ---
+                // --- 2. LOAD PROFILE (Strict Security Mode) ---
         function loadProfile(uid) {
             db.ref('partners/' + uid).on('value', snap => {
                 if(snap.exists()) {
+                    // ✅ DATA MIL GAYA = ASLI PARTNER
                     partnerData = snap.val();
-                    const status = partnerData.kycStatus || "pending"; // pending, verified, rejected
+                    const status = partnerData.kycStatus || "pending";
                     
-                    // UI Updates
+                    // UI Update karo
                     document.getElementById('header-rating').innerText = partnerData.rating || "5.0";
                     document.getElementById('total-earn').innerText = "₹" + (partnerData.earnings || 0);
                     
-                    // Status Handling
-                    handleKYCStatus(status);
-
-                    // Fill Inputs
+                    // KYC Inputs Bharo
                     if(partnerData.aadhaar) document.getElementById('inp-aadhaar').value = partnerData.aadhaar;
                     if(partnerData.pan) document.getElementById('inp-pan').value = partnerData.pan;
                     if(partnerData.bank) document.getElementById('inp-bank').value = partnerData.bank;
                     if(partnerData.ifsc) document.getElementById('inp-ifsc').value = partnerData.ifsc;
+                    
+                    // Banner Show karo
+                    handleKYCStatus(status);
+
                 } else {
-                    // Create New Partner Entry
-                    db.ref('partners/' + uid).set({
-                        name: currentUser.displayName,
-                        email: currentUser.email,
-                        rating: 5.0,
-                        earnings: 0,
-                        kycStatus: "pending"
+                    // ⛔ DATA NAHI MILA = CUSTOMER (GHUSPAITHIYA)
+                    alert("⚠️ Access Denied!\nYe account Partner ke roop mein register nahi hai.\nKripya 'Create Account' par click karein.");
+                    
+                    // Turant Logout aur Refresh
+                    auth.signOut().then(() => {
+                        location.reload();
                     });
                 }
             });
         }
+
 
         function handleKYCStatus(status) {
             const pendingBan = document.getElementById('banner-pending');
@@ -343,24 +444,52 @@
         }
 
         // --- 3. SUBMIT KYC ---
+                // --- UI UTILS ---
+        function openFS() { document.getElementById('fs-kyc').classList.add('active'); }
+        function closeFS() { document.getElementById('fs-kyc').classList.remove('active'); }
+
+        // --- NEW SUBMIT KYC (With Phone Number) ---
         function submitKYC() {
+            // Data uthao
             const name = document.getElementById('inp-name').value;
+            const phone = document.getElementById('inp-phone').value; // Added
             const aadhaar = document.getElementById('inp-aadhaar').value;
             const pan = document.getElementById('inp-pan').value;
             const bank = document.getElementById('inp-bank').value;
             const ifsc = document.getElementById('inp-ifsc').value;
 
-            if(!aadhaar || !pan || !bank || !ifsc) return alert("Please fill all details!");
+            // Check
+            if(!name || !phone || !aadhaar || !pan || !bank || !ifsc) {
+                alert("Please fill ALL details!");
+                return;
+            }
+
+            const btn = document.getElementById('btn-save-kyc');
+            btn.innerText = "Submitting...";
+            btn.disabled = true;
 
             db.ref('partners/' + currentUser.uid).update({
                 name: name,
+                phone: phone, // Saving Phone
                 aadhaar: aadhaar,
                 pan: pan,
                 bank: bank,
                 ifsc: ifsc,
-                kycStatus: "pending" // Resets to pending if updated
-            }).then(() => {
-                alert("Details Submitted! Wait for Admin Approval.");
+                kycStatus: "pending",
+                submittedOn: new Date().toLocaleString()
+            })
+            .then(() => {
+                alert("✅ Submitted! Check status on Profile.");
+                closeFS(); // Sheet band karo
+                btn.innerText = "SUBMIT FOR VERIFICATION";
+                btn.disabled = false;
+                
+                // Badge update logic (Optional: Turant color change)
+                document.getElementById('verification-badge').innerHTML = '<span style="color:#F59E0B">⏳ Verification Pending</span>';
+            })
+            .catch((e) => {
+                alert("Error: " + e.message);
+                btn.disabled = false;
             });
         }
 
