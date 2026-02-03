@@ -737,18 +737,7 @@ function loadRealData(userEmail) {
 }
         // --- NEW UPI PAYMENT SYSTEM ---
         
-        function openUPIPayment(desc, amt, type) {
-            // Save details needed for after verification
-            pendingPayment = { desc: desc, amt: amt, type: type };
-            
-            // Show details on Payment Sheet
-            document.getElementById('pay-amt-display').innerText = "₹" + amt;
-            document.getElementById('utr-input').value = ""; // Clear old input
-            
-            // Open Sheet
-            openFS('fs-payment');
-        }
-
+                // --- UPI & PAYMENT FUNCTIONS ---
         function copyUPI() {
             navigator.clipboard.writeText("kingkhan33648@okicici");
             alert("UPI ID Copied!");
@@ -756,17 +745,14 @@ function loadRealData(userEmail) {
 
         function verifyPayment() {
             const utr = document.getElementById('utr-input').value;
-            
-            // Simple validation: Ensure UTR is 12 digits
             if(!utr || utr.length < 12) {
-                alert("Please enter a valid 12-digit UTR number from your Bank SMS.");
+                alert("Please enter a valid 12-digit UTR number.");
                 return;
             }
-
-            // Close Payment Sheet
+            
             closeFS('fs-payment');
 
-            // Process the order based on type
+            // Payment verify hone ke baad sahi function call karein
             if(pendingPayment.type === 'booking') {
                 confirmOrderDB(pendingPayment.amt, "UPI-" + utr);
             } else if (pendingPayment.type === 'plan') {
@@ -774,93 +760,83 @@ function loadRealData(userEmail) {
             }
         }
 
-        // --- BOOKING ---
+        // --- BOOKING FLOW ---
         function startBooking() {
-            if(!auth.currentUser) return openFS('fs-login');
+            // Login check
+            if(!firebase.auth().currentUser) return openFS('fs-login');
+            
             document.getElementById('overlay').style.display='block';
             document.getElementById('sheet-tnc').classList.add('active');
         }
 
         function acceptTNC() {
             document.getElementById('sheet-tnc').classList.remove('active');
+            
+            // Member check for Free Visit
+            const isMember = userPlanDetails && userPlanDetails.name.includes("Member");
             const chargeText = document.getElementById('visit-charge-display');
-            chargeText.innerHTML = userPlanDetails.name.includes("Member") ? "Visiting Charge: <strike>₹49</strike> <b>FREE</b>" : "Visiting Charge: ₹49";
+            chargeText.innerHTML = isMember ? "Visiting Charge: <strike>₹49</strike> <b>FREE</b>" : "Visiting Charge: ₹49";
+            
             document.getElementById('sheet-book').classList.add('active');
         }
 
         function placeOrder() {
             const addr = document.getElementById('b-addr').value;
             const pin = document.getElementById('b-pin').value;
-            if(!addr || !pin) return alert("Enter Details");
-            
-            // If Member, Free. If Not, Pay 49 via UPI
-            if(userPlanDetails.name.includes("Member")) {
+            if(!addr || !pin) return alert("Please enter Address & Pincode");
+
+            // Agar Member hai toh Free, nahi toh UPI Payment
+            if(userPlanDetails && userPlanDetails.name.includes("Member")) {
                 confirmOrderDB(0, "Member_Free");
             } else {
-                // Open UPI Sheet instead of Razorpay
                 openUPIPayment('Visit Charge', 49, 'booking');
             }
         }
 
+        // --- FINAL DATABASE FUNCTIONS ---
         function confirmOrderDB(amt, payId) {
-    // Sabse pehle user ko sahi se pakadte hain
-    const user = firebase.auth().currentUser; 
-    
-    if(!user) {
-        alert("Bhai, pehle login karna zaroori hai!");
-        return;
-    }
+            const user = firebase.auth().currentUser;
+            if(!user) return alert("Login required!");
 
-    // Ab data bhejte hain
-    db.ref('orders').push({
-        user: user.email, // Ab email sahi se jayega
-        scope: document.getElementById('scope-sel').options[document.getElementById('scope-sel').selectedIndex].text,
-        quantity: currentQty,
-        paint: document.getElementById('prod-sel').options[document.getElementById('prod-sel').selectedIndex].text,
-        estimate: document.getElementById('total-price').innerText,
-        addr: document.getElementById('b-addr').value, 
-        pin: document.getElementById('b-pin').value,
-        amt: amt, 
-        payId: payId, 
-        status: "Pending (Verifying UTR)", 
-        date: new Date().toLocaleString('en-IN')
-    }).then(() => { 
-        closeSheet(); 
-        document.getElementById('status-success').classList.add('active'); 
-    }).catch((error) => {
-        console.error("Firebase Error:", error);
-        alert("Booking fail ho gayi: " + error.message);
-    });
-}
+            const orderData = {
+                user: user.email,
+                scope: document.getElementById('scope-sel').options[document.getElementById('scope-sel').selectedIndex].text,
+                quantity: currentQty,
+                paint: document.getElementById('prod-sel').options[document.getElementById('prod-sel').selectedIndex].text,
+                estimate: document.getElementById('total-price').innerText,
+                addr: document.getElementById('b-addr').value, 
+                pin: document.getElementById('b-pin').value,
+                amt: amt, 
+                payId: payId, 
+                status: "Pending (Verifying UTR)", 
+                date: new Date().toLocaleString('en-IN')
+            };
+
+            db.ref('orders').push(orderData).then(() => { 
+                closeSheet(); 
+                document.getElementById('status-success').classList.add('active'); 
+            }).catch(e => alert("Error: " + e.message));
+        }
 
         function activatePlan(plan, payId) {
-    // Current user ko sahi se pehchante hain
-    const user = firebase.auth().currentUser;
+            const user = firebase.auth().currentUser;
+            if(!user) return alert("Login required!");
 
-    if (!user) {
-        alert("Bhai, plan lene ke liye pehle login karein!");
-        return;
-    }
+            const exp = new Date(); 
+            exp.setFullYear(exp.getFullYear() + 1);
 
-    const exp = new Date(); 
-    exp.setFullYear(exp.getFullYear() + 1); // 1 saal ki validity
+            db.ref('users/' + user.uid + '/plan').set({ 
+                name: plan + " Member", 
+                exp: exp.toLocaleDateString('en-IN'), 
+                payId: payId,
+                activatedOn: new Date().toLocaleString('en-IN')
+            }).then(() => {
+                alert("Plan Request Submitted! Active after verification.");
+                closeFS('fs-plans');
+            }).catch(e => alert("Error: " + e.message));
+        }
 
-    // Database path: users/UID/plan
-    db.ref('users/' + user.uid + '/plan').set({ 
-        name: plan + " Member", 
-        exp: exp.toLocaleDateString('en-IN'), 
-        payId: payId,
-        activatedOn: new Date().toLocaleString('en-IN')
-    }).then(() => {
-        alert("Request Submitted! Admin verification ke baad aapka " + plan + " plan active ho jayega.");
-        closeFS('fs-plans');
-    }).catch((error) => {
-        console.error("Plan Error:", error);
-        alert("Plan activation mein error: " + error.message);
-    });
-}
-
-        // --- INVOICE & CHAT ---
+       // --- INVOICE & CHAT ---
         function genInvoice() {
             try {
                 const doc = new window.jspdf.jsPDF();
