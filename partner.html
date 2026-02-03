@@ -16,12 +16,7 @@
         :root { --p: #10B981; --bg: #111827; --card: #1F2937; --text: #F9FAFB; --gray: #9CA3AF; --error: #EF4444; --warn: #F59E0B; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
-
-        /* Login Screen */
-        #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; justify-content: center; padding: 30px; }
-        .login-btn { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; }
-        .google-btn { background: white; color: #333; }
-
+        
         /* Status Banners */
         .status-banner { padding: 15px; margin: 15px 20px 0; border-radius: 12px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
         .st-pending { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--warn); color: #FCD34D; }
@@ -49,22 +44,53 @@
         .nav-item { text-align: center; color: var(--gray); font-size: 0.75rem; cursor: pointer; width: 60px; }
         .nav-item.active { color: var(--p); }
         .nav-item i { font-size: 1.4rem; display: block; margin-bottom: 4px; }
-
+                 /* Naya Login Style */
+        #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; justify-content: center; padding: 30px; }
+        .login-inp { width: 100%; padding: 14px; background: #374151; border: 1px solid #4B5563; border-radius: 10px; color: white; margin-bottom: 12px; outline: none; }
+        .login-btn { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; }
+        .google-btn { background: white; color: #333; }
+        .email-btn { background: var(--p); color: white; }
+        .divider { text-align: center; margin: 20px 0; color: var(--gray); font-size: 0.8rem; position: relative; }
+        .divider::before, .divider::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: #374151; }
+        .divider::before { left: 0; } .divider::after { right: 0; }
+        .toggle-text { text-align: center; color: var(--gray); font-size: 0.9rem; cursor: pointer; margin-top: 10px; }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div style="text-align:center; margin-bottom:40px;">
+        <div id="login-screen">
+        <div style="text-align:center; margin-bottom:30px;">
             <i class="fa-solid fa-paint-roller" style="font-size:3rem; color:var(--p);"></i>
             <h1 style="margin-top:10px;">UrbanPartner</h1>
-            <p style="color:var(--gray);">Professional Partner App</p>
+            <p style="color:var(--gray);">Partner Login Portal</p>
         </div>
+
         <button class="login-btn google-btn" onclick="loginGoogle()">
-            <i class="fa-brands fa-google"></i> Login with Google
+            <i class="fa-brands fa-google"></i> Continue with Google
         </button>
+
+        <div class="divider">OR USE EMAIL</div>
+
+        <div id="email-form">
+            <input type="text" id="l-name" class="login-inp" placeholder="Full Name (For New Users)" style="display:none;">
+            
+            <input type="email" id="l-email" class="login-inp" placeholder="Email Address">
+            <input type="password" id="l-pass" class="login-inp" placeholder="Password (Min 6 chars)">
+            
+            <div style="text-align:right; margin-bottom:15px;">
+                <span onclick="resetPass()" style="color:var(--p); font-size:0.85rem; cursor:pointer;">Forgot Password?</span>
+            </div>
+
+            <button class="login-btn email-btn" onclick="handleEmailAuth()" id="auth-btn">LOGIN</button>
+            
+            <div class="toggle-text" onclick="toggleAuthMode()">
+                New Partner? <b style="color:var(--p)">Register Here</b>
+            </div>
+        </div>
     </div>
+
 
     <div id="app-screen">
         <div class="header">
@@ -169,9 +195,68 @@
         let partnerData = null; 
 
         // --- 1. LOGIN ---
+                // --- AUTH LOGIC START ---
+        let isRegistering = false; // Check karta hai user naya hai ya purana
+
+        // 1. Google Login Function
         function loginGoogle() {
-            auth.signInWithPopup(provider).catch(e => alert(e.message));
+            auth.signInWithPopup(provider).catch(e => alert("Google Error: " + e.message));
         }
+
+        // 2. Login aur Register ke beech switch karna
+        function toggleAuthMode() {
+            isRegistering = !isRegistering;
+            const nameField = document.getElementById('l-name');
+            const btn = document.getElementById('auth-btn');
+            const toggle = document.querySelector('.toggle-text');
+            
+            if(isRegistering) {
+                nameField.style.display = 'block'; // Naam pucho
+                btn.innerText = "CREATE ACCOUNT";
+                toggle.innerHTML = 'Already have account? <b style="color:var(--p)">Login Here</b>';
+            } else {
+                nameField.style.display = 'none'; // Naam chupao
+                btn.innerText = "LOGIN";
+                toggle.innerHTML = 'New Partner? <b style="color:var(--p)">Register Here</b>';
+            }
+        }
+
+        // 3. Email/Password Handler (Login & Signup Ek Saath)
+        function handleEmailAuth() {
+            const email = document.getElementById('l-email').value;
+            const pass = document.getElementById('l-pass').value;
+            const name = document.getElementById('l-name').value;
+
+            if(!email || !pass) return alert("Please enter Email & Password");
+
+            if(isRegistering) {
+                // --- SIGN UP LOGIC ---
+                if(!name) return alert("Please enter your Full Name");
+                
+                auth.createUserWithEmailAndPassword(email, pass)
+                    .then((res) => {
+                        // Profile mein Naam Update karein
+                        res.user.updateProfile({ displayName: name })
+                        .then(() => location.reload()); // Refresh taaki naam dikhe
+                    })
+                    .catch(e => alert("Signup Error: " + e.message));
+            } else {
+                // --- LOGIN LOGIC ---
+                auth.signInWithEmailAndPassword(email, pass)
+                    .catch(e => alert("Login Error: " + e.message));
+            }
+        }
+
+        // 4. Forgot Password Logic
+        function resetPass() {
+            const email = document.getElementById('l-email').value;
+            if(!email) return alert("Please enter your Email address first!");
+            
+            auth.sendPasswordResetEmail(email)
+                .then(() => alert("Password reset link sent to your email!"))
+                .catch(e => alert("Error: " + e.message));
+        }
+        // --- AUTH LOGIC END ---
 
         auth.onAuthStateChanged(user => {
             if (user) {
