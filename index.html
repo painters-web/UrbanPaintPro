@@ -803,19 +803,35 @@ function loadRealData(userEmail) {
         }
 
         function confirmOrderDB(amt, payId) {
-            db.ref('orders').push({
-                user: auth.currentUser.email,
-                scope: document.getElementById('scope-sel').options[document.getElementById('scope-sel').selectedIndex].text,
-                quantity: currentQty,
-                paint: document.getElementById('prod-sel').options[document.getElementById('prod-sel').selectedIndex].text,
-                estimate: document.getElementById('total-price').innerText,
-                addr: document.getElementById('b-addr').value, pin: document.getElementById('b-pin').value,
-                amt: amt, payId: payId, status: "Pending (Verifying UTR)", date: new Date().toLocaleDateString()
-            }).then(() => { 
-                closeSheet(); 
-                document.getElementById('status-success').classList.add('active'); 
-            });
-        }
+    // Sabse pehle user ko sahi se pakadte hain
+    const user = firebase.auth().currentUser; 
+    
+    if(!user) {
+        alert("Bhai, pehle login karna zaroori hai!");
+        return;
+    }
+
+    // Ab data bhejte hain
+    db.ref('orders').push({
+        user: user.email, // Ab email sahi se jayega
+        scope: document.getElementById('scope-sel').options[document.getElementById('scope-sel').selectedIndex].text,
+        quantity: currentQty,
+        paint: document.getElementById('prod-sel').options[document.getElementById('prod-sel').selectedIndex].text,
+        estimate: document.getElementById('total-price').innerText,
+        addr: document.getElementById('b-addr').value, 
+        pin: document.getElementById('b-pin').value,
+        amt: amt, 
+        payId: payId, 
+        status: "Pending (Verifying UTR)", 
+        date: new Date().toLocaleString('en-IN')
+    }).then(() => { 
+        closeSheet(); 
+        document.getElementById('status-success').classList.add('active'); 
+    }).catch((error) => {
+        console.error("Firebase Error:", error);
+        alert("Booking fail ho gayi: " + error.message);
+    });
+}
 
         function activatePlan(plan, payId) {
             const exp = new Date(); exp.setFullYear(exp.getFullYear() + 1);
