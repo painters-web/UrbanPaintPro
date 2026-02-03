@@ -2,126 +2,357 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urban Partner | Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Partner App | Urban Paint Pro</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --p: #10B981; --bg: #111827; --card: #1F2937; --text: #F9FAFB; }
-        body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; margin:0; }
-        .header { padding: 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #374151; background: #1F2937; }
-        .logo { font-weight: 800; color: var(--p); }
-        .content { padding: 20px; }
-        .lead-card { background: var(--card); padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #374151; }
-        .lead-price { font-size: 1.2rem; font-weight: 700; color: var(--p); float: right; }
-        .lead-row { margin-bottom: 8px; color: #D1D5DB; }
-        .accept-btn { width: 100%; background: var(--p); color: white; padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 15px; }
-        .empty-state { text-align: center; margin-top: 50px; color: #6B7280; }
+        :root { --p: #10B981; --bg: #111827; --card: #1F2937; --text: #F9FAFB; --gray: #9CA3AF; --error: #EF4444; --warn: #F59E0B; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
+
+        /* Login Screen */
+        #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; justify-content: center; padding: 30px; }
+        .login-btn { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; }
+        .google-btn { background: white; color: #333; }
+
+        /* Status Banners */
+        .status-banner { padding: 15px; margin: 15px 20px 0; border-radius: 12px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+        .st-pending { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--warn); color: #FCD34D; }
+        .st-rejected { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--error); color: #FECACA; }
+        .st-verified { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--p); color: #6EE7B7; }
+
+        /* App UI */
+        #app-screen { display: none; } 
+        .header { padding: 15px 20px; background: rgba(31, 41, 55, 0.95); position: sticky; top: 0; z-index: 50; border-bottom: 1px solid #374151; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
+        .logo { font-size: 1.2rem; font-weight: 800; color: var(--p); }
+        .rating-badge { background: #374151; color: #FBBF24; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+
+        .section { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+        .section.active { display: block; }
+
+        .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid #374151; }
+        .inp { width: 100%; padding: 12px; background: #111827; border: 1px solid #374151; border-radius: 8px; color: white; outline: none; margin-bottom: 15px; }
+        .label { font-size: 0.8rem; color: var(--gray); margin-bottom: 5px; display: block; }
+        
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background: var(--p); color: white; }
+        .btn-disabled { background: #374151; color: var(--gray); cursor: not-allowed; }
+
+        .nav { position: fixed; bottom: 0; width: 100%; background: #1F2937; border-top: 1px solid #374151; display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; }
+        .nav-item { text-align: center; color: var(--gray); font-size: 0.75rem; cursor: pointer; width: 60px; }
+        .nav-item.active { color: var(--p); }
+        .nav-item i { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="logo">URBAN PARTNER</div>
-    <div style="color:var(--p); font-size:0.8rem;">● LIVE</div>
-</div>
+    <div id="login-screen">
+        <div style="text-align:center; margin-bottom:40px;">
+            <i class="fa-solid fa-paint-roller" style="font-size:3rem; color:var(--p);"></i>
+            <h1 style="margin-top:10px;">UrbanPartner</h1>
+            <p style="color:var(--gray);">Professional Partner App</p>
+        </div>
+        <button class="login-btn google-btn" onclick="loginGoogle()">
+            <i class="fa-brands fa-google"></i> Login with Google
+        </button>
+    </div>
 
-<div class="content" id="leads-container">
-    <div class="empty-state">Loading leads...</div>
-</div>
+    <div id="app-screen">
+        <div class="header">
+            <div class="logo">URBAN<span style="color:white">PARTNER</span></div>
+            <div class="rating-badge"><i class="fa-solid fa-star"></i> <span id="header-rating">--</span></div>
+        </div>
 
-<script>
-    // --- 1. CONFIGURATION (Same as Customer App) ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
-        authDomain: "urban-paint-pro.firebaseapp.com",
-        databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
-        projectId: "urban-paint-pro",
-        storageBucket: "urban-paint-pro.firebasestorage.app",
-        messagingSenderId: "929763117480",
-        appId: "1:929763117480:web:560057baeb12672078b59d"
-    };
-    
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const auth = firebase.auth();
-
-    // --- 2. AUTO LOGIN & LISTEN ---
-    // Testing ke liye hum user ko secretly login karwa rahe hain
-    auth.signInAnonymously().catch(e => console.error("Login Error:", e));
-
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            console.log("Partner Connected:", user.uid);
-            startListening();
-        }
-    });
-
-    // --- 3. LISTEN FOR ORDERS ---
-    function startListening() {
-        const container = document.getElementById('leads-container');
+        <div id="banner-pending" class="status-banner st-pending" style="display:none;">
+            <i class="fa-solid fa-clock"></i>
+            <div><b>KYC Pending</b><br>Admin is verifying your documents.</div>
+        </div>
         
-        // Website 'orders' folder mein bhej rahi hai, hum wahin sunenge
-        db.ref('orders').on('value', (snapshot) => {
-            container.innerHTML = ""; // Screen saaf karo
+        <div id="banner-rejected" class="status-banner st-rejected" style="display:none;">
+            <i class="fa-solid fa-circle-xmark"></i>
+            <div><b>KYC Rejected</b><br>Please update valid details.</div>
+        </div>
 
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                let hasLeads = false;
+        <div id="tab-home" class="section active">
+            <h2 style="margin-bottom:15px;">New Leads</h2>
+            <div id="kyc-lock-msg" style="text-align:center; padding:40px; display:none;">
+                <i class="fa-solid fa-lock" style="font-size:2rem; color:var(--gray); margin-bottom:10px;"></i>
+                <p style="color:var(--gray)">Complete KYC & Wait for Approval to see leads.</p>
+                <button class="btn btn-primary" style="margin-top:10px; width:auto;" onclick="switchTab('account', document.querySelectorAll('.nav-item')[3])">Go to Profile</button>
+            </div>
+            <div id="new-leads-container"></div>
+        </div>
 
-                // Latest order upar dikhane ke liye reverse kiya
-                Object.entries(data).reverse().forEach(([key, order]) => {
-                    
-                    // Filter: Sirf wo dikhao jo 'Pending' hain
-                    if (order.status && order.status.includes("Pending")) {
-                        hasLeads = true;
-                        
-                        // Card Banana
-                        const html = `
-                        <div class="lead-card">
-                            <div class="lead-price">${order.estimate}</div>
-                            <div style="font-weight:700; margin-bottom:10px;">PAINTING JOB</div>
-                            
-                            <div class="lead-row"><i class="fa-solid fa-map-pin"></i> ${order.addr}</div>
-                            <div class="lead-row"><i class="fa-solid fa-layer-group"></i> ${order.scope} (${order.quantity} Units)</div>
-                            <div class="lead-row"><i class="fa-solid fa-clock"></i> ${order.date}</div>
-                            
-                            <div style="background:#374151; padding:8px; border-radius:8px; font-size:0.8rem; margin-top:10px;">
-                                Status: <span style="color:orange">${order.status}</span>
-                            </div>
+        <div id="tab-jobs" class="section">
+            <h2 style="margin-bottom:15px;">My Jobs</h2>
+            <div id="my-leads-container"></div>
+        </div>
 
-                            <button class="accept-btn" onclick="acceptJob('${key}')">ACCEPT LEAD</button>
-                        </div>`;
-                        
-                        container.innerHTML += html;
-                    }
-                });
+        <div id="tab-earnings" class="section">
+            <h2 style="margin-bottom:15px;">My Wallet</h2>
+            <div class="card" style="text-align:center;">
+                <p style="color:var(--gray);">Lifetime Earnings</p>
+                <div style="font-size:2.5rem; font-weight:800; color:var(--p);" id="total-earn">₹0</div>
+                <div style="margin-top:10px; font-size:0.9rem; color:var(--gray);">
+                    Next Payout: <b>Monday</b>
+                </div>
+            </div>
+        </div>
 
-                if (!hasLeads) container.innerHTML = '<div class="empty-state">No Pending Leads</div>';
+        <div id="tab-account" class="section">
+            <div style="text-align:center; margin-bottom:20px;">
+                <img id="p-photo" src="" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--p);">
+                <h3 id="display-name" style="margin-top:10px;">Partner</h3>
+                <p id="kyc-status-text" style="color:var(--gray); font-size:0.9rem;">Status: Checking...</p>
+            </div>
+
+            <div class="card">
+                <h4 style="margin-bottom:15px; color:white;">KYC & Banking</h4>
+                <p style="font-size:0.8rem; color:var(--gray); margin-bottom:15px;">Required for payouts & verification.</p>
+                
+                <label class="label">Full Name (As per Pan)</label>
+                <input type="text" id="inp-name" class="inp" placeholder="Your Name">
+
+                <label class="label">Aadhaar Number</label>
+                <input type="number" id="inp-aadhaar" class="inp" placeholder="12 Digit Aadhaar">
+
+                <label class="label">PAN Number</label>
+                <input type="text" id="inp-pan" class="inp" placeholder="ABCDE1234F" style="text-transform:uppercase;">
+
+                <label class="label">Bank Account Number</label>
+                <input type="number" id="inp-bank" class="inp" placeholder="Account Number">
+
+                <label class="label">IFSC Code</label>
+                <input type="text" id="inp-ifsc" class="inp" placeholder="IFSC Code" style="text-transform:uppercase;">
+
+                <button id="btn-save-kyc" class="btn btn-primary" onclick="submitKYC()">SUBMIT FOR VERIFICATION</button>
+            </div>
+            
+            <button class="btn" style="background:#374151; margin-top:10px;" onclick="firebase.auth().signOut()">Logout</button>
+        </div>
+
+        <div class="nav">
+            <div class="nav-item active" onclick="switchTab('home', this)"><i class="fa-solid fa-house"></i> Leads</div>
+            <div class="nav-item" onclick="switchTab('jobs', this)"><i class="fa-solid fa-briefcase"></i> Jobs</div>
+            <div class="nav-item" onclick="switchTab('earnings', this)"><i class="fa-solid fa-wallet"></i> Wallet</div>
+            <div class="nav-item" onclick="switchTab('account', this)"><i class="fa-solid fa-user"></i> Profile</div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+            authDomain: "urban-paint-pro.firebaseapp.com",
+            databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "urban-paint-pro",
+            storageBucket: "urban-paint-pro.firebasestorage.app",
+            messagingSenderId: "929763117480",
+            appId: "1:929763117480:web:560057baeb12672078b59d"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        let currentUser = null;
+        let partnerData = null; 
+
+        // --- 1. LOGIN ---
+        function loginGoogle() {
+            auth.signInWithPopup(provider).catch(e => alert(e.message));
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'block';
+                currentUser = user;
+                
+                document.getElementById('display-name').innerText = user.displayName;
+                document.getElementById('p-photo').src = user.photoURL;
+                document.getElementById('inp-name').value = user.displayName;
+
+                loadProfile(user.uid);
             } else {
-                container.innerHTML = '<div class="empty-state">No Orders Found</div>';
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app-screen').style.display = 'none';
             }
         });
-    }
 
-    // --- 4. ACCEPT FUNCTION ---
-    function acceptJob(orderId) {
-        if(confirm("Accept this job?")) {
-            // Job accept karte hi status update hoga
-            db.ref('orders/' + orderId).update({
-                status: "Accepted",
-                partnerName: "Verified Partner",
-                partnerPhone: "9812345678",
-                otp: Math.floor(1000 + Math.random() * 9000)
-            }).then(() => {
-                alert("Lead Accepted!");
-            }).catch(e => alert("Error: " + e.message));
+        // --- 2. LOAD PROFILE & CHECK KYC STATUS ---
+        function loadProfile(uid) {
+            db.ref('partners/' + uid).on('value', snap => {
+                if(snap.exists()) {
+                    partnerData = snap.val();
+                    const status = partnerData.kycStatus || "pending"; // pending, verified, rejected
+                    
+                    // UI Updates
+                    document.getElementById('header-rating').innerText = partnerData.rating || "5.0";
+                    document.getElementById('total-earn').innerText = "₹" + (partnerData.earnings || 0);
+                    
+                    // Status Handling
+                    handleKYCStatus(status);
+
+                    // Fill Inputs
+                    if(partnerData.aadhaar) document.getElementById('inp-aadhaar').value = partnerData.aadhaar;
+                    if(partnerData.pan) document.getElementById('inp-pan').value = partnerData.pan;
+                    if(partnerData.bank) document.getElementById('inp-bank').value = partnerData.bank;
+                    if(partnerData.ifsc) document.getElementById('inp-ifsc').value = partnerData.ifsc;
+                } else {
+                    // Create New Partner Entry
+                    db.ref('partners/' + uid).set({
+                        name: currentUser.displayName,
+                        email: currentUser.email,
+                        rating: 5.0,
+                        earnings: 0,
+                        kycStatus: "pending"
+                    });
+                }
+            });
         }
-    }
-</script>
+
+        function handleKYCStatus(status) {
+            const pendingBan = document.getElementById('banner-pending');
+            const rejectBan = document.getElementById('banner-rejected');
+            const kycText = document.getElementById('kyc-status-text');
+            const btnSave = document.getElementById('btn-save-kyc');
+            const lockMsg = document.getElementById('kyc-lock-msg');
+            const leadsCont = document.getElementById('new-leads-container');
+
+            pendingBan.style.display = 'none';
+            rejectBan.style.display = 'none';
+            lockMsg.style.display = 'none';
+            leadsCont.style.display = 'block';
+
+            if(status === 'verified') {
+                kycText.innerText = "Status: ✅ Verified";
+                kycText.style.color = "#10B981";
+                btnSave.innerText = "UPDATE DETAILS";
+                startListening(); // Show Leads
+            } 
+            else if (status === 'rejected') {
+                kycText.innerText = "Status: ❌ Rejected";
+                kycText.style.color = "#EF4444";
+                rejectBan.style.display = 'flex';
+                lockMsg.style.display = 'block';
+                leadsCont.style.display = 'none'; // Hide Leads
+            } 
+            else { // Pending or Default
+                kycText.innerText = "Status: ⏳ Verification Pending";
+                kycText.style.color = "#F59E0B";
+                pendingBan.style.display = 'flex';
+                lockMsg.style.display = 'block';
+                leadsCont.style.display = 'none'; // Hide Leads
+            }
+        }
+
+        // --- 3. SUBMIT KYC ---
+        function submitKYC() {
+            const name = document.getElementById('inp-name').value;
+            const aadhaar = document.getElementById('inp-aadhaar').value;
+            const pan = document.getElementById('inp-pan').value;
+            const bank = document.getElementById('inp-bank').value;
+            const ifsc = document.getElementById('inp-ifsc').value;
+
+            if(!aadhaar || !pan || !bank || !ifsc) return alert("Please fill all details!");
+
+            db.ref('partners/' + currentUser.uid).update({
+                name: name,
+                aadhaar: aadhaar,
+                pan: pan,
+                bank: bank,
+                ifsc: ifsc,
+                kycStatus: "pending" // Resets to pending if updated
+            }).then(() => {
+                alert("Details Submitted! Wait for Admin Approval.");
+            });
+        }
+
+        // --- 4. LEADS LOGIC ---
+        function startListening() {
+            // Sirf tabhi chalao agar VERIFIED ho
+            if(!partnerData || partnerData.kycStatus !== 'verified') return;
+
+            db.ref('orders').on('value', (snapshot) => {
+                const newContainer = document.getElementById('new-leads-container');
+                const myContainer = document.getElementById('my-leads-container');
+                newContainer.innerHTML = ""; myContainer.innerHTML = "";
+                let hasNew = false;
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    Object.entries(data).reverse().forEach(([key, order]) => {
+                        
+                        // MY JOBS
+                        if (order.partnerId === currentUser.uid) {
+                            myContainer.innerHTML += `
+                                <div class="card" style="border-left:4px solid #F59E0B">
+                                    <div style="font-size:1.5rem; font-weight:800; color:white;">${order.estimate}</div>
+                                    <p>${order.scope}</p>
+                                    <small style="color:var(--gray)">${order.addr}</small>
+                                    <a href="tel:${order.user}" class="btn btn-primary" style="margin-top:10px; display:block; text-align:center; text-decoration:none;">Call Customer</a>
+                                </div>`;
+                        }
+                        // NEW LEADS (Filter: Pending & Rating > 3.9)
+                        else if (order.status && order.status.includes("Pending")) {
+                            hasNew = true;
+                            // 3.9 Rating Rule
+                            const isLowRating = (partnerData.rating || 5.0) < 3.9;
+                            
+                            newContainer.innerHTML += `
+                                <div class="card" style="${isLowRating ? 'opacity:0.6' : ''}">
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <h3 style="color:white">${order.scope}</h3>
+                                        <b style="color:var(--p)">${order.estimate}</b>
+                                    </div>
+                                    <div style="color:var(--gray); margin:10px 0;"><i class="fa-solid fa-location-dot"></i> ${order.addr}</div>
+                                    
+                                    ${isLowRating 
+                                        ? `<button class="btn btn-disabled" disabled>LOCKED (Low Rating)</button>` 
+                                        : `<button class="btn btn-primary" onclick="acceptJob('${key}')">ACCEPT JOB</button>`
+                                    }
+                                </div>`;
+                        }
+                    });
+                }
+                if(!hasNew) newContainer.innerHTML = '<div style="text-align:center; padding:20px; color:var(--gray)">No new jobs nearby.</div>';
+            });
+        }
+
+        function acceptJob(orderId) {
+            if(confirm("Accept this job?")) {
+                db.ref('orders/' + orderId).update({
+                    status: "Accepted",
+                    partnerId: currentUser.uid,
+                    partnerName: currentUser.displayName,
+                    partnerPhone: partnerData.phone || "Verified Partner",
+                    partnerPhoto: currentUser.photoURL
+                }).then(() => {
+                    alert("Job Accepted! Check My Jobs tab.");
+                });
+            }
+        }
+
+        // UI
+        function switchTab(t, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById('tab-' + t).classList.add('active');
+            if(el) {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
+            }
+        }
+    </script>
 </body>
 </html>
