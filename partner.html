@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+                                            <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -16,12 +16,17 @@
         :root { --p: #10B981; --bg: #111827; --card: #1F2937; --text: #F9FAFB; --gray: #9CA3AF; --error: #EF4444; --warn: #F59E0B; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
-        
-        /* Status Banners */
-        .status-banner { padding: 15px; margin: 15px 20px 0; border-radius: 12px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
-        .st-pending { background: rgba(245, 158, 11, 0.2); border: 1px solid var(--warn); color: #FCD34D; }
-        .st-rejected { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--error); color: #FECACA; }
-        .st-verified { background: rgba(16, 185, 129, 0.2); border: 1px solid var(--p); color: #6EE7B7; }
+
+        /* Login UI */
+        #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; justify-content: center; padding: 30px; overflow-y: auto; }
+        .login-inp { width: 100%; padding: 14px; background: #374151; border: 1px solid #4B5563; border-radius: 10px; color: white; margin-bottom: 12px; outline: none; }
+        .login-btn { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; }
+        .google-btn { background: white; color: #333; }
+        .email-btn { background: var(--p); color: white; }
+        .divider { text-align: center; margin: 20px 0; color: var(--gray); font-size: 0.8rem; position: relative; }
+        .divider::before, .divider::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: #374151; }
+        .divider::before { left: 0; } .divider::after { right: 0; }
+        .toggle-text { text-align: center; color: var(--gray); font-size: 0.9rem; cursor: pointer; margin-top: 10px; }
 
         /* App UI */
         #app-screen { display: none; } 
@@ -32,78 +37,63 @@
         .section { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
         .section.active { display: block; }
 
-        .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid #374151; }
+        .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid #374151; position: relative; }
         .inp { width: 100%; padding: 12px; background: #111827; border: 1px solid #374151; border-radius: 8px; color: white; outline: none; margin-bottom: 15px; }
         .label { font-size: 0.8rem; color: var(--gray); margin-bottom: 5px; display: block; }
         
         .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; }
         .btn-primary { background: var(--p); color: white; }
-        .btn-disabled { background: #374151; color: var(--gray); cursor: not-allowed; }
-
-        .nav { position: fixed; bottom: 0; width: 100%; background: #1F2937; border-top: 1px solid #374151; display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; }
-        .nav-item { text-align: center; color: var(--gray); font-size: 0.75rem; cursor: pointer; width: 60px; }
-        .nav-item.active { color: var(--p); }
-        .nav-item i { font-size: 1.4rem; display: block; margin-bottom: 4px; }
-                 /* Naya Login Style */
-        #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; justify-content: center; padding: 30px; }
-        .login-inp { width: 100%; padding: 14px; background: #374151; border: 1px solid #4B5563; border-radius: 10px; color: white; margin-bottom: 12px; outline: none; }
-        .login-btn { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; }
-        .google-btn { background: white; color: #333; }
-        .email-btn { background: var(--p); color: white; }
-        .divider { text-align: center; margin: 20px 0; color: var(--gray); font-size: 0.8rem; position: relative; }
-        .divider::before, .divider::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: #374151; }
-        .divider::before { left: 0; } .divider::after { right: 0; }
-        .toggle-text { text-align: center; color: var(--gray); font-size: 0.9rem; cursor: pointer; margin-top: 10px; }
-                /* PROFESSIONAL MENU STYLE */
+        .btn-start { background: #3B82F6; color: white; } /* Blue for Start */
+        .btn-complete { background: #8B5CF6; color: white; } /* Purple for Complete */
+        
+        /* Menu Style */
         .menu-list { background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid #374151; margin-bottom: 20px; }
         .menu-item { padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #374151; cursor: pointer; transition: 0.2s; color: white; }
         .menu-item:last-child { border-bottom: none; }
         .menu-item:active { background: #374151; }
         .menu-left { display: flex; align-items: center; gap: 15px; }
         .icon-box { width: 35px; height: 35px; background: #374151; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--p); }
-        
-        /* FULL SCREEN SHEET (KYC Form ke liye) */
+
+        /* Full Sheets */
         .full-sheet { position: fixed; inset: 0; background: var(--bg); z-index: 3000; transform: translateX(100%); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
         .full-sheet.active { transform: translateX(0); }
         .fs-header { padding: 15px 20px; border-bottom: 1px solid #374151; display: flex; align-items: center; gap: 15px; font-weight: 700; font-size: 1.1rem; background: var(--card); }
         .fs-body { padding: 20px; overflow-y: auto; flex: 1; }
-        
+
+        /* Nav */
+        .nav { position: fixed; bottom: 0; width: 100%; background: #1F2937; border-top: 1px solid #374151; display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; }
+        .nav-item { text-align: center; color: var(--gray); font-size: 0.75rem; cursor: pointer; width: 60px; }
+        .nav-item.active { color: var(--p); }
+        .nav-item i { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-        <div id="login-screen">
+    <div id="login-screen">
         <div style="text-align:center; margin-bottom:30px;">
             <i class="fa-solid fa-paint-roller" style="font-size:3rem; color:var(--p);"></i>
             <h1 style="margin-top:10px;">UrbanPartner</h1>
             <p style="color:var(--gray);">Partner Login Portal</p>
         </div>
-
         <button class="login-btn google-btn" onclick="loginGoogle()">
             <i class="fa-brands fa-google"></i> Continue with Google
         </button>
-
         <div class="divider">OR USE EMAIL</div>
-
         <div id="email-form">
             <input type="text" id="l-name" class="login-inp" placeholder="Full Name (For New Users)" style="display:none;">
-            
             <input type="email" id="l-email" class="login-inp" placeholder="Email Address">
             <input type="password" id="l-pass" class="login-inp" placeholder="Password (Min 6 chars)">
-            
             <div style="text-align:right; margin-bottom:15px;">
                 <span onclick="resetPass()" style="color:var(--p); font-size:0.85rem; cursor:pointer;">Forgot Password?</span>
             </div>
-
             <button class="login-btn email-btn" onclick="handleEmailAuth()" id="auth-btn">LOGIN</button>
-            
             <div class="toggle-text" onclick="toggleAuthMode()">
                 New Partner? <b style="color:var(--p)">Register Here</b>
             </div>
         </div>
     </div>
-
 
     <div id="app-screen">
         <div class="header">
@@ -111,23 +101,8 @@
             <div class="rating-badge"><i class="fa-solid fa-star"></i> <span id="header-rating">--</span></div>
         </div>
 
-        <div id="banner-pending" class="status-banner st-pending" style="display:none;">
-            <i class="fa-solid fa-clock"></i>
-            <div><b>KYC Pending</b><br>Admin is verifying your documents.</div>
-        </div>
-        
-        <div id="banner-rejected" class="status-banner st-rejected" style="display:none;">
-            <i class="fa-solid fa-circle-xmark"></i>
-            <div><b>KYC Rejected</b><br>Please update valid details.</div>
-        </div>
-
         <div id="tab-home" class="section active">
-            <h2 style="margin-bottom:15px;">New Leads</h2>
-            <div id="kyc-lock-msg" style="text-align:center; padding:40px; display:none;">
-                <i class="fa-solid fa-lock" style="font-size:2rem; color:var(--gray); margin-bottom:10px;"></i>
-                <p style="color:var(--gray)">Complete KYC & Wait for Approval to see leads.</p>
-                <button class="btn btn-primary" style="margin-top:10px; width:auto;" onclick="switchTab('account', document.querySelectorAll('.nav-item')[3])">Go to Profile</button>
-            </div>
+            <h2 style="margin-bottom:15px;">New Opportunities</h2>
             <div id="new-leads-container"></div>
         </div>
 
@@ -139,7 +114,7 @@
         <div id="tab-earnings" class="section">
             <h2 style="margin-bottom:15px;">My Wallet</h2>
             <div class="card" style="text-align:center;">
-                <p style="color:var(--gray);">Lifetime Earnings</p>
+                <p style="color:var(--gray);">Total Earnings</p>
                 <div style="font-size:2.5rem; font-weight:800; color:var(--p);" id="total-earn">₹0</div>
                 <div style="margin-top:10px; font-size:0.9rem; color:var(--gray);">
                     Next Payout: <b>Monday</b>
@@ -147,121 +122,105 @@
             </div>
         </div>
 
-                <div id="tab-account" class="section">
+        <div id="tab-account" class="section">
             <div style="text-align:center; margin-bottom:25px; margin-top:10px;">
                 <img id="p-photo" src="" style="width:90px; height:90px; border-radius:50%; border:3px solid var(--p); object-fit:cover;">
                 <h2 id="display-name" style="margin-top:10px; font-size:1.3rem;">Partner</h2>
-                <div id="verification-badge" style="color:var(--gray); font-size:0.9rem; margin-top:5px;">
-                    <i class="fa-solid fa-circle-exclamation" style="color:#F59E0B"></i> Action Required
-                </div>
+                <div id="verification-badge" style="color:var(--gray); font-size:0.9rem; margin-top:5px;"></div>
             </div>
 
             <div class="menu-list">
-                <div class="menu-item" onclick="openFS()">
+                <div class="menu-item" onclick="openFS('fs-kyc')">
                     <div class="menu-left">
                         <div class="icon-box"><i class="fa-solid fa-id-card"></i></div>
-                        <div>
-                            <div style="font-weight:600;">KYC & Documents</div>
-                            <div style="font-size:0.75rem; color:var(--gray);">Bank, Aadhaar, PAN</div>
-                        </div>
+                        <div><div style="font-weight:600;">KYC Verification</div><div style="font-size:0.75rem; color:var(--gray);">Documents & Bank</div></div>
                     </div>
                     <i class="fa-solid fa-chevron-right" style="color:var(--gray)"></i>
                 </div>
 
-                <div class="menu-item" onclick="alert('Support Chat Feature Coming Soon!')">
+                <div class="menu-item" onclick="openFS('fs-ratings')">
+                    <div class="menu-left">
+                        <div class="icon-box" style="color:#FBBF24"><i class="fa-solid fa-star"></i></div>
+                        <div><div style="font-weight:600;">My Ratings</div><div style="font-size:0.75rem; color:var(--gray);">Reviews & Feedback</div></div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color:var(--gray)"></i>
+                </div>
+
+                <div class="menu-item" onclick="alert('Help Center Coming Soon')">
                     <div class="menu-left">
                         <div class="icon-box" style="color:#60A5FA"><i class="fa-solid fa-headset"></i></div>
-                        <span>Help & Support</span>
+                        <span>Help Center</span>
                     </div>
                     <i class="fa-solid fa-chevron-right" style="color:var(--gray)"></i>
                 </div>
                 
-                <div class="menu-item" onclick="alert('Opening Terms...')">
+                <div class="menu-item" onclick="alert('Urban Paint Pro v1.0')">
                     <div class="menu-left">
-                        <div class="icon-box" style="color:#A78BFA"><i class="fa-solid fa-file-contract"></i></div>
+                        <div class="icon-box" style="color:#A78BFA"><i class="fa-solid fa-circle-info"></i></div>
+                        <span>About App</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color:var(--gray)"></i>
+                </div>
+
+                <div class="menu-item" onclick="alert('Terms & Conditions applied.')">
+                    <div class="menu-left">
+                        <div class="icon-box" style="color:#F472B6"><i class="fa-solid fa-file-contract"></i></div>
                         <span>Terms & Conditions</span>
                     </div>
                     <i class="fa-solid fa-chevron-right" style="color:var(--gray)"></i>
                 </div>
             </div>
 
-            <button class="btn" style="background:#EF4444; margin-top:10px;" onclick="firebase.auth().signOut()">
-                <i class="fa-solid fa-power-off"></i> Logout Account
-            </button>
-        </div>
-
-        <div id="fs-kyc" class="full-sheet">
-            <div class="fs-header">
-                <i class="fa-solid fa-arrow-left" onclick="closeFS()"></i> 
-                Submit Documents
-            </div>
-            <div class="fs-body">
-                <div class="card">
-                    <h4 style="margin-bottom:15px; color:white;">Personal Information</h4>
-                    
-                    <label class="label">Full Name (As per Govt ID)</label>
-                    <input type="text" id="inp-name" class="inp" placeholder="Your Name">
-
-                    <label class="label">Phone Number</label>
-                    <input type="number" id="inp-phone" class="inp" placeholder="Active Mobile Number">
-
-                    <h4 style="margin:20px 0 15px; color:white;">Identity Proofs</h4>
-
-                    <label class="label">Aadhaar Number</label>
-                    <input type="number" id="inp-aadhaar" class="inp" placeholder="12 Digit Aadhaar">
-
-                    <label class="label">PAN Number</label>
-                    <input type="text" id="inp-pan" class="inp" placeholder="ABCDE1234F" style="text-transform:uppercase;">
-
-                    <h4 style="margin:20px 0 15px; color:white;">Bank Details (For Payouts)</h4>
-
-                    <label class="label">Bank Account Number</label>
-                    <input type="number" id="inp-bank" class="inp" placeholder="Account Number">
-
-                    <label class="label">IFSC Code</label>
-                    <input type="text" id="inp-ifsc" class="inp" placeholder="IFSC Code" style="text-transform:uppercase;">
-
-                    <button id="btn-save-kyc" class="btn btn-primary" style="margin-top:10px;" onclick="submitKYC()">SUBMIT FOR VERIFICATION</button>
-                </div>
-            </div>
-        </div>
-
-
-            <div class="card">
-                <h4 style="margin-bottom:15px; color:white;">KYC & Banking</h4>
-                <p style="font-size:0.8rem; color:var(--gray); margin-bottom:15px;">Required for payouts & verification.</p>
-                
-                <label class="label">Full Name (As per Pan)</label>
-                <input type="text" id="inp-name" class="inp" placeholder="Your Name">
-
-                <label class="label">Aadhaar Number</label>
-                <input type="number" id="inp-aadhaar" class="inp" placeholder="12 Digit Aadhaar">
-
-                <label class="label">PAN Number</label>
-                <input type="text" id="inp-pan" class="inp" placeholder="ABCDE1234F" style="text-transform:uppercase;">
-
-                <label class="label">Bank Account Number</label>
-                <input type="number" id="inp-bank" class="inp" placeholder="Account Number">
-
-                <label class="label">IFSC Code</label>
-                <input type="text" id="inp-ifsc" class="inp" placeholder="IFSC Code" style="text-transform:uppercase;">
-
-                <button id="btn-save-kyc" class="btn btn-primary" onclick="submitKYC()">SUBMIT FOR VERIFICATION</button>
-            </div>
-            
-            <button class="btn" style="background:#374151; margin-top:10px;" onclick="firebase.auth().signOut()">Logout</button>
+            <button class="btn" style="background:#EF4444; margin-top:10px;" onclick="firebase.auth().signOut()">Logout Account</button>
         </div>
 
         <div class="nav">
             <div class="nav-item active" onclick="switchTab('home', this)"><i class="fa-solid fa-house"></i> Leads</div>
             <div class="nav-item" onclick="switchTab('jobs', this)"><i class="fa-solid fa-briefcase"></i> Jobs</div>
             <div class="nav-item" onclick="switchTab('earnings', this)"><i class="fa-solid fa-wallet"></i> Wallet</div>
-            <div class="nav-item" onclick="switchTab('account', this)"><i class="fa-solid fa-user"></i> Profile</div>
+            <div class="nav-item" onclick="switchTab('account', this)"><i class="fa-solid fa-user"></i> Account</div>
+        </div>
+    </div>
+
+    <div id="fs-kyc" class="full-sheet">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-kyc')"></i> Verification</div>
+        <div class="fs-body">
+            <div class="card">
+                <h4 style="margin-bottom:15px; color:white;">Personal Details</h4>
+                <label class="label">Full Name</label><input type="text" id="inp-name" class="inp">
+                <label class="label">Phone Number</label><input type="number" id="inp-phone" class="inp">
+                
+                <h4 style="margin:20px 0 15px; color:white;">Identity</h4>
+                <label class="label">Aadhaar Number</label><input type="number" id="inp-aadhaar" class="inp">
+                <label class="label">PAN Number</label><input type="text" id="inp-pan" class="inp">
+                
+                <h4 style="margin:20px 0 15px; color:white;">Bank (For Payouts)</h4>
+                <label class="label">Account Number</label><input type="number" id="inp-bank" class="inp">
+                <label class="label">IFSC Code</label><input type="text" id="inp-ifsc" class="inp">
+                
+                <button id="btn-save-kyc" class="btn btn-primary" onclick="submitKYC()">SUBMIT FOR VERIFICATION</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="fs-ratings" class="full-sheet">
+        <div class="fs-header"><i class="fa-solid fa-arrow-left" onclick="closeFS('fs-ratings')"></i> My Ratings</div>
+        <div class="fs-body">
+            <div class="card" style="text-align:center;">
+                <div style="font-size:3rem; font-weight:800; color:#FBBF24;">5.0</div>
+                <div style="color:var(--gray);">Overall Rating</div>
+            </div>
+            <h4 style="margin:20px 0 10px;">Recent Reviews</h4>
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <b>Amit Kumar</b> <span style="color:#FBBF24">★★★★★</span>
+                </div>
+                <p style="font-size:0.9rem; color:var(--gray);">Great work, very professional!</p>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
             authDomain: "urban-paint-pro.firebaseapp.com",
@@ -279,94 +238,46 @@
 
         let currentUser = null;
         let partnerData = null; 
+        let isRegistering = false;
 
-        // --- 1. LOGIN ---
-                // --- AUTH LOGIC START ---
-        let isRegistering = false; // Check karta hai user naya hai ya purana
-
-        // 1. Google Login Function
-        function loginGoogle() {
-            auth.signInWithPopup(provider).catch(e => alert("Google Error: " + e.message));
-        }
-
-        // 2. Login aur Register ke beech switch karna
+        // --- AUTH & LOGIN ---
         function toggleAuthMode() {
             isRegistering = !isRegistering;
-            const nameField = document.getElementById('l-name');
-            const btn = document.getElementById('auth-btn');
-            const toggle = document.querySelector('.toggle-text');
-            
-            if(isRegistering) {
-                nameField.style.display = 'block'; // Naam pucho
-                btn.innerText = "CREATE ACCOUNT";
-                toggle.innerHTML = 'Already have account? <b style="color:var(--p)">Login Here</b>';
-            } else {
-                nameField.style.display = 'none'; // Naam chupao
-                btn.innerText = "LOGIN";
-                toggle.innerHTML = 'New Partner? <b style="color:var(--p)">Register Here</b>';
-            }
+            document.getElementById('l-name').style.display = isRegistering ? 'block' : 'none';
+            document.getElementById('auth-btn').innerText = isRegistering ? "CREATE ACCOUNT" : "LOGIN";
+            document.querySelector('.toggle-text').innerHTML = isRegistering ? 'Already have account? <b style="color:var(--p)">Login Here</b>' : 'New Partner? <b style="color:var(--p)">Register Here</b>';
         }
 
-        // 3. Email/Password Handler (Login & Signup Ek Saath)
-                // --- 1. HANDLE EMAIL AUTH (Registration Fix) ---
         function handleEmailAuth() {
             const email = document.getElementById('l-email').value;
             const pass = document.getElementById('l-pass').value;
             const name = document.getElementById('l-name').value;
-
-            if(!email || !pass) return alert("Please enter Email & Password");
+            if(!email || !pass) return alert("Enter details");
 
             if(isRegistering) {
-                // --- SIGN UP LOGIC (Yahan change hai) ---
-                if(!name) return alert("Please enter your Full Name");
-                
-                auth.createUserWithEmailAndPassword(email, pass)
-                    .then((res) => {
-                        // 1. Naam update karein
-                        res.user.updateProfile({ displayName: name });
-                        
-                        // 2. IMPORTANT: Partner ka data database mein banayein
-                        db.ref('partners/' + res.user.uid).set({
-                            name: name,
-                            email: email,
-                            rating: 5.0,
-                            earnings: 0,
-                            kycStatus: "pending", // Shuru mein Pending rahega
-                            joined: new Date().toLocaleDateString()
-                        }).then(() => {
-                            alert("Account Created! Logging in...");
-                            location.reload(); // Page refresh taaki login ho jaye
-                        });
-                    })
-                    .catch(e => alert("Signup Error: " + e.message));
+                if(!name) return alert("Enter Name");
+                auth.createUserWithEmailAndPassword(email, pass).then(res => {
+                    res.user.updateProfile({displayName: name});
+                    // Save Initial Data
+                    db.ref('partners/' + res.user.uid).set({
+                        name: name, email: email, rating: 5.0, earnings: 0, kycStatus: "pending"
+                    }).then(() => location.reload());
+                }).catch(e => alert(e.message));
             } else {
-                // --- LOGIN LOGIC ---
-                auth.signInWithEmailAndPassword(email, pass)
-                    .catch(e => alert("Login Error: " + e.message));
+                auth.signInWithEmailAndPassword(email, pass).catch(e => alert(e.message));
             }
         }
-
-        // 4. Forgot Password Logic
-        function resetPass() {
-            const email = document.getElementById('l-email').value;
-            if(!email) return alert("Please enter your Email address first!");
-            
-            auth.sendPasswordResetEmail(email)
-                .then(() => alert("Password reset link sent to your email!"))
-                .catch(e => alert("Error: " + e.message));
-        }
-        // --- AUTH LOGIC END ---
+        
+        function loginGoogle() { auth.signInWithPopup(provider).catch(e => alert(e.message)); }
+        function resetPass() { auth.sendPasswordResetEmail(document.getElementById('l-email').value).then(()=>alert("Sent!")).catch(e=>alert(e.message)); }
 
         auth.onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
                 currentUser = user;
-                
                 document.getElementById('display-name').innerText = user.displayName;
-                document.getElementById('p-photo').src = user.photoURL;
-                document.getElementById('inp-name').value = user.displayName;
-
+                if(user.photoURL) document.getElementById('p-photo').src = user.photoURL;
                 loadProfile(user.uid);
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
@@ -374,198 +285,160 @@
             }
         });
 
-                // --- 2. LOAD PROFILE (Strict Security Mode) ---
+        // --- LOAD DATA ---
         function loadProfile(uid) {
             db.ref('partners/' + uid).on('value', snap => {
                 if(snap.exists()) {
-                    // ✅ DATA MIL GAYA = ASLI PARTNER
                     partnerData = snap.val();
-                    const status = partnerData.kycStatus || "pending";
-                    
-                    // UI Update karo
                     document.getElementById('header-rating').innerText = partnerData.rating || "5.0";
                     document.getElementById('total-earn').innerText = "₹" + (partnerData.earnings || 0);
                     
-                    // KYC Inputs Bharo
+                    // UI Badge Update
+                    const badge = document.getElementById('verification-badge');
+                    if(partnerData.kycStatus === 'verified') badge.innerHTML = '<span style="color:#10B981"><i class="fa-solid fa-check-circle"></i> Verified Partner</span>';
+                    else if(partnerData.kycStatus === 'rejected') badge.innerHTML = '<span style="color:#EF4444"><i class="fa-solid fa-circle-xmark"></i> KYC Rejected</span>';
+                    else badge.innerHTML = '<span style="color:#F59E0B"><i class="fa-solid fa-clock"></i> Verification Pending</span>';
+
+                    // Prefill
+                    if(partnerData.name) document.getElementById('inp-name').value = partnerData.name;
+                    if(partnerData.phone) document.getElementById('inp-phone').value = partnerData.phone;
                     if(partnerData.aadhaar) document.getElementById('inp-aadhaar').value = partnerData.aadhaar;
-                    if(partnerData.pan) document.getElementById('inp-pan').value = partnerData.pan;
-                    if(partnerData.bank) document.getElementById('inp-bank').value = partnerData.bank;
-                    if(partnerData.ifsc) document.getElementById('inp-ifsc').value = partnerData.ifsc;
-                    
-                    // Banner Show karo
-                    handleKYCStatus(status);
-
                 } else {
-                    // ⛔ DATA NAHI MILA = CUSTOMER (GHUSPAITHIYA)
-                    alert("⚠️ Access Denied!\nYe account Partner ke roop mein register nahi hai.\nKripya 'Create Account' par click karein.");
-                    
-                    // Turant Logout aur Refresh
-                    auth.signOut().then(() => {
-                        location.reload();
-                    });
+                    alert("Account not found! Please Register.");
+                    auth.signOut().then(()=>location.reload());
                 }
+                startListening();
             });
         }
 
-
-        function handleKYCStatus(status) {
-            const pendingBan = document.getElementById('banner-pending');
-            const rejectBan = document.getElementById('banner-rejected');
-            const kycText = document.getElementById('kyc-status-text');
-            const btnSave = document.getElementById('btn-save-kyc');
-            const lockMsg = document.getElementById('kyc-lock-msg');
-            const leadsCont = document.getElementById('new-leads-container');
-
-            pendingBan.style.display = 'none';
-            rejectBan.style.display = 'none';
-            lockMsg.style.display = 'none';
-            leadsCont.style.display = 'block';
-
-            if(status === 'verified') {
-                kycText.innerText = "Status: ✅ Verified";
-                kycText.style.color = "#10B981";
-                btnSave.innerText = "UPDATE DETAILS";
-                startListening(); // Show Leads
-            } 
-            else if (status === 'rejected') {
-                kycText.innerText = "Status: ❌ Rejected";
-                kycText.style.color = "#EF4444";
-                rejectBan.style.display = 'flex';
-                lockMsg.style.display = 'block';
-                leadsCont.style.display = 'none'; // Hide Leads
-            } 
-            else { // Pending or Default
-                kycText.innerText = "Status: ⏳ Verification Pending";
-                kycText.style.color = "#F59E0B";
-                pendingBan.style.display = 'flex';
-                lockMsg.style.display = 'block';
-                leadsCont.style.display = 'none'; // Hide Leads
-            }
-        }
-
-        // --- 3. SUBMIT KYC ---
-                // --- UI UTILS ---
-        function openFS() { document.getElementById('fs-kyc').classList.add('active'); }
-        function closeFS() { document.getElementById('fs-kyc').classList.remove('active'); }
-
-        // --- NEW SUBMIT KYC (With Phone Number) ---
-        function submitKYC() {
-            // Data uthao
-            const name = document.getElementById('inp-name').value;
-            const phone = document.getElementById('inp-phone').value; // Added
-            const aadhaar = document.getElementById('inp-aadhaar').value;
-            const pan = document.getElementById('inp-pan').value;
-            const bank = document.getElementById('inp-bank').value;
-            const ifsc = document.getElementById('inp-ifsc').value;
-
-            // Check
-            if(!name || !phone || !aadhaar || !pan || !bank || !ifsc) {
-                alert("Please fill ALL details!");
-                return;
-            }
-
-            const btn = document.getElementById('btn-save-kyc');
-            btn.innerText = "Submitting...";
-            btn.disabled = true;
-
-            db.ref('partners/' + currentUser.uid).update({
-                name: name,
-                phone: phone, // Saving Phone
-                aadhaar: aadhaar,
-                pan: pan,
-                bank: bank,
-                ifsc: ifsc,
-                kycStatus: "pending",
-                submittedOn: new Date().toLocaleString()
-            })
-            .then(() => {
-                alert("✅ Submitted! Check status on Profile.");
-                closeFS(); // Sheet band karo
-                btn.innerText = "SUBMIT FOR VERIFICATION";
-                btn.disabled = false;
-                
-                // Badge update logic (Optional: Turant color change)
-                document.getElementById('verification-badge').innerHTML = '<span style="color:#F59E0B">⏳ Verification Pending</span>';
-            })
-            .catch((e) => {
-                alert("Error: " + e.message);
-                btn.disabled = false;
-            });
-        }
-
-        // --- 4. LEADS LOGIC ---
+        // --- LEADS & JOBS LOGIC ---
         function startListening() {
-            // Sirf tabhi chalao agar VERIFIED ho
-            if(!partnerData || partnerData.kycStatus !== 'verified') return;
+            db.ref('orders').on('value', snap => {
+                const newCont = document.getElementById('new-leads-container');
+                const myCont = document.getElementById('my-leads-container');
+                newCont.innerHTML = ""; myCont.innerHTML = "";
 
-            db.ref('orders').on('value', (snapshot) => {
-                const newContainer = document.getElementById('new-leads-container');
-                const myContainer = document.getElementById('my-leads-container');
-                newContainer.innerHTML = ""; myContainer.innerHTML = "";
-                let hasNew = false;
-
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    Object.entries(data).reverse().forEach(([key, order]) => {
+                if (snap.exists()) {
+                    Object.entries(snap.val()).reverse().forEach(([key, order]) => {
                         
-                        // MY JOBS
+                        // 1. MY JOBS (Accepted)
                         if (order.partnerId === currentUser.uid) {
-                            myContainer.innerHTML += `
+                            let actionBtn = "";
+                            
+                            if (order.status === "Accepted") {
+                                // Start Job Button (OTP Mangega)
+                                actionBtn = `<button class="btn btn-start" onclick="startJob('${key}')">START WORK (ENTER OTP)</button>`;
+                            } else if (order.status === "Work Started") {
+                                // Complete Job Button
+                                actionBtn = `<button class="btn btn-complete" onclick="completeJob('${key}')">MARK COMPLETE</button>`;
+                            } else if (order.status === "Completed") {
+                                actionBtn = `<button class="btn" disabled style="opacity:0.6; background:green">COMPLETED</button>`;
+                            }
+
+                            myCont.innerHTML += `
                                 <div class="card" style="border-left:4px solid #F59E0B">
-                                    <div style="font-size:1.5rem; font-weight:800; color:white;">${order.estimate}</div>
-                                    <p>${order.scope}</p>
-                                    <small style="color:var(--gray)">${order.addr}</small>
-                                    <a href="tel:${order.user}" class="btn btn-primary" style="margin-top:10px; display:block; text-align:center; text-decoration:none;">Call Customer</a>
+                                    <h3 style="color:white">${order.scope}</h3>
+                                    <p style="color:var(--gray)">${order.addr}</p>
+                                    <div style="display:flex; gap:10px; margin-top:10px;">
+                                        <a href="tel:${order.user}" class="btn" style="background:#374151; width:50px;"><i class="fa-solid fa-phone"></i></a>
+                                        ${actionBtn}
+                                    </div>
                                 </div>`;
                         }
-                        // NEW LEADS (Filter: Pending & Rating > 3.9)
+                        
+                        // 2. NEW LEADS (Visible to ALL, but Accept needs KYC)
                         else if (order.status && order.status.includes("Pending")) {
-                            hasNew = true;
-                            // 3.9 Rating Rule
-                            const isLowRating = (partnerData.rating || 5.0) < 3.9;
-                            
-                            newContainer.innerHTML += `
-                                <div class="card" style="${isLowRating ? 'opacity:0.6' : ''}">
+                            newCont.innerHTML += `
+                                <div class="card">
                                     <div style="display:flex; justify-content:space-between;">
                                         <h3 style="color:white">${order.scope}</h3>
                                         <b style="color:var(--p)">${order.estimate}</b>
                                     </div>
                                     <div style="color:var(--gray); margin:10px 0;"><i class="fa-solid fa-location-dot"></i> ${order.addr}</div>
-                                    
-                                    ${isLowRating 
-                                        ? `<button class="btn btn-disabled" disabled>LOCKED (Low Rating)</button>` 
-                                        : `<button class="btn btn-primary" onclick="acceptJob('${key}')">ACCEPT JOB</button>`
-                                    }
+                                    <button class="btn btn-primary" onclick="acceptJob('${key}')">ACCEPT JOB</button>
                                 </div>`;
                         }
                     });
                 }
-                if(!hasNew) newContainer.innerHTML = '<div style="text-align:center; padding:20px; color:var(--gray)">No new jobs nearby.</div>';
+                if(!newCont.innerHTML) newCont.innerHTML = '<div style="text-align:center; padding:20px; color:var(--gray)">No new jobs.</div>';
             });
         }
 
+        // --- ACTIONS ---
         function acceptJob(orderId) {
+            // 1. Check KYC
+            if (!partnerData || partnerData.kycStatus !== 'verified') {
+                alert("⚠️ Please Complete Verification First!");
+                openFS('fs-kyc'); // Auto Open KYC Form
+                return;
+            }
+
+            // 2. Accept Logic
             if(confirm("Accept this job?")) {
+                const otp = Math.floor(1000 + Math.random() * 9000); // Generate OTP
                 db.ref('orders/' + orderId).update({
                     status: "Accepted",
                     partnerId: currentUser.uid,
-                    partnerName: currentUser.displayName,
+                    partnerName: partnerData.name,
                     partnerPhone: partnerData.phone || "Verified Partner",
-                    partnerPhoto: currentUser.photoURL
-                }).then(() => {
-                    alert("Job Accepted! Check My Jobs tab.");
+                    partnerPhoto: currentUser.photoURL,
+                    otp: otp // Save OTP to DB (Customer will see this)
                 });
             }
         }
 
-        // UI
+        function startJob(orderId) {
+            // Ask for OTP from Partner (Customer batayega)
+            const enteredOtp = prompt("Ask Customer for OTP & Enter here:");
+            if(!enteredOtp) return;
+
+            db.ref('orders/' + orderId + '/otp').once('value', snap => {
+                if(snap.val() == enteredOtp) {
+                    db.ref('orders/' + orderId).update({ status: "Work Started" });
+                    alert("OTP Matched! Work Started.");
+                } else {
+                    alert("❌ Wrong OTP! Ask customer again.");
+                }
+            });
+        }
+
+        function completeJob(orderId) {
+            if(confirm("Mark work as done?")) {
+                db.ref('orders/' + orderId).update({ status: "Completed" });
+            }
+        }
+
+        function submitKYC() {
+            const name = document.getElementById('inp-name').value;
+            const phone = document.getElementById('inp-phone').value;
+            const aadhaar = document.getElementById('inp-aadhaar').value;
+            const pan = document.getElementById('inp-pan').value;
+            const bank = document.getElementById('inp-bank').value;
+            const ifsc = document.getElementById('inp-ifsc').value;
+
+            if(!name || !phone || !aadhaar || !pan || !bank || !ifsc) return alert("Fill all details!");
+
+            const btn = document.getElementById('btn-save-kyc');
+            btn.innerText = "Submitting..."; btn.disabled = true;
+
+            db.ref('partners/' + currentUser.uid).update({
+                name: name, phone: phone, aadhaar: aadhaar, pan: pan, bank: bank, ifsc: ifsc,
+                kycStatus: "pending"
+            }).then(() => {
+                alert("✅ Verification Submitted!");
+                closeFS('fs-kyc');
+                btn.innerText = "SUBMIT"; btn.disabled = false;
+            });
+        }
+
+        // Utils
+        function openFS(id) { document.getElementById(id).classList.add('active'); }
+        function closeFS(id) { document.getElementById(id).classList.remove('active'); }
         function switchTab(t, el) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById('tab-' + t).classList.add('active');
-            if(el) {
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                el.classList.add('active');
-            }
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if(el) el.classList.add('active');
         }
     </script>
 </body>
