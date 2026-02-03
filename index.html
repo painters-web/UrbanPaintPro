@@ -834,12 +834,31 @@ function loadRealData(userEmail) {
 }
 
         function activatePlan(plan, payId) {
-            const exp = new Date(); exp.setFullYear(exp.getFullYear() + 1);
-            db.ref('users/' + auth.currentUser.uid + '/plan').set({ name: plan + " Member", exp: exp.toLocaleDateString(), payId: payId }).then(()=> {
-                alert("Request Submitted! Plan will be active after UTR verification.");
-                closeFS('fs-plans');
-            });
-        }
+    // Current user ko sahi se pehchante hain
+    const user = firebase.auth().currentUser;
+
+    if (!user) {
+        alert("Bhai, plan lene ke liye pehle login karein!");
+        return;
+    }
+
+    const exp = new Date(); 
+    exp.setFullYear(exp.getFullYear() + 1); // 1 saal ki validity
+
+    // Database path: users/UID/plan
+    db.ref('users/' + user.uid + '/plan').set({ 
+        name: plan + " Member", 
+        exp: exp.toLocaleDateString('en-IN'), 
+        payId: payId,
+        activatedOn: new Date().toLocaleString('en-IN')
+    }).then(() => {
+        alert("Request Submitted! Admin verification ke baad aapka " + plan + " plan active ho jayega.");
+        closeFS('fs-plans');
+    }).catch((error) => {
+        console.error("Plan Error:", error);
+        alert("Plan activation mein error: " + error.message);
+    });
+}
 
         // --- INVOICE & CHAT ---
         function genInvoice() {
