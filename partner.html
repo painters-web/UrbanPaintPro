@@ -61,80 +61,96 @@
 </div>
 
 <script>
-    
-    // --- FIREBASE CONFIGURATION (Singapore Region) ---
+    // --- 1. CONFIGURATION ---
     const firebaseConfig = {
-    apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
-    authDomain: "urban-paint-pro.firebaseapp.com",
-    // Notice: 'asia-southeast1' likha hai, jo Singapore ka code hai
-    databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
-    projectId: "urban-paint-pro",
-    storageBucket: "urban-paint-pro.firebasestorage.app",
-    messagingSenderId: "929763117480",
-    appId: "1:929763117480:web:560057baeb12672078b59d"
+        apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+        authDomain: "urbanpaintpro.in", // Updated Domain
+        databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
+        projectId: "urban-paint-pro",
+        storageBucket: "urban-paint-pro.firebasestorage.app",
+        messagingSenderId: "929763117480",
+        appId: "1:929763117480:web:560057baeb12672078b59d"
     };
     
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
-    
 
-    let currentTab = 'new';
+    // --- 2. LOGIN CHECK (Temporary Auto-Login for Testing) ---
+    // Asli app mein yahan login form hona chahiye
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            console.log("Partner Logged In:", user.email);
+            loadLeads(); // Login hote hi leads load karo
+        } else {
+            // Testing ke liye automatic anonymous login
+            auth.signInAnonymously().catch(e => alert(e.message));
+        }
+    });
 
-// --- LIVE PARTNER LOGIC ---
-
-// Firebase Auth se Current User nikalo
-function getLivePartner() {
-    const user = firebase.auth().currentUser;
-    if(user) {
-        return {
-            name: user.displayName || "Verified Partner",
-            // Agar photo nahi hai to default lagao
-            photo: user.photoURL || "https://cdn-icons-png.flaticon.com/512/149/149071.png", 
-            phone: user.phoneNumber || "9876543210",
-            // Live GPS Location (Browser se)
-            getLocation: function(callback) {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition((pos) => {
-                        callback({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-                    });
-                } else {
-                    callback({ lat: 28.6139, lng: 77.2090 }); // Default Delhi
-                }
-            }
-        };
-    } else {
-        alert("Please Login as Partner First!");
-        return null;
-    }
-}
-
-// Updated Accept Function
-function acceptJob(orderId) {
-    const partner = getLivePartner();
-    if(!partner) return; // Agar login nahi hai to ruk jao
-
-    if(confirm("Accept this painting job?")) {
+    // --- 3. LEAD LISTENER (Ye missing tha!) ---
+    function loadLeads() {
+        const container = document.getElementById('leads-container');
         
-        // Pehle Location nikalo, phir Database update karo
-        partner.getLocation((loc) => {
-            db.ref('orders/' + orderId).update({
-                status: "Accepted",
-                partnerName: partner.name,
-                partnerPhoto: partner.photo,
-                partnerPhone: partner.phone,
-                partnerLocation: loc,
-                otp: Math.floor(1000 + Math.random() * 9000)
-            }).then(() => {
-                alert("Lead Accepted! Customer notified.");
-                // Yahan tab switch ka logic lagayein
-                if(typeof switchTab === 'function') switchTab('jobs');
-            });
+        // Website ab 'orders' folder mein data bhej rahi hai
+        db.ref('orders').on('value', (snapshot) => {
+            container.innerHTML = ""; // Purana data saaf karo
+            
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                let hasLeads = false;
+
+                // Data object ko array mein badal kar reverse (latest first) karein
+                Object.entries(data).reverse().forEach(([key, order]) => {
+                    
+                    // Filter: Sirf wo leads dikhao jo 'Pending' hain
+                    if (order.status && order.status.includes("Pending")) {
+                        hasLeads = true;
+                        
+                        // HTML Card Create Karo
+                        const card = `
+                        <div class="lead-card">
+                            <div class="lead-head">
+                                <span class="lead-tag">PAINTING</span>
+                                <div class="lead-price">${order.estimate}</div>
+                            </div>
+                            <div class="lead-row"><i class="fa-solid fa-map-pin"></i> ${order.addr}</div>
+                            <div class="lead-row"><i class="fa-solid fa-ruler-combined"></i> ${order.scope} (${order.quantity} Units)</div>
+                            <div class="lead-row"><i class="fa-solid fa-calendar"></i> ${order.date}</div>
+                            <button class="accept-btn" onclick="acceptJob('${key}')">ACCEPT JOB</button>
+                        </div>`;
+                        
+                        container.innerHTML += card;
+                    }
+                });
+
+                if (!hasLeads) container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-check-circle"></i><p>No pending leads right now.</p></div>';
+            } else {
+                container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-radar"></i><p>Waiting for bookings...</p></div>';
+            }
         });
     }
-}
 
+    // --- 4. ACCEPT JOB LOGIC ---
+    function acceptJob(orderId) {
+        if(confirm("Accept this job? Customer will be notified.")) {
+            // Partner ki location aur details update karo
+            db.ref('orders/' + orderId).update({
+                status: "Accepted",
+                partnerName: "Verified Partner", // Baad mein dynamic naam ayega
+                partnerPhone: "9876543210",
+                otp: Math.floor(1000 + Math.random() * 9000)
+            }).then(() => {
+                alert("Job Accepted! Check 'My Jobs' tab.");
+                // Yahan aap My Jobs tab par redirect kar sakte hain
+            });
+        }
+    }
+
+    function switchTab(t) {
+        // Tab switching logic (abhi simple rakha hai)
+        alert("Tab switched to " + t);
+    }
 </script>
 </body>
 </html>
