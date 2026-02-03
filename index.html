@@ -738,6 +738,17 @@ function loadRealData(userEmail) {
         // --- NEW UPI PAYMENT SYSTEM ---
         
                 // --- UPI & PAYMENT FUNCTIONS ---
+                function openUPIPayment(desc, amt, type) {
+            // Save details needed for after verification
+            pendingPayment = { desc: desc, amt: amt, type: type };
+            
+            // Show details on Payment Sheet
+            document.getElementById('pay-amt-display').innerText = "₹" + amt;
+            document.getElementById('utr-input').value = ""; // Clear old input
+            
+            // Open Sheet
+            openFS('fs-payment');
+       }
         function copyUPI() {
             navigator.clipboard.writeText("kingkhan33648@okicici");
             alert("UPI ID Copied!");
