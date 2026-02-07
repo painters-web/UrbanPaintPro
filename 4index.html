@@ -1,0 +1,3224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="description" content="Book professional home painters, waterproofing, and wall texture designs online. India's #1 Painting App.">
+    <title>UrbanPaintPro | India's #1 Painting App</title>
+    <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+    <link rel="apple-touch-icon" href="images/logo.jpg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- razorpay -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- purple calc -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
+    
+    <style>
+        :root { 
+            --p: #4F46E5; 
+            --bg: #F8FAFC; 
+            --text: #0F172A; 
+            --white: #FFFFFF; 
+            --success: #22c55e; 
+            --error: #ef4444; 
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+
+        #splash { position: fixed; inset: 0; background: var(--white); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
+        .logo-load { font-size: 2rem; font-weight: 800; color: var(--p); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+        .header { position: fixed; top: 0; width: 100%; height: 60px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; border-bottom: 1px solid #F1F5F9; }
+        .logo { font-weight: 800; font-size: 1.2rem; color: var(--p); }
+        .user-icon { width: 32px; height: 32px; border-radius: 50%; background: #EEF2FF; display: flex; align-items: center; justify-content: center; color: var(--p); cursor: pointer; border: 1px solid #E2E8F0; transition: all 0.2s; }
+        .user-icon:hover { background: var(--p); color: white; }
+        .notification-badge { position: absolute; top: -2px; right: -2px; background: var(--error); color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; display: none; }
+
+        .page { height: 100%; padding: 80px 20px 100px; overflow-y: auto; display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .inp { width: 100%; padding: 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; font-weight: 600; font-size: 0.9rem; outline: none; margin-bottom: 10px; transition: 0.3s; }
+        .inp:focus { background: var(--white); border-color: var(--p); }
+        .btn { width: 100%; padding: 16px; border-radius: 14px; border: none; background: var(--p); color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; transition: all 0.2s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn.outline { background: transparent; border: 2px solid #E2E8F0; color: var(--text); }
+        .btn.outline:hover { border-color: var(--p); color: var(--p); }
+        .btn.success { background: var(--success); }
+        .btn.error { background: var(--error); }
+
+        .error-msg { color: var(--error); font-size: 0.8rem; margin-top: -5px; margin-bottom: 10px; display: none; }
+        .error-msg.show { display: block; }
+
+        .merged-section { background: #EEF2FF; border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px dashed var(--p); }
+        .merged-label { font-weight: 700; font-size: 0.85rem; color: var(--p); display: block; margin-bottom: 5px; }
+
+        /* Full Sheet Modals */
+        .full-sheet { position: fixed; inset: 0; background: var(--bg); z-index: 5000; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; }
+        .full-sheet.active { transform: translateY(0); }
+        .fs-header { padding: 16px 20px; background: var(--white); border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 15px; font-weight: 700; font-size: 1.1rem; position: sticky; top: 0; z-index: 10; }
+        .fs-header i { cursor: pointer; padding: 10px; margin: -10px; border-radius: 50%; transition: all 0.2s; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+        .fs-header i:hover { background: #F1F5F9; }
+        .fs-body { flex: 1; overflow-y: auto; padding: 20px; }
+
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s; }
+        .overlay.active { display: block; opacity: 1; }
+
+        .menu-item { display: flex; align-items: center; gap: 15px; padding: 18px; border-bottom: 1px solid #F8FAFC; cursor: pointer; transition: all 0.2s; border-radius: 12px; margin-bottom: 4px; }
+        .menu-item:hover { background: #F8FAFC; transform: translateX(5px); }
+        .menu-item i { width: 25px; font-size: 1.2rem; }
+        .menu-item span { flex: 1; font-weight: 600; font-size: 0.95rem; }
+
+        .switch { position: relative; display: inline-block; width: 45px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--p); }
+        input:checked + .slider:before { transform: translateX(21px); }
+
+        .uber-card { background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.12); margin-bottom: 25px; border: 1px solid rgba(0,0,0,0.05); }
+        .map-zone { height: 200px; width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden; }
+        .status-sheet { padding: 20px; }
+        .u-step { display: flex; gap: 15px; margin-bottom: 20px; position: relative; opacity: 0.5; }
+        .u-step.active, .u-step.done { opacity: 1; }
+        .u-line { position: absolute; left: 15px; top: 35px; bottom: -20px; width: 2px; background: #E5E7EB; }
+        .u-step:last-child .u-line { display: none; }
+        .u-icon { width: 32px; height: 32px; background: #F3F4F6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 2; border: 3px solid white; }
+        .u-step.active .u-icon { background: var(--p); color: white; }
+        .u-step.done .u-icon { background: var(--success); color: white; }
+
+        .chat-msg { padding: 12px 16px; border-radius: 12px; max-width: 80%; font-size: 0.9rem; line-height: 1.4; margin-bottom: 10px; }
+        .chat-ai { background: #EEF2FF; color: #1E293B; border-bottom-left-radius: 2px; }
+        .chat-user { background: var(--p); color: white; border-bottom-right-radius: 2px; margin-left: auto; }
+
+        .upi-copy-box { background: #eef2ff; padding: 12px; border-radius: 8px; border: 1px dashed var(--p); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .qr-frame { width: 200px; height: 200px; margin: 0 auto 20px; border: 2px solid #e0e0e0; padding: 10px; border-radius: 12px; background: white; }
+        .qr-frame img { width: 100%; height: 100%; object-fit: contain; }
+
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); border-top: 1px solid #F1F5F9; display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: 10px; }
+        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; transition: all 0.2s; padding: 8px; border-radius: 12px; }
+        .nav-item.active { color: var(--p); background: #EEF2FF; }
+        .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+
+        .status-screen { position: fixed; inset: 0; background: white; z-index: 6000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+        .status-screen.active { display: flex; }
+        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 20px; }
+        .success-icon { background: #dcfce7; color: var(--success); }
+
+        .toast-container { position: fixed; top: 70px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; animation: slideInRight 0.3s; border-left: 4px solid var(--p); min-width: 250px; }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--error); }
+        @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .offline-bar { position: fixed; top: 0; left: 0; right: 0; background: var(--error); color: white; text-align: center; padding: 8px; z-index: 10001; display: none; }
+        .offline-bar.show { display: block; }
+
+        .help-item { display: flex; align-items: center; gap: 15px; padding: 16px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; text-decoration: none; color: inherit; }
+        .help-item:hover { transform: translateX(5px); }
+        .help-item.ai { background: linear-gradient(135deg, #EEF2FF, #FFFFFF); border: 1px solid #C7D2FE; }
+        .help-item.whatsapp { background: linear-gradient(135deg, #DCFCE7, #FFFFFF); border: 1px solid #86EFAC; }
+        .help-item.email { background: linear-gradient(135deg, #FEE2E2, #FFFFFF); border: 1px solid #FECACA; }
+        .help-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: white; }
+        .help-icon.ai { background: var(--p); }
+        .help-icon.whatsapp { background: #25D366; }
+        .help-icon.email { background: #EA4335; }
+        .help-info { flex: 1; }
+        .help-title { font-weight: 700; font-size: 1rem; }
+        .help-subtitle { font-size: 0.85rem; color: #64748B; }
+
+        .form-section { background: var(--white); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
+        .form-label { font-weight: 600; font-size: 0.9rem; color: #374151; margin-bottom: 8px; display: block; }
+
+        .quote-card { background: linear-gradient(135deg, #FFFFFF, #F8FAFC); border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 2px solid #E2E8F0; }
+        .quote-card.pending { border-left: 4px solid var(--warning); }
+        .quote-card.accepted { border-left: 4px solid var(--success); }
+        .quote-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .quote-amount { font-size: 1.8rem; font-weight: 800; color: var(--p); }
+        .quote-status { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .quote-status.pending { background: #FEF3C7; color: #92400E; }
+        .quote-status.accepted { background: #DCFCE7; color: #166534; }
+        .quote-details { margin: 15px 0; padding: 15px; background: #F8FAFC; border-radius: 12px; }
+        .quote-detail-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+        .quote-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .quote-actions .btn { flex: 1; margin-top: 0; }
+
+        .rating { display: flex; gap: 5px; font-size: 2rem; color: #ccc; justify-content: center; }
+        .rating .star { cursor: pointer; transition: transform 0.2s; }
+        .rating .star:hover { transform: scale(1.2); }
+        .rating .star.active { color: #fbbf24; }
+         
+         /* --- Searching Animation --- */
+         .searching-pulse {
+         display: flex; align-items: center; gap: 10px;
+         background: #EFF6FF; color: #3B82F6; padding: 12px;
+         border-radius: 12px; margin-bottom: 15px; border: 1px dashed #3B82F6;
+         }
+         .pulse-ring {
+         width: 20px; height: 20px; border-radius: 50%; background: #3B82F6;
+         box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+         animation: pulse-blue 2s infinite;
+         }
+         @keyframes pulse-blue {
+         0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+         70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+         100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+         }
+         
+         /* --- Partner Profile Card --- */
+         .partner-profile-card {
+         display: flex; align-items: center; gap: 15px; background: #F8FAFC;
+         padding: 15px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;
+         }
+         .p-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--p); }
+         
+         /* --- Custom Alert Box (Themed) --- */
+         .custom-alert-overlay {
+         position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99999;
+         display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+         }
+         
+        @media (min-width: 768px) {
+            body { max-width: 480px; margin: 0 auto; border-left: 1px solid #eee; border-right: 1px solid #eee; }
+            .nav, .header { max-width: 480px; left: 50%; transform: translateX(-50%); }
+        }
+    
+    /* --- Custom Logout Modal Design --- */
+    .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000;
+    display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(5px); /* ब्लर इफेक्ट के लिए */
+    animation: fadeIn 0.2s ease-out;
+    }
+    
+    .modal-box {
+    background: white; width: 85%; max-width: 320px;
+    padding: 30px 25px; border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    
+    .modal-icon {
+    width: 70px; height: 70px; background: #FEE2E2; /* हल्का लाल */
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 15px; color: #EF4444; /* डार्क लाल */
+    font-size: 2rem;
+    }
+    
+    /* --- Custom Logout Modal Design (Purple Theme) --- */
+    .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000;
+    display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.2s ease-out;
+    }
+    
+    .modal-box {
+    background: white; width: 85%; max-width: 320px;
+    padding: 30px 25px; border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    
+    .modal-icon {
+    width: 70px; height: 70px;
+    background: #EEF2FF; /* हल्का पर्पल बैकग्राउंड */
+    color: var(--p);     /* आपका ब्रांड पर्पल कलर (#4F46E5) */
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 15px;
+    font-size: 2rem;
+    }
+    
+    .modal-btn-row { display: flex; gap: 12px; margin-top: 25px; }
+    
+    .btn-cancel {
+    flex: 1; padding: 14px; border-radius: 12px; border: none;
+    background: #F1F5F9; color: #64748B; font-weight: 700; cursor: pointer;
+    transition: 0.2s;
+    }
+    .btn-cancel:active { background: #E2E8F0; }
+    
+    .btn-logout {
+    flex: 1; padding: 14px; border-radius: 12px; border: none;
+    background: var(--p); /* ब्रांड पर्पल कलर */
+    color: white; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); /* पर्पल शैडो */
+    transition: 0.2s;
+    }
+    .btn-logout:active { transform: scale(0.98); opacity: 0.9; }
+    
+    /* --- Custom Alert Box Design --- */
+    .custom-alert-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99999;
+    display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px);
+    }
+    .custom-alert-box {
+    background: white; width: 85%; max-width: 320px; padding: 30px 20px;
+    border-radius: 24px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    animation: popIn 0.3s ease;
+    }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    
+    /* --- Bottom Sheet & Smart Select Styles --- */
+    .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 7000; display: none; backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s; }
+    .sheet-overlay.active { display: block; opacity: 1; }
+    
+    .bottom-selector { position: fixed; bottom: 0; left: 0; right: 0; background: white; z-index: 7001; border-radius: 24px 24px 0 0; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-height: 70vh; display: flex; flex-direction: column; }
+    .bottom-selector.active { transform: translateY(0); }
+    
+    .bs-header { padding: 20px; border-bottom: 1px solid #F1F5F9; display: flex; justify-content: space-between; align-items: center; }
+    .bs-title { font-weight: 700; font-size: 1.1rem; color: #0F172A; }
+    .bs-close { width: 30px; height: 30px; background: #F1F5F9; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    
+    .bs-body { overflow-y: auto; padding: 10px 20px 30px; }
+    
+    .select-option { padding: 16px; border-bottom: 1px solid #F8FAFC; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+    .select-option span { font-weight: 500; color: #334155; }
+    .select-option.selected span { color: #4F46E5; font-weight: 700; }
+    .select-option i { color: #4F46E5; opacity: 0; }
+    .select-option.selected i { opacity: 1; }
+    
+    .pseudo-select { width: 100%; padding: 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .pseudo-select:hover { border-color: #4F46E5; background: white; }
+    
+    /* --- FIX 1: BUTTON LAYOUT --- */
+    .full-sheet .nav {
+    position: fixed !important; bottom: 0 !important; left: 0 !important; width: 100% !important;
+    background: white !important; border-top: 1px solid #E2E8F0 !important;
+    padding: 15px !important; z-index: 1001 !important;
+    display: flex; gap: 10px; justify-content: center;
+    }
+    .fs-body { padding-bottom: 100px !important; } /* Content button ke piche na chhupe */
+    
+    /* --- FIX 2: DATE INPUT STYLE --- */
+    input[type="date"] {
+    appearance: none; -webkit-appearance: none;
+    background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px;
+    padding: 14px; font-weight: 600; width: 100%; color: #334155;
+    }
+    input[type="date"]:focus { border-color: #4F46E5; background: white; }
+    
+    /* --- LEGAL PAGE STYLES --- */
+    .legal-item {
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    }
+    
+    .legal-item summary {
+    padding: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none; /* Hide default triangle */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #1E293B;
+    }
+    
+    .legal-item summary i:first-child {
+    color: var(--p);
+    width: 25px;
+    margin-right: 10px;
+    }
+    
+    .legal-item[open] summary {
+    border-bottom: 1px solid #F1F5F9;
+    background: #F8FAFC;
+    color: var(--p);
+    }
+    
+    .legal-item[open] .arrow {
+    transform: rotate(180deg);
+    }
+    
+    .legal-content {
+    padding: 20px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #475569;
+    background: #FFFFFF;
+    }
+    
+    .legal-content ul { padding-left: 20px; margin-bottom: 10px; }
+    .legal-content li { margin-bottom: 8px; }
+    .legal-content p { margin-bottom: 10px; }
+    
+    
+    /* --- MEMBERSHIP PAGE STYLES --- */
+    .mem-bg {
+    background: linear-gradient(180deg, #F8FAFC 0%, #EEF2FF 100%);
+    padding-bottom: 50px;
+    }
+    .mem-hero {
+    text-align: center; padding: 30px 20px;
+    }
+    .mem-icon-box {
+    width: 60px; height: 60px; background: white; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15); margin-bottom: 15px;
+    font-size: 1.8rem; color: #F59E0B;
+    }
+    .mem-hero h2 { color: #1E293B; font-size: 1.5rem; margin-bottom: 5px; }
+    .mem-hero p { color: #64748B; font-size: 0.9rem; }
+    
+    /* Benefits Card */
+    .mem-benefits-card {
+    background: white; margin: 0 20px 25px; border-radius: 16px;
+    padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .mem-benefit-row { display: flex; gap: 15px; margin-bottom: 15px; }
+    .mem-benefit-row:last-child { margin-bottom: 0; }
+    
+    .mem-b-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .mem-b-icon.green { background: #DCFCE7; color: #166534; }
+    .mem-b-icon.blue { background: #DBEAFE; color: #1E40AF; }
+    .mem-b-icon.gold { background: #FEF3C7; color: #D97706; }
+    
+    .mem-b-title { font-weight: 700; color: #334155; }
+    .mem-b-desc { font-size: 0.8rem; color: #64748B; }
+    
+  /* --- NEW MEMBERSHIP PAGE STYLES (AMC THEME) --- */
+  .mem-bg {
+  background: #F8FAFC; /* Clean background like AMC page */
+  padding-bottom: 60px;
+  }
+  .mem-hero {
+  text-align: center; padding: 35px 20px 25px;
+  background: white; border-bottom: 1px solid #E2E8F0;
+  }
+  .mem-icon-box {
+  width: 65px; height: 65px; background: linear-gradient(135deg, #FFF7ED, #FEF3C7);
+  border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.2); margin-bottom: 15px;
+  font-size: 2rem; color: #D97706; border: 2px solid white;
+  }
+  .mem-hero h2 { color: #1E293B; font-size: 1.6rem; margin-bottom: 8px; font-weight: 800; }
+  .mem-hero p { color: #64748B; font-size: 0.95rem; }
+  
+  /* NEW ALERT STYLE BENEFITS BOX */
+  .mem-benefits-card.alert-theme {
+  background: white;
+  margin: 25px 20px 30px;
+  border-radius: 16px;
+  padding: 25px 20px;
+  /* Gold Accent Border on top */
+  border-top: 4px solid #F59E0B;
+  /* Premium Gold-tinted Shadow */
+  box-shadow: 0 15px 40px rgba(245, 158, 11, 0.12), 0 5px 10px rgba(0,0,0,0.02);
+  position: relative;
+  }
+  .mem-benefits-header {
+  font-weight: 800; color: #334155; margin-bottom: 20px; font-size: 1.1rem;
+  }
+  
+  /* Benefits Rows */
+  .mem-benefit-row { display: flex; gap: 15px; margin-bottom: 18px; align-items: flex-start; }
+  .mem-benefit-row:last-child { margin-bottom: 0; }
+  .mem-b-icon {
+  width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  }
+  .mem-b-icon.green { background: #DCFCE7; color: #166534; }
+  .mem-b-icon.blue { background: #DBEAFE; color: #1E40AF; }
+  .mem-b-icon.gold { background: #FEF3C7; color: #D97706; }
+  .mem-b-title { font-weight: 700; color: #334155; font-size: 1rem; margin-bottom: 2px;}
+  .mem-b-desc { font-size: 0.85rem; color: #64748B; line-height: 1.4; }
+  
+  /* PLAN CARDS COMMON */
+  .mem-plan-card {
+  margin: 0 20px 18px; border-radius: 16px; padding: 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: all 0.3s ease;
+  }
+  .mem-plan-card:active { transform: scale(0.98); }
+  
+  /* STYLE 1: SILVER AMC LOOK (3 Months) */
+  .mem-plan-card.amc-silver-style {
+  background: white;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .accent-bar-silver {
+  position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: #94A3B8;
+  }
+  .amc-silver-style .plan-title { font-weight: 800; font-size: 1.1rem; color: #334155; }
+  .amc-silver-style .plan-price { font-weight: 800; font-size: 1.3rem; color: #334155; }
+  
+  /* STYLE 2: GOLD AMC LOOK (1 Year - Premium) */
+  .mem-plan-card.amc-gold-style {
+  background: white;
+  border: 3px solid #F59E0B; /* Thick Gold Border */
+  box-shadow: 0 15px 35px rgba(245, 158, 11, 0.25); /* Strong Gold Shadow */
+  transform: scale(1.02); /* Slightly bigger */
+  margin-bottom: 25px;
+  }
+  .amc-gold-style .plan-title { font-weight: 800; font-size: 1.3rem; color: #D97706; }
+  .amc-gold-style .plan-subtitle { color: #64748B; }
+  .amc-gold-style .plan-price.gold-text { font-weight: 900; font-size: 1.6rem; color: #D97706; }
+  .plan-tag {
+  position: absolute; top: 0; right: 0; background: #F59E0B;
+  color: white; font-size: 0.7rem; padding: 4px 12px;
+  border-bottom-left-radius: 12px; font-weight: 800; letter-spacing: 0.5px;
+  }
+  
+  /* Misc */
+  .plan-subtitle { font-size: 0.85rem; }
+  .plan-old-price { text-decoration: line-through; font-size: 0.9rem; color: #94A3B8; margin-bottom: 4px; }
+  .mem-footer { text-align: center; font-size: 0.8rem; color: #94A3B8; padding: 0 30px; line-height: 1.6; }
+  
+  /* --- CUSTOM ALERT DESIGN (Purple Theme) --- */
+  .custom-alert-overlay {
+  position: fixed; inset: 0; 
+  background: rgba(15, 23, 42, 0.6); /* Dark Blur Background */
+  backdrop-filter: blur(8px);
+  z-index: 99999;
+  display: none; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+  }
+  
+  .custom-alert-box {
+  background: white; width: 85%; max-width: 320px;
+  padding: 30px 25px; border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  /* Typography */
+  #alert-title { font-size: 1.4rem; font-weight: 800; color: #1E293B; margin-bottom: 10px; }
+  #alert-msg { font-size: 0.95rem; color: #64748B; margin-bottom: 25px; line-height: 1.5; }
+  
+  /* Icons Styles */
+  .alert-icon {
+  width: 80px; height: 80px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px; font-size: 2.5rem;
+  }
+  .alert-icon.error { background: #FEE2E2; color: #EF4444; } /* Red for Error */
+  .alert-icon.success { background: #DCFCE7; color: #166534; } /* Green for Success */
+  .alert-icon.info { background: #EEF2FF; color: #4F46E5; } /* Purple for Info */
+  
+  /* Animations */
+  @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  
+  /* --- PROFILE PICTURE STYLES --- */
+  .profile-container {
+  position: relative;
+  width: 80px; height: 80px;
+  margin-right: 15px;
+  }
+  
+  .profile-avatar {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  object-fit: cover; /* Photo chipkegi nahi */
+  border: 3px solid white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  background: #E2E8F0;
+  }
+  
+  .camera-badge {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 28px; height: 28px;
+  background: #4F46E5; /* Brand Color */
+  color: white;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem;
+  border: 2px solid white;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  /* --- HEADER PROFILE PIC STYLES --- */
+  .header-profile-pic {
+  width: 38px; height: 38px; /* Header ke hisab se chota size */
+  border-radius: 50%; /* Golakar */
+  object-fit: cover; /* Photo kategi nahi */
+  border: 2px solid white; /* Saaf dikhne ke liye border */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Halki si shadow */
+  }
+  
+    </style>
+</head>
+<body>
+      
+     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+     
+    <!-- Offline Indicator -->
+    <div id="offline-bar" class="offline-bar"><i class="fas fa-wifi-slash"></i> You are offline</div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Splash Screen -->
+    <div id="splash"><div class="logo-load">UrbanPaintPro</div></div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">Urban<span style="color:#64748B;">PaintPro</span></div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="user-icon" onclick="nav('notifications')" style="position: relative;">
+                <i class="fa-regular fa-bell"></i>
+                <span id="notif-badge" class="notification-badge">0</span>
+            </div>
+            <div class="icon-box" onclick="nav('account')" style="padding: 0; width: auto; height: auto; background: none; box-shadow: none; margin-left: 10px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
+            id="header-user-dp" 
+            class="header-profile-pic" 
+            onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+            </div>
+            
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="closeAllSheets()"></div>
+
+    <!-- FULL SHEET: Booking -->
+    <div class="full-sheet" id="fs-step-address">
+        <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-step-address')"></i>
+            <span>Select Address</span>
+        </div>
+        <div class="fs-body">
+            <div class="form-section">
+                <h3 style="margin-bottom:15px; color:var(--p);">Where is the service required?</h3>
+                
+                <div id="saved-addresses-list" style="margin-bottom:20px;"></div>
+    
+                <label class="form-label">House No. / Flat / Building</label>
+                <input type="text" id="wiz-addr" class="inp" placeholder="e.g. H.No 45, Green Park">
+                
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1;">
+                        <label class="form-label" style="margin-top:10px;">Pincode</label>
+                        <input type="number" id="wiz-pin" class="inp" placeholder="1100XX">
+                    </div>
+                    <div style="flex:1;">
+                        <label class="form-label" style="margin-top:10px;">City</label>
+                        <input type="text" id="wiz-city" class="inp" value="Delhi" readonly style="background:#F1F5F9;">
+                    </div>
+                </div>
+                
+                <button class="btn outline" onclick="autoLoc()"><i class="fa-solid fa-crosshairs"></i> Use Current Location</button>
+            </div>
+        </div>
+        <div class="nav" style="padding:15px; height:auto; position:fixed; bottom:0; width:100%; z-index:1000;">
+            <button class="btn" onclick="goToSlot()">Next: Select Slot <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+    
+    <div class="full-sheet" id="fs-step-slot">
+        <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-step-slot')"></i>
+            <span>Select Date & Time</span>
+        </div>
+        <div class="fs-body">
+            <div class="form-section">
+                <h3 style="margin-bottom:15px; color:var(--p);">When should we arrive?</h3>
+                
+                <label class="form-label">Select Date</label>
+                <input type="date" id="wiz-date" class="inp">
+                
+                <label class="form-label" style="margin-top:15px;">Select Time Slot</label>
+                <div class="time-slots-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                    <button class="btn outline" onclick="selectTime(this, '09:00 AM')" style="margin:0;">09:00 AM</button>
+                    <button class="btn outline" onclick="selectTime(this, '11:00 AM')" style="margin:0;">11:00 AM</button>
+                    <button class="btn outline" onclick="selectTime(this, '02:00 PM')" style="margin:0;">02:00 PM</button>
+                    <button class="btn outline" onclick="selectTime(this, '05:00 PM')" style="margin:0;">05:00 PM</button>
+                </div>
+                <input type="hidden" id="wiz-time">
+                <p style="font-size:0.8rem; color:#64748B; margin-top:15px; text-align:center;">
+                    <i class="fa-regular fa-clock"></i> Expert takes 10-15 mins for inspection
+                </p>
+            </div>
+        </div>
+        <div class="nav" style="padding:15px; height:auto; position:fixed; bottom:0; width:100%; z-index:1000;">
+            <button class="btn" onclick="goToSummary()">Next: Review <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+    
+    <div class="full-sheet" id="fs-step-summary">
+        <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-step-summary')"></i>
+            <span>Review Booking</span>
+        </div>
+        <div class="fs-body" style="padding-bottom:100px;">
+            <div class="quote-card">
+                <div class="quote-header">
+                    <div>
+                        <div class="quote-amount" id="sum-total">₹0</div>
+                        <small>Estimated Project Cost</small>
+                    </div>
+                    <div class="quote-status pending">Pay Now: ₹49</div>
+                </div>
+                
+                <div class="quote-details">
+                    <div class="quote-detail-row"><span>Service</span><b id="sum-service">-</b></div>
+                    <div class="quote-detail-row"><span>Address</span><b id="sum-addr" style="text-align:right; max-width:60%; font-size:0.8rem;">-</b></div>
+                    <div class="quote-detail-row"><span>Date & Time</span><b id="sum-time">-</b></div>
+                </div>
+            </div>
+            
+            <div style="background:#F0FDF4; padding:15px; border-radius:12px; border:1px dashed #16A34A; display:flex; gap:10px; align-items:center;">
+                <i class="fa-solid fa-shield-halved" style="color:#16A34A; font-size:1.5rem;"></i>
+                <div style="font-size:0.85rem; color:#14532D;">
+                    <b>100% Secure Booking</b><br>Visiting charge is fully adjustable in the final bill.
+                </div>
+            </div>
+        </div>
+        <div class="nav" style="padding:15px; height:auto; position:fixed; bottom:0; width:100%; z-index:1000;">
+            <button class="btn success" onclick="proceedToPay()">Pay ₹49 & Book <i class="fa-solid fa-check"></i></button>
+        </div>
+    </div>
+   
+    <!-- FULL SHEET: Login -->
+    <div class="full-sheet" id="fs-login">
+        <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-login')"></i>
+            <span>Login</span>
+        </div>
+        <div class="fs-body">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--p), #7C3AED); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <i  fa-user" style="font-size: 2rem; color: white;"></i>
+                </div>
+                <h2>Welcome Back!</h2>
+                <p style="color: #64748B; font-size: 0.9rem;">Login to manage your bookings</p>
+            </div>
+            <div class="form-section">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="fs-l-email" class="inp" placeholder="your@email.com">
+                <label class="form-label" style="margin-top: 15px;">Password</label>
+                <input type="password" id="fs-l-pass" class="inp" placeholder="Enter your password">
+                <p style="text-align: right; margin-top: 10px;">
+                    <a href="#" onclick="resetPass()" style="color: var(--p); font-size: 0.85rem;">Forgot Password?</a>
+                </p>
+            </div>
+            <button class="btn" onclick="loginFromSheet()" id="fs-login-btn">Login</button>
+            <div style="text-align: center; margin: 20px 0;"><span style="color: #94A3B8;">OR</span></div>
+            <button class="btn outline" onclick="googleLogin()" style="border-color: #EA4335; color: #EA4335;">
+                <i class="fa-brands fa-google"></i> Continue with Google
+            </button>
+            <p style="text-align: center; margin-top: 20px; color: #64748B;">
+                Don't have an account? <a href="#" onclick="switchAuth('signup')" style="color: var(--p); font-weight: 600;">Sign Up</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- FULL SHEET: Signup -->
+    <div class="full-sheet" id="fs-signup">
+        <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-signup')"></i>
+            <span>Create Account</span>
+        </div>
+        <div class="fs-body">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--success), #10B981); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <i class="fa-solid fa-user-plus" style="font-size: 2rem; color: white;"></i>
+                </div>
+                <h2>Join UrbanPaintPro</h2>
+            </div>
+            <div class="form-section">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="s-name" class="inp" placeholder="Your full name">
+                <label class="form-label" style="margin-top: 15px;">Email Address</label>
+                <input type="email" id="s-email" class="inp" placeholder="your@email.com">
+                <label class="form-label" style="margin-top: 15px;">Phone Number</label>
+                <input type="tel" id="s-phone" class="inp" placeholder="10-digit mobile" maxlength="10">
+                <label class="form-label" style="margin-top: 15px;">Password</label>
+                <input type="password" id="s-pass" class="inp" placeholder="Create password">
+            </div>
+            <button class="btn" onclick="signup()" id="signup-btn">Create Account</button>
+            <div style="text-align: center; margin: 20px 0;"><span style="color: #94A3B8;">OR</span></div>
+            <button class="btn outline" onclick="googleLogin()" style="border-color: #EA4335; color: #EA4335;">
+                <i class="fa-brands fa-google"></i> Continue with Google
+            </button>
+            <p style="text-align: center; margin-top: 20px; color: #64748B;">
+                Already have an account? <a href="#" onclick="switchAuth('login')" style="color: var(--p); font-weight: 600;">Login</a>
+            </p>
+        </div>
+    </div>
+
+    
+    <!-- FULL SHEET: Rating -->
+    <div class="full-sheet" id="fs-rating">
+        <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-rating')"></i>
+            <span>Rate Your Experience</span>
+        </div>
+        <div class="fs-body">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #FEF3C7, #FBBF24); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <i class="fa-solid fa-star" style="font-size: 2rem; color: white;"></i>
+                </div>
+                <h2>How was your service?</h2>
+            </div>
+            <div class="form-section" style="text-align: center;">
+                <div class="rating" id="star-rating">
+                    <i class="fa-solid fa-star star" onclick="setRating(1)"></i>
+                    <i class="fa-solid fa-star star" onclick="setRating(2)"></i>
+                    <i class="fa-solid fa-star star" onclick="setRating(3)"></i>
+                    <i class="fa-solid fa-star star" onclick="setRating(4)"></i>
+                    <i class="fa-solid fa-star star" onclick="setRating(5)"></i>
+                </div>
+                <p id="rating-text" style="margin-top: 10px; color: #64748B;">Tap to rate</p>
+            </div>
+            <div class="form-section">
+                <label class="form-label">Share your experience</label>
+                <textarea id="rating-comment" class="inp" placeholder="Tell us what you liked..." rows="3" style="resize: none;"></textarea>
+            </div>
+            <button class="btn" onclick="submitRating()" id="submit-rating-btn" style="background: #F59E0B;">
+                <i class="fa-solid fa-paper-plane"></i> Submit Rating
+            </button>
+        </div>
+    </div>
+
+    <!-- FULL SHEET: AI Chat -->
+    <div class="full-sheet" id="fs-ai-chat">
+        <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-ai-chat')"></i>
+            <span><i class="fa-solid fa-robot" style="margin-right: 8px;"></i>UrbanPaintPro AI</span>
+        </div>
+        <div class="fs-body" style="display: flex; flex-direction: column; padding: 0;">
+            <div id="ai-chat-box" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; background: #F8FAFC;">
+                <div class="chat-msg chat-ai">Hello! I'm UrbanPaintPro AI. How can I assist you today?</div>
+            </div>
+            <div style="padding: 15px; background: white; border-top: 1px solid #E2E8F0; display: flex; gap: 10px;">
+                <input type="text" id="ai-chat-in" class="inp" style="margin: 0;" placeholder="Type your message..." onkeypress="if(event.key==='Enter')sendAIChat()">
+                <button onclick="sendAIChat()" style="background: var(--p); color: white; border: none; width: 50px; border-radius: 12px; cursor: pointer;">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL SHEET: Add Address -->
+    <div class="full-sheet" id="fs-add-address">
+        <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-add-address')"></i>
+            <span>Add New Address</span>
+        </div>
+        <div class="fs-body">
+            <div class="form-section">
+                <label class="form-label">Complete Address</label>
+                <textarea id="new-address-input" class="inp" placeholder="House/Flat No, Building, Street..." rows="3" style="resize: none;"></textarea>
+                <label class="form-label" style="margin-top: 15px;">City</label>
+                <input type="text" id="new-address-city" class="inp" placeholder="City name">
+                <label class="form-label" style="margin-top: 15px;">Pincode</label>
+                <input type="text" id="new-address-pin" class="inp" placeholder="6-digit pincode" maxlength="6">
+            </div>
+            <button class="btn" onclick="saveNewAddress()" id="save-address-btn">
+                <i class="fa-solid fa-save"></i> Save Address
+            </button>
+        </div>
+    </div>
+
+    <!-- FULL SHEET: Personal Info -->
+    <div class="full-sheet" id="fs-personal">
+           <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-personal')"></i>
+            <span>Edit Profile</span>
+        </div>
+        <div class="fs-body">
+            <div class="form-section">
+                <label class="form-label">Display Name</label>
+                <input type="text" id="edit-name" class="inp" placeholder="Your Name">
+                <label class="form-label" style="margin-top: 15px;">Email</label>
+                <input type="email" id="edit-email" class="inp" readonly style="background: #F1F5F9;">
+                <label class="form-label" style="margin-top: 15px;">Phone Number</label>
+                <input type="tel" id="edit-phone" class="inp" placeholder="+91...">
+            </div>
+            <button class="btn" onclick="saveProfile()">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- FULL SHEET: Addresses -->
+    <div class="full-sheet" id="fs-addresses">
+     <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-addresses')"></i>
+            <span>Saved Addresses</span>
+        </div>
+        <div class="fs-body">
+           <div id="address-list"><p style="text-align: center; color: #94A3B8; margin-top: 50px;">No addresses saved yet.</p></div>
+            <button class="btn outline" onclick="openFS('fs-add-address')" style="margin-top: 20px;">
+                <i class="fa-solid fa-plus"></i> Add New Address
+            </button>
+        </div>
+    </div>
+
+    <!-- FULL SHEET: Plans -->
+    <div class="full-sheet" id="fs-membership">
+    <div class="fs-header">
+    <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-membership')"></i>
+    <span>Urban Pro Club 👑</span>
+    </div>
+    <div class="fs-body mem-bg">
+    
+    <div class="mem-hero">
+    <div class="mem-icon-box">
+    <i class="fa-solid fa-crown"></i>
+    </div>
+    <h2>Unlock Premium Benefits</h2>
+    <p>Join the exclusive club for huge savings.</p>
+    </div>
+    
+    <div class="mem-benefits-card alert-theme">
+    <div class="mem-benefits-header">Club Privileges included:</div>
+    
+    <div class="mem-benefit-row">
+    <div class="mem-b-icon green"><i class="fa-solid fa-percent"></i></div>
+    <div>
+    <div class="mem-b-title">Extra 5% Discount</div>
+    <div class="mem-b-desc">Flat off on every single service quote.</div>
+    </div>
+    </div>
+    <div class="mem-benefit-row">
+    <div class="mem-b-icon blue"><i class="fa-solid fa-motorcycle"></i></div>
+    <div>
+    <div class="mem-b-title">₹0 Visiting Charges</div>
+    <div class="mem-b-desc">Never pay ₹49 convenience fee again.</div>
+    </div>
+    </div>
+    <div class="mem-benefit-row">
+    <div class="mem-b-icon gold"><i class="fa-solid fa-bolt"></i></div>
+    <div>
+    <div class="mem-b-title">Priority Booking</div>
+    <div class="mem-b-desc">Get top-rated partners assigned instantly.</div>
+    </div>
+    </div>
+    </div>
+    
+    <div style="padding: 0 20px; margin-bottom: 15px; font-weight: 700; color: #334155;">Choose your plan:</div>
+    
+    <div class="mem-plan-card basic amc-silver-style" onclick="buyMembership('Pro Quarterly', 499)">
+    <div class="accent-bar-silver"></div> <div style="padding-left: 15px;">
+    <div class="plan-title">3 Months Trial</div>
+    <div class="plan-subtitle">Perfect for one-time projects.</div>
+    </div>
+    <div style="text-align: right;">
+    <div class="plan-old-price">₹999</div>
+    <div class="plan-price">₹499</div>
+    </div>
+    </div>
+    
+    <div class="mem-plan-card premium amc-gold-style" onclick="buyMembership('Pro Yearly', 999)">
+    <div class="plan-tag">MOST POPULAR</div>
+    <div>
+    <div class="plan-title">12 Months Access</div>
+    <div class="plan-subtitle">Less than ₹85/month. Best value.</div>
+    </div>
+    <div style="text-align: right;">
+    <div class="plan-old-price">₹2,499</div>
+    <div class="plan-price gold-text">₹999</div>
+    </div>
+    </div>
+    
+    <div class="mem-footer">
+    Secure payment via Razorpay. <br> Membership benefits start immediately after payment.
+    </div>
+    
+    </div>
+    </div>
+    
+    <!-- FULL SHEET: Language -->
+    <div class="full-sheet" id="fs-language">
+        <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-language')"></i>
+            <span>Language</span>
+        </div>
+        <div class="fs-body">
+            <div class="menu-item" onclick="setLang('en', true)">
+                <span>English</span>
+                <i class="fa-solid fa-check" id="lang-check-en" style="color: var(--success);"></i>
+            </div>
+            <div class="menu-item" onclick="setLang('hi', true)">
+                <span>हिंदी (Hindi)</span>
+                <i class="fa-solid fa-check" id="lang-check-hi" style="display: none; color: var(--success);"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL SHEET: Legal -->
+    <div class="full-sheet" id="fs-legal">
+    <div class="fs-header">
+    <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-legal')"></i>
+    <span>Legal & Policies</span>
+    </div>
+    <div class="fs-body" style="padding-bottom: 50px;">
+    
+    <div style="text-align:center; margin-bottom:20px;">
+    <div style="font-weight:800; font-size:1.5rem; color:var(--p);">UrbanPaintPro</div>
+    <div style="font-size:0.8rem; color:#64748B;">Home Services</div>
+    </div>
+    
+    <details class="legal-item">
+    <summary>
+    <i class="fa-solid fa-user-shield"></i> Privacy Policy
+    <i class="fa-solid fa-chevron-down arrow"></i>
+    </summary>
+    <div class="legal-content">
+    <p><strong>Effective Date:</strong> Feb 2026</p>
+    <p>At UrbanPaintPro, we respect your privacy.</p>
+    <ul>
+    <li><strong>Data Collection:</strong> We collect your Name, Phone Number, Email, and Address to provide painting services.</li>
+    <li><strong>Location:</strong> We use your location to assign nearby partners.</li>
+    <li><strong>Payments:</strong> Payment data is handled securely by Razorpay. We do not store card details.</li>
+    <li><strong>Sharing:</strong> We share your address/phone only with the assigned painter partner.</li>
+    </ul>
+    </div>
+    </details>
+    
+    <details class="legal-item">
+    <summary>
+    <i class="fa-solid fa-file-contract"></i> Terms & Conditions
+    <i class="fa-solid fa-chevron-down arrow"></i>
+    </summary>
+    <div class="legal-content">
+    <p>By using our app, you agree to the following:</p>
+    <ul>
+    <li><strong>Services:</strong> UrbanPaintPro connects users with independent painting professionals.</li>
+    <li><strong>Pricing:</strong> Quotes provided in the app are estimates. Final price may vary based on actual site conditions.</li>
+    <li><strong>Warranty:</strong> We provide a 1-year service warranty on painting defects (peeling/flaking). Physical damage is not covered.</li>
+    <li><strong>User Conduct:</strong> Users must treat partners with respect. Abuse will lead to account termination.</li>
+    </ul>
+    </div>
+    </details>
+    
+    <details class="legal-item">
+    <summary>
+    <i class="fa-solid fa-rotate-left"></i> Refund & Cancellation
+    <i class="fa-solid fa-chevron-down arrow"></i>
+    </summary>
+    <div class="legal-content">
+    <p><strong>Cancellation Policy:</strong></p>
+    <ul>
+    <li>You can cancel a booking anytime before the partner is assigned for free.</li>
+    <li>If cancelled after partner assignment, a convenience fee of ₹49 may be charged.</li>
+    </ul>
+    <p><strong>Refund Policy:</strong></p>
+    <ul>
+    <li><strong>Booking Fee (₹49):</strong> Usually non-refundable if the partner visits the site.</li>
+    <li><strong>Service Issues:</strong> If you are unsatisfied with the service, please report within 24 hours. Refunds are processed on a case-by-case basis after inspection.</li>
+    <li><strong>Processing Time:</strong> Approved refunds will be credited to the original source within 5-7 business days.</li>
+    </ul>
+    </div>
+    </details>
+    
+    <details class="legal-item">
+    <summary>
+    <i class="fa-solid fa-headset"></i> Contact Us
+    <i class="fa-solid fa-chevron-down arrow"></i>
+    </summary>
+    <div class="legal-content">
+    <p>For any grievances or support:</p>
+    <p><strong>Email:</strong> urbanpaintpro.index@gmail.com</p>
+    <p><strong>Phone:</strong> +91 9711904092</p>
+    <p><strong>Address:</strong> New Delhi, India</p>
+    </div>
+    </details>
+    <div onclick="window.open('https://painters-web.github.io/urbanpaintpro-legal-Public/', '_system')" 
+    style="margin-top: 15px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px; display: flex; align-items: center; cursor: pointer;">
+    
+    <div style="width: 35px; height: 35px; background: #EEF2FF; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+    <i class="fa-solid fa-globe" style="color: #4F46E5;"></i>
+    </div>
+    
+    <div style="flex: 1;">
+    <div style="font-weight: 600; color: #334155; font-size: 0.9rem;">View Full Policy</div>
+    <div style="font-size: 0.7rem; color: #94A3B8;">Opens in Browser</div>
+    </div>
+    
+    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem; color: #CBD5E1;"></i>
+    </div>
+    
+    <div style="margin-top:30px; text-align:center; font-size:0.75rem; color:#94A3B8;">
+    Version 1.2.0 • © 2026 UrbanPaintPro
+    </div>
+    </div>
+    </div>
+    
+
+<div class="full-sheet" id="fs-help">
+    <div class="fs-header">
+        <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-help')"></i>
+        <span>Help Center</span>
+    </div>
+    <div class="fs-body">
+        <h4 style="margin: 10px 0 15px; color: #64748B; font-weight: 600; padding-left: 5px;">Contact Support</h4>
+        
+        <div class="menu-item" onclick="openFS('fs-ai-chat')">
+            <i class="fa-solid fa-robot" style="color: var(--p); width: 25px;"></i>
+            <span>UrbanPaintPro AI</span>
+            <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: #cbd5e1;"></i>
+        </div>
+
+        <a href="https://wa.me/919711904092" target="_blank" style="text-decoration:none; color:inherit;">
+            <div class="menu-item">
+                <i class="fa-brands fa-whatsapp" style="color: #25D366; width: 25px;"></i>
+                <span>WhatsApp Support</span>
+                <i class="fa-solid fa-external-link-alt" style="font-size: 0.8rem; color: #cbd5e1;"></i>
+            </div>
+        </a>
+
+        <a href="mailto:urbanpaintpro.index@gmail.com" style="text-decoration:none; color:inherit;">
+            <div class="menu-item">
+                <i class="fa-solid fa-envelope" style="color: #EA4335; width: 25px;"></i>
+                <span>Email Support</span>
+                <i class="fa-solid fa-external-link-alt" style="font-size: 0.8rem; color: #cbd5e1;"></i>
+            </div>
+        </a>
+    </div>
+</div>
+
+    <!-- FULL SHEET: Warranty -->
+    <div class="full-sheet" id="fs-warranty">
+        <div class="fs-header">
+            <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-warranty')"></i>
+            <span>Warranty Tracker</span>
+        </div>
+        <div class="fs-body">
+            <div class="form-section" style="background: #F0FDF4; border: 1px solid #86EFAC;">
+                <h4 style="color: #166534;"><i class="fa-solid fa-shield-halved"></i> Warranty Coverage</h4>
+                <ul style="font-size: 0.9rem; color: #166534; padding-left: 20px; line-height: 1.8;">
+                    <li>1 Year warranty on painting</li>
+                    <li>Free touch-ups for peeling</li>
+                    <li>Color fading protection</li>
+                </ul>
+            </div>
+            <div class="form-section">
+                <h4 style="color: var(--p); margin-bottom: 15px;">Claim Warranty</h4>
+                <input type="text" id="warranty-order-id" class="inp" placeholder="Order ID">
+                <textarea id="warranty-issue" class="inp" placeholder="Describe issue..." rows="3" style="resize: none; margin-top: 10px;"></textarea>
+                <button class="btn" onclick="submitWarrantyClaim()" style="margin-top: 15px;">Submit Claim</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL SHEET: AMC -->
+    <div class="full-sheet" id="fs-amc">
+    <div class="fs-header">
+    <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-amc')"></i>
+    <span>AMC Care Plans</span>
+    </div>
+    <div class="fs-body" style="background: #F8FAFC; padding-bottom: 50px;">
+    
+    <div style="padding: 20px; text-align: center;">
+    <h2 style="color: var(--text);">Keep Your Walls New ✨</h2>
+    <p style="color: #64748B; font-size: 0.9rem;">Select a plan to get year-round protection.</p>
+    </div>
+    
+    <div style="background: white; margin: 0 20px 20px; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #E2E8F0; position: relative; overflow: hidden;">
+    <div style="position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: #94A3B8;"></div> <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <div>
+    <h3 style="font-size: 1.2rem; font-weight: 800; color: #334155;">SILVER</h3>
+    <div style="font-size: 0.75rem; color: #64748B;">Best for Rental Homes</div>
+    </div>
+    <div style="text-align: right;">
+    <div style="font-size: 1.3rem; font-weight: 800; color: var(--text);">₹1,999</div>
+    <div style="font-size: 0.7rem; color: #94A3B8;">1/ Year</div>
+    </div>
+    </div>
+    
+    <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
+    <li style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #475569;">
+    <i class="fa-solid fa-check" style="color: var(--success);"></i> 1 Free Touch-up Visit
+    </li>
+    <li style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #475569;">
+    <i class="fa-solid fa-check" style="color: var(--success);"></i> 5% Discount on New Services
+    </li>
+    <li style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #475569;">
+    <i class="fa-solid fa-check" style="color: var(--success);"></i> Free Color Consultation
+    </li>
+    </ul>
+    
+    <button class="btn outline" onclick="buyAMC('Silver', 1999)">Buy Silver Plan</button>
+    </div>
+    
+    <div style="background: white; margin: 0 20px 20px; border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.15); border: 2px solid #F59E0B; position: relative;">
+    
+    <div style="position: absolute; top: -10px; right: 20px; background: #F59E0B; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;">MOST POPULAR</div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <div>
+    <h3 style="font-size: 1.2rem; font-weight: 800; color: #D97706;">GOLD</h3>
+    <div style="font-size: 0.75rem; color: #64748B;">For Homeowners</div>
+    </div>
+    <div style="text-align: right;">
+    <div style="font-size: 1.3rem; font-weight: 800; color: var(--text);">₹4,999</div>
+    <div style="font-size: 0.7rem; color: #94A3B8;">1/ Year</div>
+    </div>
+    </div>
+    
+    <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
+    <li style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #475569;">
+    <i class="fa-solid fa-check" style="color: #F59E0B;"></i> <b>2 Free Touch-up Visits</b>
+    </li>
+    <li style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #475569;">
+    <i class="fa-solid fa-check" style="color: #F59E0B;"></i> 1 Wall Deep Cleaning
+    </li>
+    <li style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #475569;">
+    <i class="fa-solid fa-check" style="color: #F59E0B;"></i> <b>10% Discount</b> on Services
+    </li>
+    <li style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #475569;">
+    <i class="fa-solid fa-check" style="color: #F59E0B;"></i> Dampness Checkup
+    </li>
+    </ul>
+    
+    <button class="btn" style="background: #F59E0B;" onclick="buyAMC('Gold', 4999)">Buy Gold Plan</button>
+    </div>
+    
+    <div style="background: linear-gradient(135deg, #1E293B, #0F172A); margin: 0 20px 20px; border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); color: white; position: relative; overflow: hidden;">
+    
+    <div style="position: absolute; top: -50px; left: -50px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <div>
+    <h3 style="font-size: 1.2rem; font-weight: 800; color: #E2E8F0;">PLATINUM</h3>
+    <div style="font-size: 0.75rem; color: #94A3B8;">Full Peace of Mind</div>
+    </div>
+    <div style="text-align: right;">
+    <div style="font-size: 1.3rem; font-weight: 800; color: white;">₹9,999</div>
+    <div style="font-size: 0.7rem; color: #94A3B8;">1/ Year</div>
+    </div>
+    </div>
+    
+    <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
+    <li style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #CBD5E1;">
+    <i class="fa-solid fa-star" style="color: #A78BFA;"></i> <b>5 Small Touch-ups</b>
+    </li>
+    <li style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #CBD5E1;">
+    <i class="fa-solid fa-star" style="color: #A78BFA;"></i> Full Walls Cleaning By Hand (1x)
+    </li>
+    <li style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #CBD5E1;">
+    <i class="fa-solid fa-star" style="color: #A78BFA;"></i> <b>15% Flat Discount</b>
+    </li>
+    <li style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9rem; color: #CBD5E1;">
+    <i class="fa-solid fa-star" style="color: #A78BFA;"></i> Priority Support (Dedicated Manager)
+    </li>
+    </ul>
+    
+    <button class="btn" style="background: white; color: #0F172A;" onclick="buyAMC('Platinum', 9999)">Buy Platinum Plan</button>
+    </div>
+    
+    <div style="text-align: center; color: #94A3B8; font-size: 0.8rem; margin-top: 20px; padding: 0 20px;">
+    Prices are inclusive of GST. Terms & Conditions apply.<br>
+    Touch-ups cover paint chipping and minor scratches.
+    </div>
+    
+    </div>
+    </div>
+    
+    <!-- MAIN PAGES -->
+    <div class="page active" id="home">
+        <div style="margin-bottom: 20px;">
+          <h2 style="color: var(--p);">Hello, <span id="user-name-display">Guest</span>! 🙏</h2>
+          
+            <p style="color: #64748B;">Apne ghar ko naya rang dein.</p>
+        </div>
+        <div class="card">
+        <h3 style="margin-bottom: 15px;">Smart Paint Calculator</h3>
+        
+        <div class="input-group">
+        <label class="merged-label">Select City</label>
+        <div class="pseudo-select" onclick="openSelector('city')">
+        <span id="disp-city">Delhi</span>
+        <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        </div>
+        
+        <div class="input-group">
+        <label class="merged-label">Select Room / Area</label>
+        <div class="pseudo-select" onclick="openSelector('room')">
+        <span id="disp-room">1 Wall Small (120 sqft)</span>
+        <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        </div>
+        
+        <div class="input-group">
+        <label class="merged-label">Condition / Service Type</label>
+        <div class="pseudo-select" onclick="openSelector('service')">
+        <span id="disp-service">Repaint (Standard)</span>
+        <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        </div>
+        
+        <div class="merged-section">
+        <div class="input-group">
+        <label class="merged-label">Brand</label>
+        <div class="pseudo-select" onclick="openSelector('brand')">
+        <span id="disp-brand">Asian Paints</span>
+        <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        </div>
+        
+        <div class="input-group">
+        <label class="merged-label">Category</label>
+        <div class="pseudo-select" onclick="openSelector('cat')">
+        <span id="disp-cat">Interior</span>
+        <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        </div>
+        
+        <div class="input-group">
+        <label class="merged-label">Product</label>
+        <div class="pseudo-select" onclick="openSelector('prod')">
+        <span id="disp-prod">Tractor Emulsion - ₹12/sqft</span>
+        <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; background: #F8FAFC; padding: 15px; border-radius: 12px;">
+        <div>
+        <span style="color: #64748B; font-size: 0.9rem;">Units</span>
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+        <button onclick="updateQty(-1)" style="width: 30px; height: 30px; border-radius: 8px; border: 1px solid #ccc; background: white;">-</button>
+        <strong id="qty-val">1</strong>
+        <button onclick="updateQty(1)" style="width: 30px; height: 30px; border-radius: 8px; border: 1px solid #ccc; background: white;">+</button>
+        </div>
+        </div>
+        <div style="text-align: right;">
+        <span style="color: #64748B; font-size: 0.9rem;">Estimated Cost</span>
+        <h2 id="total-price" style="color: #4F46E5;">₹36,000</h2>
+        </div>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button class="btn outline" onclick="genInvoice()" style="flex: 1;"><i class="fa-solid fa-file-invoice"></i> Bill</button>
+        <button class="btn" onclick="startBooking()" style="flex: 1;">Book Visit</button>
+        </div>
+        </div>
+        </div>
+        <div class="input-group">
+        <label class="merged-label">Select Room / Area</label>
+        <div class="pseudo-select" onclick="openSelector('room')">
+        <span id="disp-room">Full 1 BHK Flat (1500 sqft)</span>
+        <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        </div>
+       <div class="page" id="orders">
+       <h2 style="margin-bottom: 20px;">My Bookings</h2>
+       <div id="order-list">
+       <div style="text-align: center; padding: 60px 20px; color: #9CA3AF;">
+       <i class="fas fa-box-open" style="font-size: 60px; margin-bottom: 20px; opacity: 0.5;"></i>
+       <h3 style="color: #64748B;">No orders yet</h3>
+       <button class="btn" onclick="nav('home')" style="margin-top: 20px; width: auto; padding: 12px 30px;">Book Now</button>
+       </div>
+       </div>
+       </div>
+
+    <div class="page" id="account">
+ <div id="auth-ui" style="text-align: center; padding: 40px 20px;">
+ 
+ <img src="y&images/logo.jpg" 
+ style="width: 100px; height: 100px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 10px 30px rgba(79, 70, 229, 0.2);">
+ 
+ <h3 style="color: #4F46E5; font-size: 1.5rem; font-weight: 800; margin-bottom: 5px;">UrbanPaintPro</h3>
+ <p style="margin-bottom: 30px; color: #64748B;">Professional Home Services</p>
+ 
+ <button class="btn" onclick="openFS('fs-login')">Login / Sign Up</button>
+ </div>
+ 
+    
+    <div id="profile-ui" style="display: none;">
+    <div class="profile-card" style="display: flex; align-items: center; background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    
+    <div class="profile-container">
+    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" id="user-dp" class="profile-avatar">
+    
+    <div class="camera-badge" onclick="document.getElementById('upload-pic').click()">
+    <i class="fa-solid fa-camera"></i>
+    </div>
+    <input type="file" id="upload-pic" hidden accept="image/*" onchange="uploadProfilePic(this)">
+    </div>
+    
+    <div class="user-info" style="flex: 1;">
+    <h3 id="display-name" style="font-size: 1.2rem; margin-bottom: 2px; color: #1E293B;">Loading...</h3>
+    <p id="display-email" style="font-size: 0.85rem; color: #64748B; word-break: break-all;">please wait...</p>
+    
+    <div style="margin-top: 8px; font-size: 0.8rem; color: #4F46E5; font-weight: 600; cursor: pointer;onclick="openFS('fs-personal')">
+    Edit Profile <i class="fa-solid fa-pen-to-square" onclick="openFS('fs-personal')" style="color: var(--p); cursor: pointer;"></i>
+    </div>
+    </div>
+    </div>
+    </div>
+    
+    <div class="card" style="padding: 0; margin-bottom: 20px;">
+    
+    <div class="menu-item" onclick="openFS('fs-membership')">
+    <i class="fa-solid fa-id-card-clip" style="color: #64748B; width: 25px; font-size: 1.2rem;"></i>
+    <span style="flex:1; margin-left: 10px;">Membership Plans</span>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: #CBD5E1;"></i>
+    </div>
+    
+    
+    <div class="menu-item" onclick="openFS('fs-amc')">
+    <i class="fa-solid fa-crown" style="color: #F59E0B; width: 25px; font-size: 1.2rem;"></i>
+    <span style="flex:1; margin-left: 10px;">AMC Care Plans</span>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: #CBD5E1;"></i>
+    </div>
+    
+    
+    <div class="menu-item" onclick="openFS('fs-addresses')">
+    <i class="fa-solid fa-map-location-dot" style="color: var(--p);"></i>
+    <span>Saved Addresses</span>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: #cbd5e1;"></i>
+    </div>
+    
+    <div class="menu-item" onclick="openFS('fs-warranty')">
+    <i class="fa-solid fa-shield-halved" style="color: #10B981;"></i>
+    <span>Warranty Tracker</span>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: #cbd5e1;"></i>
+    </div>
+    
+    <div class="menu-item" onclick="openFS('fs-language')">
+    <i class="fa-solid fa-language" style="color: var(--info);"></i>
+    <span>Language</span>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: #cbd5e1;"></i>
+    </div>
+    
+    <div class="menu-item" onclick="openFS('fs-help')">
+    <i class="fa-solid fa-headset" style="color: #3B82F6;"></i>
+    <span>Help Center</span>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: #cbd5e1;"></i>
+    </div>
+    
+    <div class="menu-item">
+    <i class="fa-solid fa-moon" style="color: #64748B;"></i>
+    <span>Dark Mode</span>
+    <label class="switch"><input type="checkbox" onchange="toggleDarkMode()"><span class="slider"></span></label>
+    </div>
+    
+    
+    <div class="menu-item" onclick="openFS('fs-settings')">
+    <i class="fa-solid fa-gear" style="color: #64748B; width: 25px; font-size: 1.2rem;"></i>
+    
+    <span style="flex:1; margin-left: 10px;">Settings</span>
+    
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: #CBD5E1;"></i>
+    </div>
+    
+    <div class="menu-item" onclick="openFS('fs-about')">
+    <i class="fa-solid fa-circle-info" style="color: #64748B; width: 25px; font-size: 1.2rem;"></i>
+    
+    <span style="flex:1; margin-left: 10px;">About Us</span>
+    
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: #CBD5E1;"></i>
+    </div>
+    
+    <div class="menu-item" onclick="openFS('fs-legal')">
+    <i class="fa-solid fa-scale-balanced" style="color: #8B5CF6;"></i>
+    <span>Terms & Conditions</span>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: #cbd5e1;"></i>
+    </div>
+    
+    <div class="menu-item" onclick="logout()" style="border-top: 1px solid #F1F5F9;">
+    <i class="fa-solid fa-arrow-right-from-bracket" style="color: var(--error);"></i>
+    <span style="color: var(--error);">Logout</span>
+    </div>
+    
+    <p style="text-align: center; color: #CBD5E1; font-size: 0.75rem; margin-bottom: 20px;">App Version 1.2.0</p>
+    </div>
+    </div>
+    
+    <div class="page" id="notifications">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Notifications</h2>
+            <div style="background: #F1F5F9; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;" onclick="markAllRead()">
+                <i class="fa-solid fa-check-double"></i> Mark all read
+            </div>
+        </div>
+        <div id="notification-list">
+            <div style="text-align: center; padding: 50px; opacity: 0.5;"><i class="fa-regular fa-bell" style="font-size: 3rem; margin-bottom: 15px;"></i><p>No notifications</p></div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="nav">
+        <div class="nav-item active" onclick="nav('home', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
+        <div class="nav-item" onclick="nav('orders', this)"><i class="fa-solid fa-box-open"></i><span>Orders</span></div>
+        <div class="nav-item" onclick="nav('account', this)"><i class="fa-solid fa-user"></i><span>Account</span></div>
+    </div>
+
+    <!-- Success Screen -->
+    <div id="status-success" class="status-screen">
+        <div class="icon-circle success-icon"><i class="fa-solid fa-check"></i></div>
+        <h2>Booking Confirmed!</h2>
+        <p id="success-message" style="color: #64748B; margin-bottom: 30px;">Your booking has been confirmed!</p>
+        <button class="btn" onclick="closeStatus()" style="width: 200px;">Continue</button>
+        </div>
+        <div id="custom-alert" class="custom-alert-overlay">
+        <div class="custom-alert-box">
+        <div id="c-alert-icon-box" style="width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.8rem;">
+        <i id="c-alert-icon" class="fa-solid fa-info"></i>
+        </div>
+        <h3 id="c-alert-title" style="margin-bottom: 8px; color: #1F2937; font-size: 1.25rem;">Notification</h3>
+        <p id="c-alert-msg" style="color: #6B7280; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px;">Message goes here.</p>
+        <button id="c-alert-btn" onclick="document.getElementById('custom-alert').style.display='none'" style="width: 100%; padding: 14px; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer;">Okay, Got it</button>
+        </div>
+        </div>
+        
+        <div class="menu-item" onclick="openFS('fs-legal')">
+        <i class="fa-solid fa-shield-halved" style="color: #64748B;"></i>
+        <span>Legal, Refund & Privacy Policy</span>
+        <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: #CBD5E1;"></i>
+        </div>
+        
+    
+        <div id="logout-confirm-modal" class="modal-overlay">
+        <div class="modal-box">
+        <div class="modal-icon">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </div>
+        <h3 style="color: #1F2937; margin-bottom: 10px; font-size: 1.4rem;">Log Out?</h3>
+        <p style="color: #64748B; font-size: 0.95rem; line-height: 1.5;">
+        Are you sure you want to log out of UrbanPaintPro?
+        </p>
+        <div class="modal-btn-row">
+        <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+        <button class="btn-logout" onclick="confirmLogout()">Yes, Logout</button>
+        </div>
+        </div>
+        </div>
+        <div class="sheet-overlay" id="sel-overlay" onclick="closeSelector()"></div>
+        <div class="bottom-selector" id="sel-sheet">
+        <div class="bs-header">
+        <span class="bs-title" id="sel-title">Select Option</span>
+        <div class="bs-close" onclick="closeSelector()"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <div class="bs-body" id="sel-list"></div>
+        </div>
+        
+    <div class="full-sheet" id="fs-settings">
+    <div class="fs-header">
+    <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-settings')"></i>
+    <span>App Settings</span>
+    </div>
+    <div class="fs-body" style="background: #F8FAFC;">
+    
+    <div class="form-section">
+    <h3 style="margin-bottom:15px; color:#334155; font-size:0.9rem; font-weight:700;">Marketing & Updates</h3>
+    
+    <div class="menu-item" style="justify-content: space-between;">
+    <div style="display:flex; gap:15px; align-items:center;">
+    <div style="width:45px; height:45px; background:linear-gradient(135deg, #DCFCE7, #BBF7D0); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#15803D; box-shadow: 0 4px 10px rgba(22, 163, 74, 0.15);">
+    <i class="fa-brands fa-whatsapp" style="font-size:1.4rem;"></i>
+    </div>
+    <div>
+    <div style="font-weight:600; color:#1E293B;">WhatsApp Updates</div>
+    <div style="font-size:0.75rem; color:#64748B;">Get offers & discounts</div>
+    </div>
+    </div>
+    <label class="switch">
+    <input type="checkbox" checked onchange="togglePerm('whatsapp', this)">
+    <span class="slider"></span>
+    </label>
+    </div>
+    
+    <div class="menu-item" style="justify-content: space-between;">
+    <div style="display:flex; gap:15px; align-items:center;">
+    <div style="width:45px; height:45px; background:linear-gradient(135deg, #FEF3C7, #FDE68A); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#B45309; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.15);">
+    <i class="fa-solid fa-bell" style="font-size:1.2rem;"></i>
+    </div>
+    <div>
+    <div style="font-weight:600; color:#1E293B;">Push Notifications</div>
+    <div style="font-size:0.75rem; color:#64748B;">For new deals</div>
+    </div>
+    </div>
+    <label class="switch">
+    <input type="checkbox" checked onchange="togglePerm('notif', this)">
+    <span class="slider"></span>
+    </label>
+    </div>
+    </div>
+    
+    <div class="form-section">
+    <h3 style="margin-bottom:15px; color:#334155; font-size:0.9rem; font-weight:700;">Device Permissions</h3>
+    
+    <div class="menu-item" style="justify-content: space-between;">
+    <div style="display:flex; gap:15px; align-items:center;">
+    <div style="width:45px; height:45px; background:linear-gradient(135deg, #DBEAFE, #BFDBFE); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#1D4ED8; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);">
+    <i class="fa-solid fa-location-dot" style="font-size:1.2rem;"></i>
+    </div>
+    <div>
+    <div style="font-weight:600; color:#1E293B;">Location Access</div>
+    <div style="font-size:0.75rem; color:#64748B;">To find nearby partners</div>
+    </div>
+    </div>
+    <label class="switch">
+    <input type="checkbox" checked id="perm-loc" onchange="togglePerm('location', this)">
+    <span class="slider"></span>
+    </label>
+    </div>
+    
+    <div class="menu-item" style="justify-content: space-between;">
+    <div style="display:flex; gap:15px; align-items:center;">
+    <div style="width:45px; height:45px; background:linear-gradient(135deg, #FCE7F3, #FBCFE8); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#BE185D; box-shadow: 0 4px 10px rgba(219, 39, 119, 0.15);">
+    <i class="fa-solid fa-microphone" style="font-size:1.2rem;"></i>
+    </div>
+    <div>
+    <div style="font-weight:600; color:#1E293B;">Microphone</div>
+    <div style="font-size:0.75rem; color:#64748B;">For Voice Search</div>
+    </div>
+    </div>
+    <label class="switch">
+    <input type="checkbox" id="perm-mic" onchange="togglePerm('mic', this)">
+    <span class="slider"></span>
+    </label>
+    </div>
+    
+    <div class="menu-item" style="justify-content: space-between;">
+    <div style="display:flex; gap:15px; align-items:center;">
+    <div style="width:45px; height:45px; background:linear-gradient(135deg, #E0E7FF, #C7D2FE); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#4338CA; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);">
+    <i class="fa-solid fa-address-book" style="font-size:1.2rem;"></i>
+    </div>
+    <div>
+    <div style="font-weight:600; color:#1E293B;">Sync Contacts</div>
+    <div style="font-size:0.75rem; color:#64748B;">Find friends on App</div>
+    </div>
+    </div>
+    <label class="switch">
+    <input type="checkbox" id="perm-contact" onchange="togglePerm('contact', this)">
+    <span class="slider"></span>
+    </label>
+    </div>
+    </div>
+    
+    <div class="form-section" style="margin-top: 20px; border-top: 1px solid #E2E8F0; padding-top: 20px;">
+    
+    <h3 style="color: #4F46E5; font-size: 0.9rem; margin-bottom: 15px; font-weight: 700;">Account Actions</h3>
+    
+    <div class="menu-item" onclick="openDeleteModal()" style="justify-content: space-between;">
+    <div style="display:flex; gap:15px; align-items:center;">
+    
+    <div style="width:45px; height:45px; background:linear-gradient(135deg, #EEF2FF, #C7D2FE); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#4F46E5; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);">
+    <i class="fa-solid fa-trash-can" style="font-size:1.2rem;"></i>
+    </div>
+    
+    <div>
+    <div style="font-weight:600; color:#1E293B;">Delete Account</div>
+    <div style="font-size:0.75rem; color:#64748B;">Permanently remove data</div>
+    </div>
+    </div>
+    
+    <i class="fa-solid fa-chevron-right" style="color: #CBD5E1; font-size: 0.9rem;"></i>
+    </div>
+    
+    </div>
+    
+    <div style="text-align:center; margin-top:30px; color:#94A3B8; font-size:0.75rem;">
+    Changes are saved automatically.
+    </div>
+    </div>
+    </div>
+    
+        <div class="full-sheet" id="fs-about">
+        <div class="fs-header">
+        <i class="fa-solid fa-arrow-left" onclick="closeFS('fs-about')"></i>
+        <span>About UrbanPaintPro</span>
+        </div>
+        <div class="fs-body" style="padding-bottom: 50px;">
+        
+        <div style="text-align: center; margin: 20px 0 30px;">
+        <div style="width: 80px; height: 80px; background: #EEF2FF; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);">
+        <i class="fa-solid fa-paint-roller" style="font-size: 2.5rem; color: var(--p);"></i>
+        </div>
+        <h2 style="color: var(--text); margin-bottom: 5px;">UrbanPaintPro</h2>
+        <p style="color: #64748B; font-size: 0.9rem; font-weight: 500;">Commitment of Quality & Trust</p>
+        </div>
+        
+        <div style="padding: 0 10px;">
+        
+        <div class="form-section">
+        <p style="font-size: 0.95rem; color: #334155; line-height: 1.6; margin-bottom: 15px;">
+        <b>UrbanPaintPro</b> ek sirf naam nahi hai — ye ek commitment hai <b>quality, professionalism aur trust ka</b>. Hum believe karte hain ki har space ek story batata hai, aur hamara kaam hai us story ko perfect finishing ke saath zinda karna.
+        </p>
+        <p style="font-size: 0.95rem; color: #334155; line-height: 1.6;">
+        Ye ek next-generation service platform hai jo customers ko direct, simple aur transparent tarike se professional services provide karta hai. Yahan calling, bargaining ya WhatsApp follow-ups ki koi tension nahi hoti. Aap website par aao, service select karo, details fill karo aur <b>booking instantly confirm</b> — itna simple.
+        </p>
+        </div>
+        
+        <div class="form-section">
+        <h3 style="color: var(--p); margin-bottom: 15px;">Hamari Strength 💪</h3>
+        <p style="font-size: 0.95rem; color: #334155; line-height: 1.6; margin-bottom: 15px;">
+        Hamari sabse badi strength hai hamari <b>skilled aur verified team</b>. Har professional ko quality standards, safety aur customer satisfaction ke basis par select kiya jata hai. Chahe kaam chhota ho ya bada, hum har project ko same dedication aur precision ke saath complete karte hain.
+        </p>
+        
+        <div style="background: #F8FAFC; padding: 15px; border-radius: 12px; border-left: 4px solid var(--p);">
+        <ul style="padding-left: 20px; margin: 0; color: #475569; font-size: 0.9rem; line-height: 1.8;">
+        <li>✅ Clear pricing — no hidden charges</li>
+        <li>✅ Time commitment — jo bola, wahi time</li>
+        <li>✅ Clean & premium finishing</li>
+        <li>✅ Customer support throughout the process</li>
+        </ul>
+        </div>
+        </div>
+        
+        <div class="form-section">
+        <h3 style="color: var(--p); margin-bottom: 10px;">Technology & Trust 🤝</h3>
+        <p style="font-size: 0.95rem; color: #334155; line-height: 1.6; margin-bottom: 15px;">
+        UrbanPaintPro technology aur craftsmanship ka perfect blend hai. Hamara automated system customers ko real-time updates aur smooth experience deta hai, jisse pura process stress-free ban jata hai.
+        </p>
+        <p style="font-size: 0.95rem; color: #334155; line-height: 1.6;">
+        Hum un logon ke liye kaam karte hain jo average se khush nahi hote, jo apne home ya workspace ke liye <b>best</b> chahte hain. Isliye UrbanPaintPro sirf ek service nahi, balki ek long-term trust relationship banata hai apne customers ke saath.
+        </p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #4F46E5, #4338ca); border-radius: 16px; color: white;">
+        <p style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 10px;">Aaj ke fast world me, humara promise:</p>
+        <h3 style="font-size: 1.1rem; font-weight: 800; letter-spacing: 0.5px;">"Professional Work. Honest Pricing.<br>Zero Hassle."</h3>
+        </div>
+        
+        <p style="text-align: center; font-style: italic; color: #64748B; margin-bottom: 30px;">
+        UrbanPaintPro ke saath, aap sirf service book nahi karte…<br><b>aap quality choose karte ho.</b>
+        </p>
+        
+        <div class="form-section" style="display: flex; align-items: center; gap: 15px;">
+        <div style="width: 50px; height: 50px; background: #E0E7FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--p);">AK</div>
+        <div>
+        <div style="font-weight: 700; font-size: 1rem;">Arbaj Khan</div>
+        <div style="font-size: 0.8rem; color: #64748B;">CEO & Founder</div>
+        </div>
+        </div>
+        
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center; font-size: 0.75rem; color: #CBD5E1;">
+        Made with ❤️ in India<br>
+        App Version 1.2.0
+        </div>
+        
+        </div>
+        </div>
+        
+        <div id="custom-alert" class="custom-alert-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px); z-index: 99999; display: none; align-items: center; justify-content: center;">
+        <div class="custom-alert-box" style="background: white; width: 85%; max-width: 320px; padding: 30px 25px; border-radius: 24px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        
+        <div id="alert-icon-container" style="margin-bottom: 20px;"></div>
+        
+        <h3 id="alert-title" style="font-size: 1.4rem; font-weight: 800; color: #1E293B; margin-bottom: 10px;">Title</h3>
+        <p id="alert-msg" style="font-size: 0.95rem; color: #64748B; margin-bottom: 25px; line-height: 1.5;">Message</p>
+        
+        <button onclick="closeCustomAlert()" id="alert-btn" style="width: 100%; padding: 14px; border-radius: 12px; border: none; background: #4F46E5; color: white; font-weight: 700; cursor: pointer;">
+        Okay, Got it
+        </button>
+        </div>
+        </div>
+        
+       <div id="delete-modal" class="custom-alert-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); z-index: 9999999; display: none; align-items: center; justify-content: center;">
+       <div class="custom-alert-box" style="background: white; width: 85%; max-width: 320px; padding: 25px; border-radius: 24px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+       
+       <div style="width: 65px; height: 65px; background: #EEF2FF; color: #4F46E5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 15px; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.1);">
+       <i class="fa-solid fa-triangle-exclamation"></i>
+       </div>
+       
+       <h3 style="font-size: 1.3rem; font-weight: 800; color: #1E293B; margin-bottom: 8px;">Final Confirmation</h3>
+       <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 25px; line-height: 1.5;">
+       This action will permanently delete your account data.
+       </p>
+       
+       <div style="display: flex; gap: 12px;">
+       <button onclick="closeDeleteModal()" style="flex: 1; padding: 14px; border-radius: 12px; border: 2px solid #E2E8F0; background: white; color: #64748B; font-weight: 700; cursor: pointer;">
+       Cancel
+       </button>
+       
+       <button id="btn-confirm-delete" onclick="finalDeleteUser()" disabled style="flex: 1; padding: 14px; border-radius: 12px; border: none; background: #EEF2FF; color: #4F46E5; font-weight: 700; cursor: not-allowed; transition: all 0.3s ease;">
+       Wait 5s
+       </button>
+       </div>
+       </div>
+       </div>
+       
+    <script>
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+            authDomain: "urban-paint-pro.firebaseapp.com",
+            databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "urban-paint-pro",
+            storageBucket: "urban-paint-pro.firebasestorage.app",
+            messagingSenderId: "929763117480",
+            appId: "1:929763117480:web:560057baeb12672078b59d"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+        
+        
+        // --- 2. GLOBAL VARIABLES (इनको सबसे ऊपर ही रहने दें) ---
+        
+        const UrbanPaintPro = {
+        currentQty: 1,
+        currentCity: localStorage.getItem("city") || "delhi",
+        currentRating: 0,
+        currentRatingOrder: null,
+        pendingPayment: null
+        };
+        
+        const citySurge = { delhi: 1.2, gurgaon: 1.3, noida: 1.25 };
+        
+        // Selection State (Defines defaults)
+        const selectionState = {
+        city: 'delhi',
+        room: 120, // Default: Small Wall
+        roomText: '1 Wall Small (120 sqft)',
+        serviceCost: 0, // Default: Repaint (0 extra)
+        serviceText: 'Repaint (Standard)',
+        brand: 'Asian',
+        cat: 'Interior',
+        prod: 12,
+        prodName: 'Tractor Emulsion'
+        };
+        
+        // --- DATA LISTS ---
+        const roomData = [
+        {v: 120,  t: "1 Wall Small (120 sqft)"},
+        {v: 150,  t: "1 Wall Medium (150 sqft)"},
+        {v: 200,  t: "1 Wall Highlight (200 sqft)"},
+        {v: 380,  t: "Standard Bedroom (380 sqft)"},
+        {v: 450,  t: "Master Bedroom (450 sqft)"},
+        {v: 1500, t: "Full 1 BHK Flat (1500 sqft)"},
+        {v: 2500, t: "Full 2 BHK Flat (2500 sqft)"},
+        {v: 3500, t: "Full 3 BHK Flat (3500 sqft)"},
+        {v: 4500, t: "Full 4 BHK Flat (4500 sqft)"},
+        {v: 300,  t: "Kitchen (300 sqft)"},
+        {v: 600,  t: "Living Room (600 sqft)"},
+        {v: 150,  t: "Bathroom (150 sqft)"},
+        {v: 100,  t: "Balcony (100 sqft)"}
+        ];
+        
+        const serviceData = [
+        {v: 0,  t: "Repaint (Standard) - No Extra"},
+        {v: 5,  t: "Repaint + Primer (+₹5/sqft)"},
+        {v: 12, t: "Fresh Paint (+₹12/sqft)"}
+        ];
+        
+        const cityData = [ {v: 'delhi', t: 'Delhi'}, {v: 'noida', t: 'Noida'}, {v: 'gurgaon', t: 'Gurgaon'} ];
+        const brandData = [ {v: 'Asian', t: 'Asian Paints'}, {v: 'Berger', t: 'Berger Paints'}, {v: 'Nerolac', t: 'Nerolac'}, {v: 'Dulux', t: 'Dulux'} ];
+        
+        const catalog = {
+        "Asian": { "Interior": [{n:"Tractor Emulsion",p:12},{n:"Apcolite Premium",p:20},{n:"Royale Luxury",p:26}], "Exterior": [{n:"Ace Exterior",p:15},{n:"Apex Ultima",p:30}], "Waterproofing": [{n:"Damp Block",p:80}] },
+        "Berger": { "Interior": [{n:"Bison Emulsion",p:13},{n:"Silk Glamor",p:28}], "Exterior": [{n:"Walmasta",p:16}], "Waterproofing": [{n:"Home Shield",p:85}] },
+        "Nerolac": { "Interior": [{n:"Beauty Smooth",p:14}], "Exterior": [{n:"Excel",p:18}], "Waterproofing": [{n:"Damp Proof",p:75}] },
+        "Dulux": { "Interior": [{n:"SuperCover",p:16}], "Exterior": [{n:"Weathershield",p:28}], "Waterproofing": [{n:"Damp Proof",p:88}] }
+        };
+        
+        // --- 3. HELPER FUNCTIONS ---
+        function showToast(msg, type='info') {
+        const container = document.getElementById('toast-container');
+        if(!container) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fa-solid fa-${type==='success'?'check-circle':type==='error'?'xmark-circle':'info-circle'}"></i><span>${msg}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.opacity='0'; setTimeout(()=>toast.remove(),300); }, 3000);
+        }
+        
+        function showAlert(title, msg, type = 'info') {
+        const overlay = document.getElementById('custom-alert');
+        const iconBox = document.getElementById('c-alert-icon-box');
+        const icon = document.getElementById('c-alert-icon');
+        const btn = overlay.querySelector('button');
+        document.getElementById('c-alert-title').innerText = title;
+        document.getElementById('c-alert-msg').innerText = msg;
+        if(iconBox) {
+        iconBox.className = ''; 
+        if(type === 'success') { iconBox.style.background='#DCFCE7'; iconBox.style.color='#166534'; icon.className='fa-solid fa-check'; if(btn) btn.style.background='#166534'; }
+        else if(type === 'error') { iconBox.style.background='#FEE2E2'; iconBox.style.color='#991B1B'; icon.className='fa-solid fa-xmark'; if(btn) btn.style.background='#991B1B'; }
+        else { iconBox.style.background='#EEF2FF'; iconBox.style.color='#4F46E5'; icon.className='fa-solid fa-info'; if(btn) btn.style.background='#4F46E5'; }
+        }
+        overlay.style.display = 'flex';
+        }
+        
+        function setLoading(id, loading) {
+        const btn = document.getElementById(id);
+        if(btn) {
+        if(loading) { btn.classList.add('btn-loading'); btn.disabled = true; }
+        else { btn.classList.remove('btn-loading'); btn.disabled = false; }
+        }
+        }
+        
+        // --- 4. SMART SELECTOR & CALCULATION (Isme Calculation Logic Hai) ---
+        let currentContext = '';
+        
+        function openSelector(type) {
+        currentContext = type;
+        const sheet = document.getElementById('sel-sheet');
+        const overlay = document.getElementById('sel-overlay');
+        const list = document.getElementById('sel-list');
+        const title = document.getElementById('sel-title');
+        
+        let options = [];
+        let currentVal = '';
+        
+        if(type === 'city') { title.innerText = "Select City"; options = cityData; currentVal = selectionState.city; } 
+        else if(type === 'room') { title.innerText = "Select Room / Area"; options = roomData; currentVal = selectionState.room; }
+        else if(type === 'service') { title.innerText = "Select Condition"; options = serviceData; currentVal = selectionState.serviceCost; }
+        else if(type === 'brand') { title.innerText = "Select Brand"; options = brandData; currentVal = selectionState.brand; }
+        else if(type === 'cat') {
+        title.innerText = "Select Category";
+        const cats = Object.keys(catalog[selectionState.brand]);
+        options = cats.map(c => ({v: c, t: c}));
+        currentVal = selectionState.cat;
+        calculateTotal();
+        }
+        else if(type === 'prod') {
+        title.innerText = "Select Product";
+        const prods = catalog[selectionState.brand][selectionState.cat];
+        options = prods.map(p => ({v: p.p, t: `${p.n} - ₹${p.p}/sqft`}));
+        currentVal = selectionState.prod;
+        calculateTotal();
+        }
+        
+        list.innerHTML = options.map(opt => `
+        <div class="select-option ${opt.v == currentVal ? 'selected' : ''}" onclick="makeSelection('${opt.v}', '${opt.t}')">
+        <span>${opt.t}</span>
+        <i class="fa-solid fa-check"></i>
+        </div>
+        `).join('');
+        
+        if(overlay) overlay.classList.add('active');
+        if(sheet) sheet.classList.add('active');
+        }
+        
+        function closeSelector() {
+        const overlay = document.getElementById('sel-overlay');
+        const sheet = document.getElementById('sel-sheet');
+        if(overlay) overlay.classList.remove('active');
+        if(sheet) sheet.classList.remove('active');
+        }
+        
+        function makeSelection(val, text) {
+        if(currentContext === 'city') {
+        selectionState.city = val;
+        UrbanPaintPro.currentCity = val;
+        document.getElementById('disp-city').innerText = text;
+        localStorage.setItem("city", val);
+        calculateTotal();
+        }
+        else if(currentContext === 'room') {
+        selectionState.room = parseFloat(val);
+        selectionState.roomText = text;
+        document.getElementById('disp-room').innerText = text;
+        calculateTotal();
+        }
+        
+        else if (currentContext === 'service') {
+        selectionState.serviceCost = parseFloat(val); // 0,5,12
+        selectionState.serviceText = text.split(' (')[0];
+        
+        document.getElementById('disp-service').innerText = text;
+        
+        calculateTotal(); // 🔥 THIS WAS MISSING
+        }
+        
+        else if(currentContext === 'brand') {
+        selectionState.brand = val;
+        document.getElementById('disp-brand').innerText = text;
+        const firstCat = Object.keys(catalog[val])[0];
+        currentContext = 'cat'; makeSelection(firstCat, firstCat); currentContext = 'brand';
+        calculateTotal();
+        }
+        else if(currentContext === 'cat') {
+        selectionState.cat = val;
+        document.getElementById('disp-cat').innerText = text;
+        const firstProd = catalog[selectionState.brand][val][0];
+        currentContext = 'prod'; makeSelection(firstProd.p, `${firstProd.n} - ₹${firstProd.p}/sqft`); currentContext = 'cat';
+        calculateTotal();
+        }
+        else if(currentContext === 'prod') {
+        selectionState.prod = parseFloat(val);
+        selectionState.prodName = text.split(' -')[0];
+        document.getElementById('disp-prod').innerText = text;
+        calculateTotal();
+        }
+        closeSelector();
+        calc();
+        }
+        
+        
+        function updateQty(v) {
+        UrbanPaintPro.currentQty = Math.max(1, UrbanPaintPro.currentQty + v);
+        document.getElementById('qty-val').innerText = UrbanPaintPro.currentQty;
+        calc();
+        }
+        
+        // --- CALCULATION LOGIC (Multiply Here) ---
+        function calc() {
+        const p = selectionState.prod; // Paint Price (e.g. 12)
+        const area = selectionState.room; // Room Size (e.g. 120)
+        const surge = citySurge[UrbanPaintPro.currentCity] || 1;
+        const extraCost = selectionState.serviceCost; // e.g. 0 or 5 or 12
+        const labor = 8; // Labor fixed
+        
+        // Formula: (Paint + Labor + Extra) * Qty * Area * Surge
+        const total = Math.round((p + labor + extraCost) * UrbanPaintPro.currentQty * area * surge);
+        
+        const el = document.getElementById('total-price');
+        if(el) el.innerText = "₹" + total.toLocaleString('en-IN');
+        }
+        
+        function calculateTotal() {
+        const sqft = selectionState.room;          
+        const productRate = selectionState.prod;   
+        const serviceRate = selectionState.serviceCost || 0;
+        const cityMultiplier = citySurge?.[selectionState.city] || 1;
+        
+        let base = sqft * productRate;
+        let serviceCharge = sqft * serviceRate;
+        
+        let total = (base + serviceCharge) * cityMultiplier;
+        
+        document.getElementById('total-price').innerText =
+        '₹' + Math.round(total);
+        }
+        
+  // --- GLOBAL WIZARD DATA ---
+  let bookingData = { addr: '', pin: '', date: '', time: '' };
+  
+  // 1. START BOOKING (Modified for Safety)
+  function startBooking() {
+  console.log("Start Booking Clicked"); // Debugging ke liye
+  
+  // 1. Login Check
+  if(!auth.currentUser) { 
+  console.log("User not logged in");
+  openFS('fs-login'); 
+  return; 
+  }
+  
+  // 2. Sheet Existence Check
+  const sheet = document.getElementById('fs-step-address');
+  if(!sheet) {
+  alert("Error: 'fs-step-address' sheet HTML mein nahi mili. Kripya HTML code check karein.");
+  return;
+  }
+  
+  // 3. Saved Addresses Check
+  const list = document.getElementById('saved-addresses-list');
+  if(list) {
+  list.innerHTML = '<div style="padding:10px; text-align:center;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>';
+  
+  const user = auth.currentUser;
+  db.ref('users/' + user.uid + '/addresses').limitToLast(3).once('value', snap => {
+  if(snap.exists()) {
+  list.innerHTML = '<label class="form-label" style="margin-bottom:10px; display:block; color:var(--p);">Saved Addresses</label>';
+  snap.forEach(child => {
+  const fullAddr = child.val();
+  const div = document.createElement('div');
+  div.className = 'menu-item';
+  div.style.background = '#EEF2FF';
+  div.style.border = '1px solid #C7D2FE';
+  div.style.marginBottom = '8px';
+  div.innerHTML = `<i class="fa-solid fa-location-dot" style="color:var(--p)"></i> <span style="font-size:0.85rem">${fullAddr}</span>`;
+  
+  // Click Event
+  div.onclick = function() {
+  const parts = fullAddr.split(' - ');
+  const addrInput = document.getElementById('wiz-addr');
+  const pinInput = document.getElementById('wiz-pin');
+  
+  if(addrInput) addrInput.value = parts[0] || '';
+  if(pinInput) pinInput.value = parts[1] || '';
+  
+  showToast('Address Auto-filled!', 'success');
+  };
+  list.appendChild(div);
+  });
+  } else {
+  list.innerHTML = ''; // No addresses found
+  }
+  });
+  }
+  
+  // 4. Open Sheet
+  openFS('fs-step-address');
+  }
+  
+  // 2. GO TO SLOT
+  function goToSlot() {
+  const addrInp = document.getElementById('wiz-addr');
+  const pinInp = document.getElementById('wiz-pin');
+  
+  if(!addrInp || !pinInp) { alert("Input fields missing in HTML"); return; }
+  
+  const addr = addrInp.value;
+  const pin = pinInp.value;
+  
+  if(!addr || !pin) { showToast('Address & Pincode required', 'error'); return; }
+  
+  bookingData.addr = addr;
+  bookingData.pin = pin;
+  
+  openFS('fs-step-slot');
+  }
+  
+  // 3. GO TO SUMMARY
+  function goToSummary() {
+  const dateInp = document.getElementById('wiz-date');
+  const timeInp = document.getElementById('wiz-time');
+  
+  if(!dateInp || !timeInp) return;
+  
+  const date = dateInp.value;
+  const time = timeInp.value;
+  
+  if(!date) { showToast('Select Date', 'error'); return; }
+  if(!time) { showToast('Select Time', 'error'); return; }
+  
+  bookingData.date = date;
+  bookingData.time = time;
+  
+  // Summary Fill
+  document.getElementById('sum-total').innerText = document.getElementById('total-price').innerText;
+  document.getElementById('sum-service').innerText = selectionState.serviceText || 'Standard';
+  document.getElementById('sum-addr').innerText = `${bookingData.addr}, ${bookingData.pin}`;
+  document.getElementById('sum-time').innerText = `${date} at ${time}`;
+  
+  openFS('fs-step-summary');
+  }
+  
+  // 4. Time Selector Helper
+  function selectTime(btn, time) {
+  document.querySelectorAll('.time-slots-grid .btn').forEach(b => {
+  b.classList.add('outline');
+  b.style.background = 'transparent';
+  b.style.color = '#000';
+  });
+  btn.classList.remove('outline');
+  btn.style.background = 'var(--p)';
+  btn.style.color = 'white';
+  document.getElementById('wiz-time').value = time;
+  }
+ // --- NEW RAZORPAY AUTOMATIC PAYMENT SYSTEM ---
+ 
+ // 1. Payment Start Function (Jab user 'Pay Online' dabayega)
+ function proceedToPay() {
+ const user = auth.currentUser;
+ if(!user) { showToast("User not logged in", "error"); return; }
+ 
+ // Razorpay Options
+ var options = {
+ // 🔥 IMP: Yahan apni puri Key ID paste karein (Dashboard se copy karke)
+ "key": "rzp_test_SDEMypFMhovnYY", 
+ 
+ "amount": 49.00, // ₹49.00 (in paise)
+ "currency": "INR",
+ "name": "UrbanPaintPro",
+ "description": "Booking Visit Charge",
+ "image": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", // App Logo
+ 
+ // Success Handler (Jab payment ho jayegi)
+ "handler": function (response) {
+ console.log("Payment Success:", response);
+ showToast("Payment Successful!", "success");
+ 
+ // Order Confirm karein (Payment ID ke sath)
+ confirmOrderDB(49, response.razorpay_payment_id);
+ },
+ 
+ // User Details Auto-fill
+ "prefill": {
+ "name": user.displayName || "User",
+ "email": user.email,
+ "contact": "9999999999" // Agar user phone number saved hai to wo use karein
+ },
+ "theme": {
+ "color": "#4F46E5" // UrbanPaintPro Purple Color
+ },
+ "modal": {
+ "ondismiss": function() {
+ showToast("Payment Cancelled", "info");
+ }
+ }
+ };
+ 
+ // Razorpay Popup Open
+ var rzp1 = new Razorpay(options);
+ 
+ // Error Handling
+ rzp1.on('payment.failed', function (response){
+ console.error("Payment Failed:", response.error);
+ showToast("Payment Failed: " + response.error.description, "error");
+ });
+ 
+ rzp1.open();
+ }
+ 
+ // --- CASH ON DELIVERY FUNCTION ---
+ function confirmCOD() {
+ // User se confirm karein
+ if(!confirm("Confirm booking with Cash on Delivery?")) return;
+ 
+ // Direct Order Confirm (ID: CASH-ON-VISIT)
+ confirmOrderDB(49, 'CASH-ON-VISIT');
+ }
+ 
+ // --- FINAL ORDER CONFIRMATION (Database Save) ---
+ // Note: Ensure this function exists in your script
+ function confirmOrderDB(amt, payId) {
+ const user = auth.currentUser;
+ // Data check
+ if(!bookingData.date || !bookingData.time) {
+ showToast("Booking details missing. Please try again.", "error");
+ return;
+ }
+ 
+ const orderData = {
+ user: user.email,
+ userId: user.uid,
+ userName: user.displayName || 'Guest',
+ serviceType: selectionState.serviceText || 'Standard',
+ scope: selectionState.roomText || '1 Wall',
+ paint: `${selectionState.brand} - ${selectionState.prodName}`,
+ quantity: UrbanPaintPro.currentQty,
+ estimate: document.getElementById('total-price').innerText,
+ 
+ // Wizard Data
+ city: UrbanPaintPro.currentCity,
+ addr: bookingData.addr,
+ pin: bookingData.pin,
+ date: bookingData.date,
+ time: bookingData.time,
+ 
+ amt: amt,
+ payId: payId, // Razorpay ID ya CASH-ON-VISIT
+ status: 'Pending',
+ createdAt: firebase.database.ServerValue.TIMESTAMP
+ };
+ 
+ // Save to Firebase
+ db.ref('orders').push(orderData).then(ref => {
+ // Close Sheets
+ closeFS('fs-step-address');
+ closeFS('fs-step-slot');
+ closeFS('fs-step-summary');
+ 
+ // Success UI
+ document.getElementById('success-message').textContent = 'Order #' + ref.key.slice(-6).toUpperCase();
+ document.getElementById('status-success').classList.add('active');
+ 
+ // Notification
+ db.ref('users/'+user.uid+'/notifications').push({ 
+ message: `Booking Confirmed! Order #${ref.key.slice(-6).toUpperCase()}`, 
+ time: firebase.database.ServerValue.TIMESTAMP, 
+ read: false 
+ });
+ 
+ }).catch(err => {
+ showToast("Error: " + err.message, 'error');
+ });
+ }
+
+        // --- 5. INITIALIZATION ---
+        document.addEventListener("DOMContentLoaded", () => {
+        const today = new Date().toISOString().split('T')[0];
+        const dateInput = document.getElementById('slotDate');
+        if(dateInput) dateInput.min = today;
+        
+        const dispCity = document.getElementById('disp-city');
+        if(dispCity) dispCity.innerText = cityData.find(c=>c.v===UrbanPaintPro.currentCity)?.t || 'Delhi';
+        
+        setTimeout(() => {
+        const splash = document.getElementById("splash");
+        if(splash) { splash.style.opacity = "0"; setTimeout(() => splash.remove(), 400); }
+        }, 1500);
+        
+        calc(); // Run calculation on load
+        });
+           
+        // Auth
+        // --- MASTER AUTH LISTENER (Combined: Login UI + Header + Data) ---
+        auth.onAuthStateChanged(user => {
+        
+        // 1. Agar User Logout hai (Ya Login nahi hai)
+        if(!user) {
+        // UI Switching (White Screen Fix)
+        if(document.getElementById('auth-ui')) document.getElementById('auth-ui').style.display = 'block';
+        if(document.getElementById('profile-ui')) document.getElementById('profile-ui').style.display = 'none';
+        
+        // Header Name Reset
+        const headerName = document.getElementById('user-name-display');
+        if (headerName) headerName.innerText = "Guest";
+        return;
+        }
+        
+        // 2. Agar User Login hai
+        // UI Switching (White Screen Fix)
+        if(document.getElementById('auth-ui')) document.getElementById('auth-ui').style.display = 'none';
+        if(document.getElementById('profile-ui')) document.getElementById('profile-ui').style.display = 'block';
+        
+        // --- A. Profile Page Data (Ye apka purana code hai) ---
+        if(document.getElementById('u-name')) document.getElementById('u-name').innerText = user.displayName || 'User';
+        if(document.getElementById('u-email')) document.getElementById('u-email').innerText = user.email;
+        if(document.getElementById('avatar')) document.getElementById('avatar').innerText = (user.displayName || 'U')[0].toUpperCase();
+        if(document.getElementById('edit-name')) document.getElementById('edit-name').value = user.displayName || '';
+        if(document.getElementById('edit-email')) document.getElementById('edit-email').value = user.email;
+        
+        // --- B. Header Data (Ye naya code hai - Name & Pic) ---
+        // 1. Header Name (Hello, Arbaj!)
+        const headerName = document.getElementById('user-name-display');
+        if (headerName) {
+        // Sirf pehla naam (e.g. Arbaj)
+        headerName.innerText = user.displayName ? user.displayName.split(' ')[0] : "User";
+        }
+        
+        // 2. Header Pic (Round Photo)
+        const headerPic = document.getElementById('header-user-dp');
+        if (headerPic) {
+        headerPic.src = user.photoURL ? user.photoURL : "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+        }
+        
+        // --- C. Load Data ---
+        loadOrders(user.email);
+        loadNotifications(user.uid);
+        // Agar function exist karta hai to call karo (Safety)
+        if(typeof loadAddresses === 'function') loadAddresses(user.uid);
+        });
+        
+
+        function loadOrders(email) {
+        db.ref('orders').orderByChild('user').equalTo(email).on('value', snap => {
+        const list = document.getElementById('order-list');
+        if(!snap.exists()) {
+        list.innerHTML = `<div style="text-align:center;padding:60px;color:#9CA3AF;"><i class="fas fa-box-open" style="font-size:60px;margin-bottom:20px;opacity:0.5;"></i><h3>No orders yet</h3><button class="btn" onclick="nav('home')" style="margin-top:20px;width:auto;padding:12px 30px;">Book Now</button></div>`;
+        return;
+        }
+        
+        let ordersArray = [];
+        snap.forEach(child => { ordersArray.push({ key: child.key, ...child.val() }); });
+        ordersArray.reverse();
+        
+        let html = '';
+        ordersArray.forEach(o => {
+        const orderId = o.key.slice(-6).toUpperCase();
+        
+        // --- 1. SEARCHING ANIMATION (If Pending) ---
+        let statusHtml = '';
+        if(o.status === 'Pending') {
+        statusHtml = `
+        <div class="searching-pulse">
+        <div class="pulse-ring"></div>
+        <div>
+        <div style="font-weight:700; font-size:0.9rem;">Finding Best Partner...</div>
+        <div style="font-size:0.75rem; opacity:0.8;">Searching in your area</div>
+        </div>
+        </div>`;
+        }
+        
+        // --- 2. PARTNER PROFILE (If Assigned) ---
+        let partnerHtml = '';
+        if(o.partnerId && o.partnerName) {
+        const pPhoto = o.partnerPhoto || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+        partnerHtml = `
+        <div class="partner-profile-card">
+        <img src="${pPhoto}" class="p-img">
+        <div>
+        <div style="font-weight:700; color:var(--text);">${o.partnerName}</div>
+        <div style="font-size:0.8rem; color:var(--success);"><i class="fa-solid fa-circle-check"></i> Verified Partner</div>
+        <div style="font-size:0.8rem; color:#64748B;">ID: ${o.partnerId.slice(-5).toUpperCase()}</div>
+        </div>
+        <a href="tel:${o.partnerPhone}" style="margin-left:auto; width:40px; height:40px; background:#EEF2FF; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--p);"><i class="fa-solid fa-phone"></i></a>
+        </div>
+        `;
+        }
+        
+        // --- 3. OTP Logic ---
+        let otpHtml = '';
+        if((o.status === 'Accepted' || o.status === 'Partner Assigned') && o.otp) {
+        otpHtml = `
+        <div style="background:#ECFDF5; border:1px dashed #10B981; padding:15px; border-radius:12px; margin-top:15px; text-align:center;">
+        <div style="color:#065F46; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:5px;">Share OTP with Partner</div>
+        <div style="font-size:2rem; font-weight:800; letter-spacing:8px; color:#059669; font-family:monospace;">${o.otp}</div>
+        </div>
+        `;
+        }
+        
+        html += `
+        <div class="uber-card" style="margin-bottom:25px;">
+        <div class="map-zone" style="height:100px; background:linear-gradient(135deg,#667eea,#764ba2); display:flex; align-items:center; justify-content:center;">
+        <h2 style="color:rgba(255,255,255,0.9); margin:0; font-weight:800; letter-spacing:1px; font-size:1.8rem;">UrbanPaintPro</h2>
+        </div>
+        <div class="status-sheet" style="padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:15px;">
+        <div>
+        <h3 style="margin:0; font-size:1.1rem; color:var(--p);">${o.status}</h3>
+        <p style="margin:5px 0; font-size:0.85rem; color:#6B7280;">${o.serviceType} • ${o.scope}</p>
+        </div>
+        <span style="font-size:11px; color:#6B7280; background:#F3F4F6; padding:6px 10px; border-radius:20px; font-weight:600;">#${orderId}</span>
+        </div>
+        
+        ${statusHtml}   ${partnerHtml}  ${otpHtml}      <div style="margin-top:20px;">
+        <div class="u-step done"><div class="u-line"></div><div class="u-icon"><i class="fas fa-check"></i></div><div><div style="font-weight:600; font-size:14px;">Booking Confirmed</div></div></div>
+        <div class="u-step ${['Accepted', 'Partner Assigned', 'Work Started', 'Completed'].includes(o.status) ? 'active' : ''}"><div class="u-line"></div><div class="u-icon"><i class="fas fa-user"></i></div><div><div style="font-weight:600; font-size:14px;">Partner Assigned</div></div></div>
+        <div class="u-step ${o.status==='Completed'?'done':''}" style="margin-bottom:0;"><div class="u-icon"><i class="fas fa-paint-roller"></i></div><div><div style="font-weight:600; font-size:14px;">Work Completed</div></div></div>
+        </div>
+        ${o.status==='Completed' && !o.rated ? `<button class="btn" onclick="openRating('${o.key}')" style="margin-top:20px; background:#F59E0B;"><i class="fa-solid fa-star"></i> Rate Service</button>` : ''}
+        </div>
+        </div>
+        `;
+        });
+        list.innerHTML = html;
+        });
+        }
+        
+        function loadNotifications(uid) {
+            db.ref('users/'+uid+'/notifications').on('value', snap => {
+                const badge = document.getElementById('notif-badge');
+                const list = document.getElementById('notification-list');
+                if(!snap.exists()) { badge.style.display='none'; list.innerHTML='<div style="text-align:center;padding:50px;opacity:0.5;"><i class="fa-regular fa-bell" style="font-size:3rem;margin-bottom:15px;"></i><p>No notifications</p></div>'; return; }
+                let unread = 0, html = '';
+                snap.forEach(child => {
+                    const n = child.val();
+                    if(!n.read) unread++;
+                    html += `<div class="card" style="margin-bottom:10px;${n.read?'':'border-left:3px solid var(--p);'}"><p style="margin:0;font-weight:${n.read?'400':'600'};">${n.message}</p><small style="color:#9CA3AF;">${new Date(n.time).toLocaleString()}</small></div>`;
+                });
+                badge.textContent = unread; badge.style.display = unread>0?'block':'none';
+                list.innerHTML = html;
+            });
+        }
+
+        function loadAddresses(uid) {
+            db.ref('users/'+uid+'/addresses').on('value', snap => {
+                const container = document.getElementById('address-list');
+                if(!snap.exists()) { container.innerHTML='<p style="text-align:center;color:#94A3B8;margin-top:50px;">No addresses saved.</p>'; return; }
+                let html = '';
+                snap.forEach(child => {
+                    html += `<div class="menu-item"><i class="fa-solid fa-location-dot"></i><span>${child.val()}</span><i class="fa-solid fa-trash" onclick="deleteAddress('${child.key}')" style="color:var(--error);cursor:pointer;"></i></div>`;
+                });
+                container.innerHTML = html;
+            });
+        }
+
+        function markAllRead() {
+            const user = auth.currentUser;
+            if(!user) return;
+            db.ref('users/'+user.uid+'/notifications').once('value').then(snap => {
+                const updates = {};
+                snap.forEach(c => { if(!c.val().read) updates[c.key+'/read'] = true; });
+                db.ref('users/'+user.uid+'/notifications').update(updates);
+            });
+        }
+        // Auth Functions
+        function loginFromSheet() {
+            const email = document.getElementById('fs-l-email').value;
+            const pass = document.getElementById('fs-l-pass').value;
+            setLoading('fs-login-btn', true);
+            auth.signInWithEmailAndPassword(email, pass).then(() => {
+                setLoading('fs-login-btn', false); closeFS('fs-login'); showToast('Welcome back!', 'success');
+            }).catch(err => { setLoading('fs-login-btn', false); showToast(err.message, 'error'); });
+        }
+        function signup() {
+            const name = document.getElementById('s-name').value;
+            const email = document.getElementById('s-email').value;
+            const pass = document.getElementById('s-pass').value;
+            const phone = document.getElementById('s-phone').value;
+            setLoading('signup-btn', true);
+            auth.createUserWithEmailAndPassword(email, pass).then(cred => {
+                return Promise.all([cred.user.updateProfile({displayName:name}), db.ref('users/'+cred.user.uid+'/profile').set({name,email,phone})]);
+            }).then(() => { setLoading('signup-btn', false); closeFS('fs-signup'); showToast('Account created!', 'success'); })
+            .catch(err => { setLoading('signup-btn', false); showToast(err.message, 'error'); });
+        }
+        function googleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).then(() => { closeFS('fs-login'); closeFS('fs-signup'); showToast('Welcome!', 'success'); })
+            .catch(err => showToast(err.message, 'error'));
+        }
+        function resetPass() {
+            const email = document.getElementById('fs-l-email').value;
+            if(!email) { showToast('Enter your email', 'warning'); return; }
+            auth.sendPasswordResetEmail(email).then(() => showToast('Reset link sent!', 'success')).catch(err => showToast(err.message, 'error'));
+        }
+        // --- NEW LOGOUT FUNCTIONS ---
+        
+        // 1. जब Logout बटन दबेगा, तो Modal दिखाओ
+        function logout() {
+        document.getElementById('logout-confirm-modal').style.display = 'flex';
+        }
+        
+        // 2. अगर Cancel किया, तो Modal छुपाओ
+        function closeLogoutModal() {
+        document.getElementById('logout-confirm-modal').style.display = 'none';
+        }
+        
+        // 3. अगर Yes दबाया, तो Firebase से Logout करो
+        function confirmLogout() {
+        closeLogoutModal(); // पहले मॉडल बंद करो
+        auth.signOut().then(() => { 
+        showToast('Logged out successfully', 'success'); 
+        setTimeout(() => location.reload(), 1000); 
+        });
+        }
+        
+        function switchAuth(type) { closeFS('fs-login'); closeFS('fs-signup'); openFS('fs-'+type); }
+
+        // Profile
+        function saveProfile() {
+            const name = document.getElementById('edit-name').value;
+            const phone = document.getElementById('edit-phone').value;
+            const user = auth.currentUser;
+            Promise.all([user.updateProfile({displayName:name}), db.ref('users/'+user.uid+'/profile/phone').set(phone)])
+            .then(() => { document.getElementById('u-name').innerText = name; document.getElementById('avatar').innerText = name[0].toUpperCase(); showToast('Profile updated!', 'success'); closeFS('fs-personal'); });
+        }
+        function saveNewAddress() {
+            const addr = document.getElementById('new-address-input').value;
+            const city = document.getElementById('new-address-city').value;
+            const pin = document.getElementById('new-address-pin').value;
+            if(!addr) { showToast('Enter address', 'warning'); return; }
+            const full = addr + (city?', '+city:'') + (pin?' - '+pin:'');
+            db.ref('users/'+auth.currentUser.uid+'/addresses').push(full).then(() => {
+                showToast('Address saved!', 'success'); closeFS('fs-add-address');
+                document.getElementById('new-address-input').value = '';
+                document.getElementById('new-address-city').value = '';
+                document.getElementById('new-address-pin').value = '';
+            });
+        }
+        function deleteAddress(key) { if(confirm('Delete?')) db.ref('users/'+auth.currentUser.uid+'/addresses/'+key).remove().then(()=>showToast('Deleted','success')); }
+        function toggleDarkMode() {
+            const enabled = document.querySelector('input[type="checkbox"]').checked;
+            document.body.style.filter = enabled?'invert(1) hue-rotate(180deg)':'';
+            localStorage.setItem('darkMode', enabled);
+        }
+
+        // Rating
+        function openRating(orderId) { UrbanPaintPro.currentRatingOrder = orderId; UrbanPaintPro.currentRating = 0; updateStarDisplay(); openFS('fs-rating'); }
+        function setRating(r) { UrbanPaintPro.currentRating = r; updateStarDisplay(); const texts=['','Poor','Fair','Good','Very Good','Excellent']; document.getElementById('rating-text').innerText = texts[r]; }
+        function updateStarDisplay() { document.querySelectorAll('#star-rating .star').forEach((s,i) => { s.style.color = i<UrbanPaintPro.currentRating?'#fbbf24':'#ccc'; }); }
+        // --- 1. ALERT FUNCTION ---
+        function showAlert(title, msg, type) {
+        const overlay = document.getElementById('custom-alert');
+        const iconBox = document.getElementById('c-alert-icon-box');
+        const icon = document.getElementById('c-alert-icon');
+        const btn = overlay.querySelector('button');
+        
+        // Set Text
+        document.getElementById('c-alert-title').innerText = title;
+        document.getElementById('c-alert-msg').innerText = msg;
+        
+        // Set Colors based on Type
+        if(type === 'success') {
+        iconBox.style.background = '#DCFCE7'; // Green bg
+        iconBox.style.color = '#166534';       // Green text
+        icon.className = 'fa-solid fa-check';
+        btn.style.background = '#166534';
+        } else if(type === 'error') {
+        iconBox.style.background = '#FEE2E2'; // Red bg
+        iconBox.style.color = '#991B1B';       // Red text
+        icon.className = 'fa-solid fa-xmark';
+        btn.style.background = '#991B1B';
+        } else {
+        iconBox.style.background = '#EEF2FF'; // Blue bg
+        iconBox.style.color = '#4F46E5';       // Blue text
+        icon.className = 'fa-solid fa-info';
+        btn.style.background = '#4F46E5';
+        }
+        
+        // Show
+        overlay.style.display = 'flex';
+        }
+        
+        // --- 2. RATING SUBMIT FUNCTION ---
+        function submitRating() {
+        // Check if rating is selected
+        if(UrbanPaintPro.currentRating === 0) { 
+        showAlert('Oops!', 'Please tap on the stars to give a rating.', 'error'); 
+        return; 
+        }
+        
+        const orderId = UrbanPaintPro.currentRatingOrder;
+        const rating = UrbanPaintPro.currentRating;
+        const review = document.getElementById('rating-comment').value;
+        
+        // Fetch Order Data
+        db.ref('orders/' + orderId).once('value', snap => {
+        const order = snap.val();
+        const pName = order.partnerName || "Partner";
+        
+        // Update Partner Profile (If ID exists)
+        if (order.partnerId) {
+        const partnerRef = db.ref('partners/' + order.partnerId);
+        partnerRef.once('value', pSnap => {
+        if(pSnap.exists()){
+        const pData = pSnap.val();
+        const oldRating = parseFloat(pData.rating || 0); 
+        const oldCount = parseInt(pData.ratingCount || 0);
+        
+        let newCount = oldCount + 1;
+        let newAvg = (oldCount === 0) ? rating : ((oldRating * oldCount) + rating) / newCount;
+        newAvg = Math.round(newAvg * 10) / 10;
+        
+        // Update in DB
+        partnerRef.update({ rating: newAvg, ratingCount: newCount });
+        
+        // ✅ SHOW SUCCESS ALERT HERE
+        showAlert('Awesome!', `You rated ${pName} ${rating} Stars!\nReview submitted successfully.`, 'success');
+        }
+        });
+        } else {
+        // If no partner ID (Testing mode)
+        showAlert('Rated!', 'Rating saved successfully.', 'success');
+        }
+        
+        // Save Rating in Order
+        db.ref('orders/'+orderId).update({ 
+        rated: true, 
+        rating: rating, 
+        review: review, 
+        ratedAt: firebase.database.ServerValue.TIMESTAMP 
+        }).then(() => { 
+        // Close the Rating Sheet behind the alert
+        closeFS('fs-rating'); 
+        });
+        });
+        }
+        
+
+        // AI Chat
+        function sendAIChat() {
+            const inp = document.getElementById('ai-chat-in');
+            const box = document.getElementById('ai-chat-box');
+            const msg = inp.value.trim();
+            if(!msg) return;
+            box.innerHTML += `<div class="chat-msg chat-user">${msg}</div>`;
+            inp.value = ''; box.scrollTop = box.scrollHeight;
+            const responses = {
+                'price': 'Prices start from ₹12/sqft. Use the calculator for exact pricing!',
+                'book': 'Click "Book Visit" on the home page to schedule.',
+                'warranty': 'We offer 1-year warranty on all services.',
+                'payment': 'We accept UPI, Cash, and Cards.',
+                'contact': 'WhatsApp: +91 9711904092, Email: urbanpaintpro.index@gmail.com',
+                'help': 'Contact us: +91 9711904092 or urbanpaintpro.index@gmail.com'
+            };
+            let reply = "I'm here to help! Ask about pricing, booking, or services.";
+            for(const [k,v] of Object.entries(responses)) { if(msg.toLowerCase().includes(k)) { reply=v; break; } }
+            setTimeout(() => { box.innerHTML += `<div class="chat-msg chat-ai">${reply}</div>`; box.scrollTop = box.scrollHeight; }, 600);
+        }
+
+     // --- 1. ALERT DIKHANE KA FUNCTION ---
+     function showAlert(title, msg, type) {
+     const modal = document.getElementById('custom-alert');
+     const iconBox = document.getElementById('alert-icon-container');
+     const btn = document.getElementById('alert-btn');
+     
+     let iconHtml = '';
+     if(type === 'success') {
+     // Green Success Icon
+     iconHtml = '<div style="width: 70px; height: 70px; background: #DCFCE7; color: #166534; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto;"><i class="fa-solid fa-check"></i></div>';
+     btn.style.background = '#22C55E';
+     } else if(type === 'error') {
+     // Red Error Icon
+     iconHtml = '<div style="width: 70px; height: 70px; background: #FEE2E2; color: #EF4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto;"><i class="fa-solid fa-xmark"></i></div>';
+     btn.style.background = '#EF4444';
+     } else {
+     // Blue Info Icon
+     iconHtml = '<div style="width: 70px; height: 70px; background: #EEF2FF; color: #4F46E5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto;"><i class="fa-solid fa-info"></i></div>';
+     btn.style.background = '#4F46E5';
+     }
+     
+     iconBox.innerHTML = iconHtml;
+     document.getElementById('alert-title').innerText = title;
+     document.getElementById('alert-msg').innerText = msg;
+     modal.style.display = 'flex'; // Popup dikhao
+     }
+     
+     // --- 2. ALERT BAND KARNE KA FUNCTION ---
+     function closeCustomAlert() {
+     document.getElementById('custom-alert').style.display = 'none';
+     }
+     
+     // --- 3. PAYMENT FUNCTION (Corrected) ---
+     function buyMembership(planName, price) {
+     const user = auth.currentUser;
+     if (!user) {
+     showAlert("Login Required", "Please login to buy a plan!", "error");
+     return;
+     }
+     
+     // Loading dikhao
+     showAlert("Processing...", "Please wait while we set up payment.", "info");
+     setTimeout(() => closeCustomAlert(), 1500); // 1.5 sec baad loading band
+     
+     var options = {
+     "key": "rzp_test_SDEMypFMhovnYY", // 🔴 APNI KEY DALEIN
+     "amount": price * 100,
+     "currency": "INR",
+     "name": "UrbanPaintPro",
+     "description": "Join " + planName,
+     "image": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+     
+     // ✅ SUCCESS HONE PAR YE CHALEGA
+     "handler": function (response) {
+     const payId = response.razorpay_payment_id;
+     const today = new Date();
+     const expiry = new Date();
+     
+     if(planName.includes("Yearly")) { expiry.setFullYear(today.getFullYear() + 1); } 
+     else { expiry.setMonth(today.getMonth() + 3); }
+     
+     // Database me save
+     db.ref('users/' + user.uid + '/membership').set({
+     plan: planName,
+     active: true,
+     startDate: today.toDateString(),
+     expiryDate: expiry.toDateString(),
+     paymentId: payId
+     }).then(() => {
+     closeFS('fs-membership'); // Sheet band
+     
+     // 🎉 SUCCESS POPUP YAHAN HAI
+     showAlert("Welcome to the Club! 👑", "Payment Successful. Your benefits are active now.", "success");
+     });
+     },
+     
+     "prefill": { "email": user.email, "contact": user.phoneNumber },
+     "theme": { "color": "#4F46E5" }
+     };
+     
+     var rzp1 = new Razorpay(options);
+     
+     // ❌ FAIL HONE PAR YE CHALEGA
+     rzp1.on('payment.failed', function (response){
+     showAlert("Payment Failed 💔", "Don't worry, your money is safe. Try again.", "error");
+     });
+     
+     rzp1.open();
+     }
+      // --- AMC PAYMENT SYSTEM ---
+       function buyAMC(planName, price) {
+       
+       // 1. User check
+       const user = auth.currentUser;
+       if (!user) {
+       showToast("Please login to buy a plan!", "error");
+       return;
+       }
+       
+       // 2. Loading State
+       showToast("Initiating Payment for " + planName + "...", "info");
+       
+       // 3. Razorpay Options
+       var options = {
+       "key": "rzp_test_SDEMypFMhovnYY", // 🔴 Yahan apni Key ID dalein (Example: rzp_test_12345)
+       "amount": price * 100, // Amount in paise
+       "currency": "INR",
+       "name": "UrbanPaintPro",
+       "description": "Purchase " + planName + " AMC Plan",
+       "image": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+       
+       // 4. Success Handler
+       "handler": function (response) {
+       // Payment ID mil gayi
+       const payId = response.razorpay_payment_id;
+       
+       // Expiry Date (1 Year later)
+       const today = new Date();
+       const nextYear = new Date();
+       nextYear.setFullYear(today.getFullYear() + 1);
+       
+       // Save to Database
+       db.ref('users/' + user.uid + '/amc_plan').set({
+       plan: planName,
+       price: price,
+       status: 'active',
+       purchaseDate: today.toDateString(),
+       expiryDate: nextYear.toDateString(),
+       paymentId: payId
+       }).then(() => {
+       closeFS('fs-amc');
+       // Confetti Effect (Agar library hai)
+       showAlert("Payment Successful! 🎉", "Welcome to the Urban Pro Club. Your benefits are active now.", "success");
+       
+       
+       // Welcome Notification bhejo (Database mein)
+       db.ref('users/' + user.uid + '/notifications').push({
+       title: "Plan Activated 👑",
+       msg: "Your " + planName + " AMC plan is now active till " + nextYear.toDateString(),
+       date: new Date().toISOString(),
+       read: false
+       });
+       });
+       },
+       "prefill": {
+       "name": user.displayName || "Urban Customer",
+       "email": user.email,
+       "contact": user.phoneNumber || ""
+       },
+       "theme": {
+       "color": "#4F46E5"
+       }
+       };
+       
+       // 5. Open Payment Gateway
+       var rzp1 = new Razorpay(options);
+       rzp1.on('payment.failed', function (response){
+       // ✅ Naya Code (Red Error Popup)
+       showAlert("Payment Failed ", "Don't worry, your money is safe. Please try again.", "error");
+       });
+       
+       rzp1.open();
+       }
+       
+       
+        function genInvoice() {
+        try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const user = auth.currentUser;
+        
+        const brand = selectionState.brand;
+        const product = selectionState.prodName;
+        const roomText = selectionState.roomText;
+        const service = selectionState.serviceText;
+        const qty = UrbanPaintPro.currentQty;
+        
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-IN');
+        const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        
+        let totalText = document.getElementById('total-price').innerText; 
+        let totalVal = parseFloat(totalText.replace(/[^0-9.]/g, '')); 
+        
+        const primaryColor = [79, 70, 229];
+        
+        doc.setFillColor(...primaryColor);
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(26); doc.text("UrbanPaintPro", 15, 20);
+        doc.setFontSize(10); doc.text("India's #1 Painting App", 15, 28);
+        doc.setFontSize(16); doc.text("INVOICE", 150, 18);
+        doc.setFontSize(10); doc.text(`# INV-${Date.now().toString().slice(-6)}`, 150, 25);
+        doc.text(`Date: ${dateStr}`, 150, 30); doc.text(`Time: ${timeStr}`, 150, 35);
+        
+        let yPos = 55;
+        doc.setTextColor(0, 0, 0);
+        doc.text("BILLED TO:", 15, yPos);
+        doc.setFont('helvetica', 'normal');
+        doc.text(user ? (user.displayName || "Valued Customer") : "Guest Customer", 15, yPos + 6);
+        if(user && user.email) doc.text(user.email, 15, yPos + 12);
+        
+        doc.autoTable({
+        startY: yPos + 20,
+        head: [['Description', 'Service', 'Area', 'Qty', 'Amount']],
+        body: [[`${brand} - ${product}`, service, roomText, `${qty} Unit`, `Rs. ${totalVal.toLocaleString('en-IN')}`]],
+        theme: 'grid',
+        headStyles: { fillColor: primaryColor }
+        });
+        
+        let finalY = doc.lastAutoTable.finalY + 10;
+        doc.text(`Total: Rs. ${totalVal.toLocaleString('en-IN')}`, 130, finalY + 34);
+        doc.setFont('times', 'italic'); doc.setFontSize(22); doc.text("Arbaj Khan", 150, 245);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.text("CEO, UrbanPaintPro", 150, 252);
+        
+        doc.save(`Invoice_${Date.now()}.pdf`);
+        showToast('Invoice Downloaded!', 'success');
+        } catch (e) {
+        console.error(e);
+        showToast('Error: ' + e.message, 'error');
+        }
+        }
+        // ✅ Auto-Fill Address Logic
+        function prefillAddress() {
+        const user = auth.currentUser;
+        if(!user) return;
+        
+        // Firebase se last saved address layein
+        db.ref('users/' + user.uid + '/addresses').limitToLast(1).once('value', snap => {
+        if(snap.exists()) {
+        // Address format: "H-123, Delhi - 110025"
+        const fullAddr = Object.values(snap.val())[0];
+        
+        // Address aur Pincode alag karein
+        const parts = fullAddr.split(' - '); 
+        
+        if(parts.length > 1) {
+        if(document.getElementById('b-addr')) document.getElementById('b-addr').value = parts[0];
+        if(document.getElementById('b-pin')) document.getElementById('b-pin').value = parts[1];
+        } else {
+        if(document.getElementById('b-addr')) document.getElementById('b-addr').value = fullAddr;
+        }
+        }
+        });
+        }
+        
+      // --- CUSTOM ALERT FUNCTION ---
+      function showAlert(title, msg, type) {
+      const modal = document.getElementById('custom-alert');
+      const iconBox = document.getElementById('alert-icon-container');
+      const btn = document.getElementById('alert-btn');
+      
+      // 1. Icon Set karo
+      let iconHtml = '';
+      if(type === 'error') {
+      iconHtml = '<div class="alert-icon error"><i class="fa-solid fa-circle-xmark"></i></div>';
+      btn.style.background = '#EF4444'; // Red Button
+      } else if(type === 'success') {
+      iconHtml = '<div class="alert-icon success"><i class="fa-solid fa-circle-check"></i></div>';
+      btn.style.background = '#22C55E'; // Green Button
+      } else {
+      iconHtml = '<div class="alert-icon info"><i class="fa-solid fa-circle-info"></i></div>';
+      btn.style.background = '#4F46E5'; // Purple Button
+      }
+      
+      iconBox.innerHTML = iconHtml;
+      document.getElementById('alert-title').innerText = title;
+      document.getElementById('alert-msg').innerText = msg;
+      
+      // 2. Show Modal
+      modal.style.display = 'flex';
+      }
+      
+      function closeCustomAlert() {
+      document.getElementById('custom-alert').style.display = 'none';
+      }
+      
+      
+      // --- PERMISSION HANDLER ---
+      function togglePerm(type, checkbox) {
+      const isOn = checkbox.checked;
+      const status = isOn ? "Granted" : "Denied";
+      const user = auth.currentUser;
+      
+      // 1. UI Feedback
+      if(isOn) {
+      showToast(type.toUpperCase() + " permission enabled!", "success");
+      } else {
+      showToast(type.toUpperCase() + " permission disabled.", "info");
+      }
+      
+      // 2. Promotion Data Collection Strategy
+      if(user) {
+      // Hum database me save karenge ki user ne kya permission di hai
+      // Isse hume pata chalega kise message bhejna hai
+      db.ref('users/' + user.uid + '/permissions/' + type).set(isOn);
+      
+      // Special Logic: Agar WhatsApp on kiya, to Admin ko notify ho sakta hai
+      if(type === 'whatsapp' && isOn) {
+      console.log("User agreed to WhatsApp Promo");
+      }
+      }
+      
+      // 3. Real Browser Permissions (Optional - Advanced)
+      if(type === 'mic' && isOn) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => { showToast("Mic Access OK", "success"); stream.getTracks().forEach(t=>t.stop()); })
+      .catch(err => { checkbox.checked = false; showToast("Mic Permission Denied by Phone", "error"); });
+      }
+      if(type === 'location' && isOn) {
+      navigator.geolocation.getCurrentPosition(
+      pos => showToast("Location Access OK", "success"),
+      err => { checkbox.checked = false; showToast("Location Denied", "error"); }
+      );
+      }
+      }
+      
+      // --- 1. TIMER & POPUP LOGIC ---
+      let deleteTimerInterval;
+      
+      function openDeleteModal() {
+      const modal = document.getElementById('delete-modal');
+      const btn = document.getElementById('btn-confirm-delete');
+      
+      modal.style.display = 'flex';
+      
+      // Timer Reset (Light Purple Theme)
+      let timeLeft = 5;
+      btn.disabled = true;
+      btn.style.background = "#EEF2FF"; 
+      btn.style.color = "#4F46E5"; 
+      btn.style.opacity = "0.7";
+      btn.style.cursor = "not-allowed";
+      btn.innerText = "Wait " + timeLeft + "s";
+      
+      // Countdown Shuru
+      clearInterval(deleteTimerInterval);
+      deleteTimerInterval = setInterval(() => {
+      timeLeft--;
+      if (timeLeft > 0) {
+      btn.innerText = "Wait " + timeLeft + "s";
+      } else {
+      // Time Over -> Button Active (Dark Purple)
+      clearInterval(deleteTimerInterval);
+      btn.disabled = false;
+      btn.style.background = "#4F46E5"; 
+      btn.style.color = "white";
+      btn.style.opacity = "1";
+      btn.style.cursor = "pointer";
+      btn.innerText = "Yes, Delete";
+      }
+      }, 1000);
+      }
+      
+      function closeDeleteModal() {
+      document.getElementById('delete-modal').style.display = 'none';
+      clearInterval(deleteTimerInterval);
+      }
+      
+      // --- 2. FIREBASE DELETE LOGIC (Yeh raha wo code jo data udayega) ---
+      function finalDeleteUser() {
+      const user = auth.currentUser;
+      
+      if (user) {
+      // Button Loading State
+      const btn = document.getElementById('btn-confirm-delete');
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+      
+      // Step A: Database se Data Hatao
+      db.ref('users/' + user.uid).remove()
+      .then(() => {
+      // Step B: User ko Authentication se Hatao
+      return user.delete();
+      })
+      .then(() => {
+      // Step C: Success! Reload Page
+      alert("Account Deleted Successfully.");
+      window.location.reload();
+      })
+      .catch((error) => {
+      // Error Handling
+      closeDeleteModal();
+      if (error.code === 'auth/requires-recent-login') {
+      alert("Security Alert: Please Logout and Login again to delete your account.");
+      } else {
+      alert("Error: " + error.message);
+      }
+      });
+      }
+      }
+      
+      
+      // Navigation
+        function nav(page, el) {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            document.getElementById(page).classList.add('active');
+            if(el) el.classList.add('active');
+            closeAllSheets();
+        }
+        function openFS(id) { document.getElementById(id).classList.add('active'); document.getElementById('overlay').classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeFS(id) { document.getElementById(id).classList.remove('active'); if(!document.querySelector('.full-sheet.active')) { document.getElementById('overlay').classList.remove('active'); document.body.style.overflow = ''; } }
+        function closeAllSheets() { document.querySelectorAll('.full-sheet').forEach(s => s.classList.remove('active')); document.getElementById('overlay').classList.remove('active'); document.body.style.overflow = ''; }
+        function closeStatus() { document.getElementById('status-success').classList.remove('active'); }
+        function setLang(l, show) { localStorage.setItem('language', l); if(show) { showToast('Language updated!', 'success'); closeFS('fs-language'); } }
+
+        // Offline detection
+        window.addEventListener('online', () => { document.getElementById('offline-bar').classList.remove('show'); showToast('Back online!', 'success'); });
+        window.addEventListener('offline', () => { document.getElementById('offline-bar').classList.add('show'); });
+   
+
+    // --- CUSTOM PURPLE CALENDAR (No More Black) ---
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        flatpickr("#wiz-date", {
+            minDate: "today",       // Purani dates block
+            dateFormat: "Y-m-d",
+            disableMobile: "true",  // 🔥 IMP: Mobile ka Black Calendar Band
+            
+            // Calendar khulte hi use Purple bana do
+            onOpen: function(selectedDates, dateStr, instance) {
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    .flatpickr-calendar { background: white !important; box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important; border-radius: 16px !important; border: none !important; }
+                    .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
+                        background: #4F46E5 !important; /* Purple */
+                        border-color: #4F46E5 !important;
+                    }
+                    .flatpickr-months .flatpickr-month {
+                        background: #4F46E5 !important; /* Header Purple */
+                        color: white !important;
+                        fill: white !important;
+                        border-radius: 16px 16px 0 0;
+                        padding-top: 10px;
+                    }
+                    .flatpickr-current-month .flatpickr-monthDropdown-months, 
+                    .flatpickr-current-month input.cur-year {
+                        color: white !important;
+                        font-weight: 700 !important;
+                    }
+                    .flatpickr-weekdays {
+                        background: #4F46E5 !important;
+                    }
+                    span.flatpickr-weekday {
+                        color: rgba(255,255,255,0.8) !important;
+                    }
+                    .flatpickr-day.today { border-color: #4F46E5 !important; }
+                    .flatpickr-day:hover { background: #EEF2FF !important; }
+                `;
+                document.head.appendChild(style);
+            }
+        });
+        
+    });
+    // --- UPDATED OPEN FULL SHEET FUNCTION ---
+   function openFS(id) {
+   // 1. बाकी सभी शीट्स को पीछे करें
+   document.querySelectorAll('.full-sheet').forEach(s => s.style.zIndex = '5000');
+   
+   // 2. जिसे खोलना है उसे सबसे ऊपर लाएं (5000 से ज्यादा)
+   const sheet = document.getElementById(id);
+   sheet.style.zIndex = '5001'; 
+   sheet.classList.add('active');
+   
+   // 3. Overlay दिखाएं
+   document.getElementById('overlay').classList.add('active');
+   document.body.style.overflow = 'hidden';
+   }
+   
+   // --- PERMISSION POPUP LOGIC ---
+   
+   document.addEventListener("DOMContentLoaded", function() {
+   // Check karein agar user ne pehle setup kiya hai ya nahi
+   const setupDone = localStorage.getItem("app_setup_done");
+   
+   // Agar nahi kiya, to 2 second baad popup dikhayein
+   if (!setupDone) {
+   setTimeout(() => {
+   document.getElementById('perm-modal').style.display = 'flex';
+   }, 1500); // 1.5 second delay taaki user pehle app dekh le
+   }
+   });
+   
+   function closePermModal() {
+   document.getElementById('perm-modal').style.display = 'none';
+   // User ne mana kar diya, par hum yaad rakhenge ki popup dikha diya tha
+   localStorage.setItem("app_setup_done", "skipped");
+   }
+   
+   function allowAllPerms() {
+   // 1. Popup band karein
+   document.getElementById('perm-modal').style.display = 'none';
+   showToast("Enabling permissions...", "info");
+   
+   // 2. Browser se Location maangein
+   if (navigator.geolocation) {
+   navigator.geolocation.getCurrentPosition(
+   (pos) => { console.log("Location Granted"); },
+   (err) => { console.log("Location Denied"); }
+   );
+   }
+   
+   // 3. Notification maangein (Agar supported hai)
+   if ("Notification" in window) {
+   Notification.requestPermission().then(permission => {
+   if (permission === "granted") {
+   console.log("Notification Granted");
+   }
+   });
+   }
+   
+   // 4. Database mein save karein (WhatsApp Consent)
+   const user = auth.currentUser;
+   if(user) {
+   db.ref('users/' + user.uid + '/permissions').set({
+   whatsapp: true,
+   location: true,
+   notification: true
+   });
+   }
+   
+   // 5. Future ke liye save kar lein ki setup ho gaya
+   localStorage.setItem("app_setup_done", "true");
+   
+   // 6. Success Message
+   setTimeout(() => {
+   showToast("You're all set!", "success");
+   }, 1000);
+   }
+ // --- PROFILE PHOTO LOGIC (Updated for Header too) ---
+ 
+ // 1. Photo Load Karo (Login hone par)
+ auth.onAuthStateChanged((user) => {
+ if (user) {
+ // A. Naam aur Email set karo
+ document.getElementById('display-name').innerText = user.displayName || "Urban User";
+ document.getElementById('display-email').innerText = user.email;
+ 
+ // B. Database check karo
+ db.ref('users/' + user.uid + '/profilePic').once('value').then((snapshot) => {
+ const dbPic = snapshot.val();
+ const googlePic = user.photoURL; // Google wali photo
+ 
+ // ✅ Dono jagah ke elements dhundo
+ const accountImg = document.getElementById('user-dp');
+ const headerImg = document.getElementById('header-user-dp');
+ 
+ // Kaunsi photo final karni hai?
+ let finalPic = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"; // Default
+ if (dbPic) {
+ finalPic = dbPic; // Database wali (Sabse pehle)
+ } else if (googlePic) {
+ finalPic = googlePic; // Google wali (Agar DB me nahi hai)
+ }
+ 
+ // ✅ Dono jagah set kar do
+ if (accountImg) accountImg.src = finalPic;
+ if (headerImg) headerImg.src = finalPic;
+ });
+ }
+ });
+ 
+ // 2. Photo Upload Karo (Jab user change kare)
+ function uploadProfilePic(input) {
+ const user = auth.currentUser;
+ if (input.files && input.files[0]) {
+ const file = input.files[0];
+ if(file.size > 2000000) { alert("Photo too big! Max 2MB."); return; }
+ 
+ const reader = new FileReader();
+ reader.onload = function (e) {
+ const base64Img = e.target.result;
+ 
+ // ✅ Turant dono jagah dikha do
+ document.getElementById('user-dp').src = base64Img;
+ document.getElementById('header-user-dp').src = base64Img;
+ 
+ // B. Database me Save kar do
+ db.ref('users/' + user.uid).update({ profilePic: base64Img });
+ };
+ reader.readAsDataURL(file);
+ }
+ }
+ 
+ 
+ </script>
+</body>
+</html>
