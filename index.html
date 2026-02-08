@@ -573,6 +573,15 @@
   border: 2px solid white; /* Saaf dikhne ke liye border */
   box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Halki si shadow */
   }
+  #profile-ui {
+  display: none; /* Ye pehle se hoga, isse mat chedho */
+  
+  /* 🔥 Ye Naya Add Karein (Scroll Fix) 🔥 */
+  padding-bottom: 30px !important;  /* Niche jagah banayega */
+  overflow-y: auto;      /* Scroll on karega */
+  height: 17vh;         /* Full screen height */
+  box-sizing: border-box; 
+  }
   
     </style>
 </head>
@@ -1347,8 +1356,8 @@
        </div>
 
     <div class="page" id="account">
- <div id="auth-ui" style="text-align: center; padding: 40px 20px;">
-    
+ <div id="auth-ui" style="text-align: center; padding: 10px 15px;">
+ 
     <img src="logo.jpg" 
          style="width: 100px; height: 100px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 10px 30px rgba(79, 70, 229, 0.2);">
     
