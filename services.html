@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0D9488">
+    <title>Our Services | UrbanPaintPro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --p: #0D9488; --p-light: #14B8A6; --accent: #F59E0B; --bg: #F0FDFA; --text: #134E4A; --white: #FFFFFF; --success: #22c55e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 100px; }
+
+        .header { position: fixed; top: 0; width: 100%; height: 60px; background: var(--white); display: flex; align-items: center; padding: 0 20px; z-index: 100; border-bottom: 1px solid #CCFBF1; }
+        .back-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-right: 15px; color: var(--p); }
+        .back-btn:hover { background: #F0FDFA; }
+        .header-title { font-weight: 700; font-size: 1.1rem; }
+
+        .content { margin-top: 80px; padding: 0 20px; }
+
+        /* Category Tabs */
+        .category-tabs { 
+            display: flex; gap: 10px; margin-bottom: 20px; 
+            overflow-x: auto; padding-bottom: 5px;
+        }
+        .tab { 
+            padding: 10px 20px; background: white; border: 2px solid #CCFBF1; 
+            border-radius: 25px; font-weight: 600; font-size: 0.85rem; 
+            cursor: pointer; white-space: nowrap; transition: all 0.2s;
+            color: var(--gray);
+        }
+        .tab.active { 
+            background: var(--p); color: white; border-color: var(--p);
+            box-shadow: 0 4px 15px rgba(13,148,136,0.3);
+        }
+
+        /* Service Cards */
+        .service-card { 
+            background: white; border-radius: 20px; margin-bottom: 20px; 
+            overflow: hidden; box-shadow: 0 4px 15px rgba(13,148,136,0.08);
+            border: 1px solid #CCFBF1; display: none;
+        }
+        .service-card.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .service-header { 
+            padding: 20px; display: flex; align-items: center; gap: 15px;
+            background: linear-gradient(135deg, #F0FDFA, #E0F2FE);
+        }
+        .service-icon { 
+            width: 60px; height: 60px; background: linear-gradient(135deg, var(--p), var(--p-light)); 
+            border-radius: 16px; display: flex; align-items: center; 
+            justify-content: center; color: white; font-size: 1.5rem;
+        }
+        .service-title { font-size: 1.2rem; font-weight: 700; color: var(--p); }
+        .service-subtitle { font-size: 0.85rem; color: #64748B; }
+
+        .service-body { padding: 20px; }
+        .feature-list { list-style: none; margin-bottom: 20px; }
+        .feature-list li { 
+            padding: 10px 0; border-bottom: 1px solid #F0FDFA; 
+            display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+        }
+        .feature-list li i { color: var(--success); }
+
+        .price-tag { 
+            display: inline-block; background: #CCFBF1; color: var(--p-dark); 
+            padding: 8px 16px; border-radius: 20px; font-weight: 700; 
+            font-size: 0.9rem; margin-bottom: 15px;
+        }
+
+        .btn { 
+            width: 100%; padding: 14px; border-radius: 12px; border: none; 
+            background: var(--p); color: white; font-weight: 700; 
+            cursor: pointer; display: flex; align-items: center; 
+            justify-content: center; gap: 8px; transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(13,148,136,0.3);
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,148,136,0.4); }
+
+        /* Estimator Modal */
+        .modal-overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); 
+            z-index: 1000; display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal { 
+            background: white; border-radius: 24px; width: 100%; max-width: 400px;
+            max-height: 80vh; overflow: hidden; animation: modalPop 0.3s;
+        }
+        @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .modal-header { 
+            padding: 20px; background: linear-gradient(135deg, var(--p), var(--p-light));
+            color: white;
+        }
+        .modal-title { font-size: 1.2rem; font-weight: 700; }
+        .modal-body { padding: 20px; overflow-y: auto; }
+        
+        .input-group { margin-bottom: 15px; }
+        .input-label { font-weight: 600; font-size: 0.85rem; color: var(--p); margin-bottom: 5px; display: block; }
+        .input-field { 
+            width: 100%; padding: 12px; border: 2px solid #CCFBF1; 
+            border-radius: 10px; font-size: 0.9rem; outline: none;
+        }
+        .input-field:focus { border-color: var(--p); }
+        
+        .estimate-result { 
+            background: #F0FDFA; padding: 20px; border-radius: 12px; 
+            text-align: center; margin-top: 15px; border: 2px dashed var(--p-light);
+        }
+        .estimate-amount { font-size: 2rem; font-weight: 800; color: var(--p); }
+        
+        .close-btn { 
+            position: absolute; top: 15px; right: 15px; 
+            width: 32px; height: 32px; background: rgba(255,255,255,0.2);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; color: white; cursor: pointer;
+        }
+
+        /* Bottom Nav */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 10px; }
+        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 12px; }
+        .nav-item.active { color: var(--p); background: #F0FDFA; }
+        .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+
+        @media (min-width: 768px) {
+            body { max-width: 480px; margin: 0 auto; border-left: 1px solid #CCFBF1; border-right: 1px solid #CCFBF1; }
+            .nav, .header { max-width: 480px; left: 50%; transform: translateX(-50%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-btn" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+        </div>
+        <div class="header-title">Our Services</div>
+    </div>
+
+    <div class="content">
+        <!-- Category Tabs -->
+        <div class="category-tabs">
+            <div class="tab active" onclick="filterServices('all')">All</div>
+            <div class="tab" onclick="filterServices('painting')">Painting</div>
+            <div class="tab" onclick="filterServices('waterproofing')">Waterproofing</div>
+            <div class="tab" onclick="filterServices('cleaning')">Cleaning</div>
+        </div>
+
+        <!-- Painting Services -->
+        <div class="service-card active" data-category="painting">
+            <div class="service-header">
+                <div class="service-icon">
+                    <i class="fa-solid fa-paint-roller"></i>
+                </div>
+                <div>
+                    <div class="service-title">Home Painting</div>
+                    <div class="service-subtitle">Interior & Exterior</div>
+                </div>
+            </div>
+            <div class="service-body">
+                <div class="price-tag">Starting ₹12/sqft</div>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> Premium Quality Paints</li>
+                    <li><i class="fa-solid fa-check"></i> Wall Preparation & Putty</li>
+                    <li><i class="fa-solid fa-check"></i> Furniture Covering</li>
+                    <li><i class="fa-solid fa-check"></i> Post-Cleaning Included</li>
+                    <li><i class="fa-solid fa-check"></i> 1 Year Warranty</li>
+                </ul>
+                <button class="btn" onclick="openEstimator('painting')">
+                    <i class="fa-solid fa-calculator"></i> Get Estimate
+                </button>
+            </div>
+        </div>
+
+        <div class="service-card active" data-category="painting">
+            <div class="service-header">
+                <div class="service-icon" style="background: linear-gradient(135deg, #0EA5E9, #38BDF8);">
+                    <i class="fa-solid fa-brush"></i>
+                </div>
+                <div>
+                    <div class="service-title">Texture Painting</div>
+                    <div class="service-subtitle">Designer Walls</div>
+                </div>
+            </div>
+            <div class="service-body">
+                <div class="price-tag" style="background: #E0F2FE; color: #0369A1;">Starting ₹85/sqft</div>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check" style="color: #0EA5E9;"></i> Royal Play Designs</li>
+                    <li><i class="fa-solid fa-check" style="color: #0EA5E9;"></i> Stencil Patterns</li>
+                    <li><i class="fa-solid fa-check" style="color: #0EA5E9;"></i> 3D Effects</li>
+                    <li><i class="fa-solid fa-check" style="color: #0EA5E9;"></i> Metallic Finishes</li>
+                </ul>
+                <button class="btn" style="background: #0EA5E9;" onclick="openEstimator('texture')">
+                    <i class="fa-solid fa-images"></i> View Designs
+                </button>
+            </div>
+        </div>
+
+        <!-- Waterproofing -->
+        <div class="service-card active" data-category="waterproofing">
+            <div class="service-header" style="background: linear-gradient(135deg, #DBEAFE, #F0FDFA);">
+                <div class="service-icon" style="background: linear-gradient(135deg, #3B82F6, #60A5FA);">
+                    <i class="fa-solid fa-droplet-slash"></i>
+                </div>
+                <div>
+                    <div class="service-title" style="color: #1E40AF;">Waterproofing</div>
+                    <div class="service-subtitle">Bathroom, Terrace, Walls</div>
+                </div>
+            </div>
+            <div class="service-body">
+                <div class="price-tag" style="background: #DBEAFE; color: #1E40AF;">Starting ₹80/sqft</div>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check" style="color: #3B82F6;"></i> Advanced Chemical Treatment</li>
+                    <li><i class="fa-solid fa-check" style="color: #3B82F6;"></i> Leak Detection</li>
+                    <li><i class="fa-solid fa-check" style="color: #3B82F6;"></i> Terrace Waterproofing</li>
+                    <li><i class="fa-solid fa-check" style="color: #3B82F6;"></i> 5 Year Warranty</li>
+                </ul>
+                <button class="btn" style="background: #3B82F6;" onclick="openEstimator('waterproofing')">
+                    <i class="fa-solid fa-magnifying-glass"></i> Get Quote
+                </button>
+            </div>
+        </div>
+
+        <!-- Cleaning -->
+        <div class="service-card active" data-category="cleaning">
+            <div class="service-header" style="background: linear-gradient(135deg, #DCFCE7, #F0FDFA);">
+                <div class="service-icon" style="background: linear-gradient(135deg, #22C55E, #4ADE80);">
+                    <i class="fa-solid fa-broom"></i>
+                </div>
+                <div>
+                    <div class="service-title" style="color: #166534;">Deep Cleaning</div>
+                    <div class="service-subtitle">Walls, Floors, Furniture</div>
+                </div>
+            </div>
+            <div class="service-body">
+                <div class="price-tag" style="background: #DCFCE7; color: #166534;">Starting ₹5/sqft</div>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check" style="color: #22C55E;"></i> Wall Dusting & Washing</li>
+                    <li><i class="fa-solid fa-check" style="color: #22C55E;"></i> Floor Scrubbing</li>
+                    <li><i class="fa-solid fa-check" style="color: #22C55E;"></i> Eco-friendly Chemicals</li>
+                    <li><i class="fa-solid fa-check" style="color: #22C55E;"></i> Same Day Service</li>
+                </ul>
+                <button class="btn" style="background: #22C55E;" onclick="openEstimator('cleaning')">
+                    <i class="fa-solid fa-calendar-check"></i> Book Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estimator Modal -->
+    <div class="modal-overlay" id="estimatorModal" onclick="closeEstimator(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header" style="position: relative;">
+                <div class="close-btn" onclick="closeEstimator()">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                <div class="modal-title" id="modalTitle">Quick Estimate</div>
+                <p style="opacity: 0.9; font-size: 0.85rem; margin-top: 5px;">Enter details for instant quote</p>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label class="input-label">Area (sq ft)</label>
+                    <input type="number" class="input-field" id="estArea" placeholder="e.g. 1000" oninput="calculateEstimate()">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Service Type</label>
+                    <select class="input-field" id="estType" onchange="calculateEstimate()">
+                        <option value="12">Standard Painting - ₹12/sqft</option>
+                        <option value="26">Premium Painting - ₹26/sqft</option>
+                        <option value="80">Waterproofing - ₹80/sqft</option>
+                        <option value="5">Deep Cleaning - ₹5/sqft</option>
+                    </select>
+                </div>
+                
+                <div class="estimate-result" id="estimateResult" style="display: none;">
+                    <div style="font-size: 0.85rem; color: #64748B; margin-bottom: 5px;">Estimated Cost</div>
+                    <div class="estimate-amount" id="estimateAmount">₹0</div>
+                    <p style="font-size: 0.75rem; color: #94A3B8; margin-top: 10px;">*Final price may vary based on site inspection</p>
+                </div>
+                
+                <button class="btn" style="margin-top: 20px;" onclick="bookService()">
+                    Book This Service <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="nav">
+        <div class="nav-item" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-house"></i><span>Home</span>
+        </div>
+        <div class="nav-item active" onclick="window.location.href='services.html'">
+            <i class="fa-solid fa-paint-roller"></i><span>Services</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='bookings.html'">
+            <i class="fa-solid fa-box-open"></i><span>Orders</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='about.html'">
+            <i class="fa-solid fa-user"></i><span>Profile</span>
+        </div>
+    </div>
+
+    <script>
+        // Filter Services
+        function filterServices(category) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase().includes(category) || (category === 'all' && tab.textContent === 'All')) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Show/hide cards
+            document.querySelectorAll('.service-card').forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+
+        // Estimator Modal
+        function openEstimator(type) {
+            const modal = document.getElementById('estimatorModal');
+            const title = document.getElementById('modalTitle');
+            
+            const titles = {
+                'painting': 'Painting Estimate',
+                'texture': 'Texture Design Estimate',
+                'waterproofing': 'Waterproofing Quote',
+                'cleaning': 'Cleaning Estimate'
+            };
+            
+            title.textContent = titles[type] || 'Quick Estimate';
+            
+            // Set default rate
+            const rates = { 'painting': 12, 'texture': 85, 'waterproofing': 80, 'cleaning': 5 };
+            document.getElementById('estType').value = rates[type] || 12;
+            
+            modal.classList.add('active');
+            document.getElementById('estArea').focus();
+        }
+
+        function closeEstimator(e) {
+            if (!e || e.target.id === 'estimatorModal') {
+                document.getElementById('estimatorModal').classList.remove('active');
+                document.getElementById('estimateResult').style.display = 'none';
+                document.getElementById('estArea').value = '';
+            }
+        }
+
+        function calculateEstimate() {
+            const area = parseFloat(document.getElementById('estArea').value) || 0;
+            const rate = parseFloat(document.getElementById('estType').value) || 0;
+            const total = Math.round(area * rate);
+            
+            if (area > 0) {
+                document.getElementById('estimateAmount').textContent = '₹' + total.toLocaleString('en-IN');
+                document.getElementById('estimateResult').style.display = 'block';
+            } else {
+                document.getElementById('estimateResult').style.display = 'none';
+            }
+        }
+
+        function bookService() {
+            const area = document.getElementById('estArea').value;
+            if (!area) {
+                alert('Please enter area size');
+                return;
+            }
+            
+            const estimate = document.getElementById('estimateAmount').textContent;
+            localStorage.setItem('quickEstimate', estimate);
+            
+            window.location.href = 'bookings.html?action=new&estimate=' + encodeURIComponent(estimate);
+        }
+    </script>
+</body>
+</html>
