@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | HomePaintingApp</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F0FDFA; margin: 0; color: #134E4A; }
+        
+        /* Steps Header */
+        .steps-header {
+            background: white; padding: 20px; display: flex; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #CCFBF1;
+        }
+        .step-dot { 
+            width: 30px; height: 30px; background: #E2E8F0; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; font-weight: 700; color: #64748B;
+        }
+        .step-dot.active { background: #0D9488; color: white; }
+        .step-line { flex: 1; height: 2px; background: #E2E8F0; margin: 15px 10px; }
+
+        /* Full Sheet Sections */
+        .step-content { display: none; padding: 20px; animation: slideIn 0.3s; }
+        .step-content.active { display: block; }
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; }
+        
+        .input-box { width: 100%; padding: 15px; border: 2px solid #CCFBF1; border-radius: 12px; margin-bottom: 15px; font-size: 1rem; }
+        
+        .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .slot-btn { 
+            padding: 15px; border: 2px solid #CCFBF1; border-radius: 12px; 
+            text-align: center; cursor: pointer; font-weight: 600; background: white;
+        }
+        .slot-btn.selected { border-color: #0D9488; background: #F0FDFA; color: #0D9488; }
+
+        .bill-summary { background: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; }
+
+        .bottom-bar {
+            position: fixed; bottom: 0; width: 100%; padding: 20px; background: white;
+            border-top: 1px solid #CCFBF1; display: flex; justify-content: space-between; align-items: center;
+        }
+        .btn-next {
+            background: #0D9488; color: white; border: none; padding: 12px 30px;
+            border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer;
+        }
+        .btn-back { color: #64748B; background: none; border: none; font-weight: 600; cursor: pointer; }
+
+    </style>
+</head>
+<body>
+
+    <div class="steps-header">
+        <div class="step-dot active" id="dot1">1</div>
+        <div class="step-line"></div>
+        <div class="step-dot" id="dot2">2</div>
+        <div class="step-line"></div>
+        <div class="step-dot" id="dot3">3</div>
+    </div>
+
+    <div class="step-content active" id="step1">
+        <div class="section-title">Where to serve? 📍</div>
+        <input type="text" class="input-box" id="fullName" placeholder="Full Name">
+        <input type="tel" class="input-box" id="phone" placeholder="Phone Number">
+        <textarea class="input-box" id="address" rows="4" placeholder="House No, Street, Landmark"></textarea>
+        <input type="text" class="input-box" id="pincode" placeholder="Pincode">
+    </div>
+
+    <div class="step-content" id="step2">
+        <div class="section-title">When to visit? 📅</div>
+        <label style="font-weight: 600; display: block; margin-bottom: 10px;">Select Date</label>
+        <input type="date" class="input-box" id="serviceDate">
+        
+        <label style="font-weight: 600; display: block; margin-bottom: 10px;">Select Time</label>
+        <div class="slot-grid">
+            <div class="slot-btn" onclick="selectSlot(this, '09:00 AM - 12:00 PM')">Morning<br><small>9AM - 12PM</small></div>
+            <div class="slot-btn" onclick="selectSlot(this, '12:00 PM - 03:00 PM')">Afternoon<br><small>12PM - 3PM</small></div>
+            <div class="slot-btn" onclick="selectSlot(this, '03:00 PM - 06:00 PM')">Evening<br><small>3PM - 6PM</small></div>
+        </div>
+    </div>
+
+    <div class="step-content" id="step3">
+        <div class="section-title">Order Summary 🧾</div>
+        
+        <div class="bill-summary">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span id="summService">Service</span>
+                <span id="summArea" style="font-weight: 700;">--</span>
+            </div>
+            <hr style="border: 0; border-top: 1px dashed #CBD5E1; margin: 10px 0;">
+            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; color: #0D9488;">
+                <span>Total Amount</span>
+                <span id="summTotal">₹0</span>
+            </div>
+        </div>
+
+        <div class="section-title">Payment Method 💳</div>
+        <div class="slot-btn selected" style="text-align: left; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-money-bill-wave"></i>
+            <div>
+                <div>Pay after Service</div>
+                <small>Cash / UPI upon completion</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <button class="btn-back" id="backBtn" onclick="prevStep()">Cancel</button>
+        <button class="btn-next" id="nextBtn" onclick="nextStep()">Next <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+
+    <script>
+        // FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+            authDomain: "urban-paint-pro.firebaseapp.com",
+            databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "urban-paint-pro",
+            storageBucket: "urban-paint-pro.firebasestorage.app",
+            messagingSenderId: "929763117480",
+            appId: "1:929763117480:web:560057baeb12672078b59d"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        let currentStep = 1;
+        let selectedSlotTime = '';
+        let orderData = JSON.parse(localStorage.getItem('pendingOrder')) || {};
+
+        // Load Summary on Step 3
+        function loadSummary() {
+            document.getElementById('summService').textContent = orderData.service || 'Service';
+            document.getElementById('summArea').textContent = (orderData.area || '0') + ' sqft';
+            document.getElementById('summTotal').textContent = orderData.total || '₹0';
+        }
+
+        function selectSlot(el, time) {
+            document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedSlotTime = time;
+        }
+
+        function nextStep() {
+            if(currentStep === 1) {
+                // Validate Address
+                if(!document.getElementById('fullName').value || !document.getElementById('phone').value || !document.getElementById('address').value) {
+                    return alert("Please fill all details");
+                }
+                currentStep = 2;
+            } else if(currentStep === 2) {
+                // Validate Slot
+                if(!document.getElementById('serviceDate').value || !selectedSlotTime) {
+                    return alert("Please select Date & Time");
+                }
+                loadSummary();
+                currentStep = 3;
+                document.getElementById('nextBtn').innerHTML = 'Place Order <i class="fa-solid fa-check"></i>';
+                document.getElementById('backBtn').textContent = 'Back';
+            } else if(currentStep === 3) {
+                placeOrder();
+                return;
+            }
+            updateUI();
+        }
+
+        function prevStep() {
+            if(currentStep === 1) window.history.back();
+            if(currentStep > 1) currentStep--;
+            if(currentStep < 3) document.getElementById('nextBtn').innerHTML = 'Next <i class="fa-solid fa-arrow-right"></i>';
+            updateUI();
+        }
+
+        function updateUI() {
+            // Hide all
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.step-dot').forEach(el => el.classList.remove('active'));
+            
+            // Show current
+            document.getElementById('step' + currentStep).classList.add('active');
+            for(let i=1; i<=currentStep; i++) document.getElementById('dot' + i).classList.add('active');
+        }
+
+        async function placeOrder() {
+            const user = auth.currentUser;
+            if(!user) return alert("Please Login First");
+
+            const btn = document.getElementById('nextBtn');
+            btn.innerHTML = 'Booking...';
+            btn.disabled = true;
+
+            const finalOrder = {
+                userId: user.uid,
+                customer: {
+                    name: document.getElementById('fullName').value,
+                    phone: document.getElementById('phone').value,
+                    address: document.getElementById('address').value,
+                    pincode: document.getElementById('pincode').value
+                },
+                serviceDetails: {
+                    ...orderData,
+                    date: document.getElementById('serviceDate').value,
+                    time: selectedSlotTime
+                },
+                status: 'pending',
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            try {
+                // Save to Orders Node
+                const newOrderRef = db.ref('orders').push();
+                await newOrderRef.set(finalOrder);
+
+                // Save to User History
+                await db.ref(`users/${user.uid}/orders/${newOrderRef.key}`).set(finalOrder);
+
+                alert("Booking Successful! 🎉");
+                localStorage.removeItem('pendingOrder');
+                window.location.href = 'bookings.html';
+
+            } catch (error) {
+                alert("Error: " + error.message);
+                btn.disabled = false;
+                btn.innerHTML = 'Place Order';
+            }
+        }
+
+        // Auto fill phone if logged in
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                document.getElementById('phone').value = user.phoneNumber || '';
+                document.getElementById('fullName').value = user.displayName || '';
+            }
+        });
+    </script>
+</body>
+</html>
