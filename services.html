@@ -481,51 +481,32 @@
         }
 
         // --- ACTIONS ---
-            function bookService() {
-        const area = document.getElementById('estArea').value;
-        const select = document.getElementById('estType');
-        const typeText = select.options[select.selectedIndex].text;
-        
-        // Estimate Total (e.g., 15000)
-        const estimatedTotal = document.getElementById('estimateAmount').textContent; 
-        
-        if(!area) return alert("Please enter area size");
-
-        // --- SMART LOGIC ---
-        let payNowAmount = estimatedTotal; // Default: Pura pay karo (Cleaning etc ke liye)
-        let serviceName = typeText;
-        let orderType = 'service'; // Default type
-
-        // Agar Painting ya Waterproofing hai -> To sirf ₹49 Visit Charge lenge
-        if (typeText.toLowerCase().includes('painting') || typeText.toLowerCase().includes('waterproofing') || typeText.toLowerCase().includes('texture')) {
-            payNowAmount = 49; // Visit Charge
-            serviceName = `Site Visit for ${typeText}`; // Name change
-            orderType = 'visit'; // Special type for flow
+                    // --- BOOKING LOGIC (REPLACES bookService) ---
+        function bookAction(type) {
+            const total = calculateTotal(); // Current Estimate
             
-            // Customer ko batao
-            if(!confirm(`For Painting/Waterproofing, we charge a Visiting Fee of ₹49 to inspect the site.\n\nThe estimated cost (${estimatedTotal}) will be finalized after the visit.\n\nProceed to pay ₹49?`)) {
-                return;
-            }
-        } else {
-            // Cleaning ke liye confirm
-            if(!confirm(`Proceed to book ${typeText} for ${estimatedTotal}?`)) {
-                return;
-            }
+            // Painting/Waterproofing ke liye Visit Logic
+            const isVisit = type === 'visit';
+            const payAmount = isVisit ? 49 : total; // Visit hai to 49, nahi to pura estimate
+
+            const orderData = {
+                service: isVisit ? "Site Visit Consultation" : `Project (${state.paint.prodName})`,
+                total: payAmount,
+                type: isVisit ? 'visit' : 'project',
+                // Pura paint data save kar rahe hain reference ke liye
+                details: [
+                    { name: "Service Type", price: state.paint.serviceText, qty: 1 },
+                    { name: "Area", price: state.paint.roomText, qty: 1 },
+                    { name: "Product", price: state.paint.prodName, qty: 1 },
+                    { name: "Estimated Cost", price: total, qty: 1 } 
+                ], 
+                date: new Date().toLocaleDateString()
+            };
+
+            localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+            window.location.href = 'checkout.html';
         }
 
-        // Data Save for Checkout
-        const billData = {
-            service: serviceName,
-            area: area,
-            total: typeof payNowAmount === 'string' ? parseInt(payNowAmount.replace(/[^\d]/g, '')) : payNowAmount,
-            estimate: estimatedTotal, // Original estimate bhi save kar rahe hain record ke liye
-            type: orderType,
-            date: new Date().toLocaleDateString()
-        };
-
-        localStorage.setItem('pendingOrder', JSON.stringify(billData));
-        window.location.href = 'checkout.html';
-    }
 
 
         function updateCart(name, price, change) {
