@@ -381,6 +381,83 @@
             
             window.location.href = 'bookings.html?action=new&estimate=' + encodeURIComponent(estimate);
         }
+        
+    // 1. URL se Category nikalo (e.g., ?category=painting)
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedCat = urlParams.get('category') || 'all';
+
+    // Page Load hote hi Filter karo
+    document.addEventListener('DOMContentLoaded', () => {
+        filterServices(selectedCat);
+        
+        // Auto-select tab
+        document.querySelectorAll('.tab').forEach(t => {
+            t.classList.remove('active');
+            if(t.textContent.toLowerCase().includes(selectedCat)) t.classList.add('active');
+        });
+    });
+
+    // 2. Filter Function
+    function filterServices(category) {
+        const cards = document.querySelectorAll('.service-card');
+        let found = false;
+        
+        cards.forEach(card => {
+            if (category === 'all' || card.dataset.category === category) {
+                card.style.display = 'block';
+                found = true;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Agar koi service na mile (e.g. Carpenter abhi add nahi kiya)
+        if (!found) {
+            // Show "Coming Soon" message (Optional)
+            // alert('This service is coming soon!');
+        }
+    }
+
+    // 3. Calculator & Bill Logic
+    function openEstimator(type) {
+        document.getElementById('estimatorModal').classList.add('active');
+        // Set type logic here...
+    }
+
+    function calculateEstimate() {
+        const area = document.getElementById('estArea').value;
+        const rate = document.getElementById('estType').value;
+        const total = area * rate;
+        
+        document.getElementById('estimateAmount').textContent = '₹' + total.toLocaleString();
+        document.getElementById('estimateResult').style.display = 'block';
+    }
+
+    // 4. View Bill & Book (Updated)
+    function bookService() {
+        const area = document.getElementById('estArea').value;
+        const typeText = document.getElementById('estType').options[document.getElementById('estType').selectedIndex].text;
+        const total = document.getElementById('estimateAmount').textContent;
+        
+        if(!area) return alert("Enter Area");
+
+        // Bill ka Data object banao
+        const billData = {
+            service: typeText,
+            area: area,
+            total: total,
+            date: new Date().toLocaleDateString()
+        };
+
+        // Data ko LocalStorage me save karo (Checkout page ke liye)
+        localStorage.setItem('pendingOrder', JSON.stringify(billData));
+
+        // User se pucho: Bill dekhna hai ya Book karna hai?
+        if(confirm(`ESTIMATE BILL\n\nService: ${typeText}\nArea: ${area} sqft\nTotal: ${total}\n\nClick OK to Proceed to Booking`)) {
+            window.location.href = 'checkout.html';
+        }
+    }
+    
     </script>
 </body>
 </html>
