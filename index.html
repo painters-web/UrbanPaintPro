@@ -128,16 +128,65 @@
             <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width: 35px; height: 35px; border-radius: 50%;" onclick="window.location.href='about.html'">
         </div>
         <div class="hero">
-            <h1>Welcome HomePaintingApp! 👋</h1>
-            <p>Your painting journey starts here.</p>
-        </div>
-        <div style="padding: 20px;">
-            <div style="background: white; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid #CCFBF1;">
-                <h3>Book a Service</h3>
-                <p style="color: #64748B; margin: 10px 0;">Get the best painting service in town.</p>
-                <button class="btn" onclick="window.location.href='services.html'">View Services</button>
+        <h1 id="greeting">Hello! 🙏</h1>
+        <p>What service do you need today?</p>
+    </div>
+
+    <div style="padding: 20px; margin-top: -30px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            
+            <div class="cat-card" onclick="goToService('painting')">
+                <div class="cat-icon" style="color: #0D9488; background: #F0FDFA;">
+                    <i class="fa-solid fa-paint-roller"></i>
+                </div>
+                <div class="cat-name">Painting</div>
             </div>
+
+            <div class="cat-card" onclick="goToService('carpenter')">
+                <div class="cat-icon" style="color: #F59E0B; background: #FEF3C7;">
+                    <i class="fa-solid fa-hammer"></i>
+                </div>
+                <div class="cat-name">Carpenter</div>
+            </div>
+
+            <div class="cat-card" onclick="goToService('ac')">
+                <div class="cat-icon" style="color: #3B82F6; background: #DBEAFE;">
+                    <i class="fa-solid fa-snowflake"></i>
+                </div>
+                <div class="cat-name">AC Repair</div>
+            </div>
+
+            <div class="cat-card" onclick="goToService('cleaning')">
+                <div class="cat-icon" style="color: #10B981; background: #D1FAE5;">
+                    <i class="fa-solid fa-broom"></i>
+                </div>
+                <div class="cat-name">Cleaning</div>
+            </div>
+
         </div>
+    </div>
+
+    <style>
+        .cat-card {
+            background: white; padding: 20px; border-radius: 16px;
+            text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            cursor: pointer; transition: 0.2s; border: 1px solid #CCFBF1;
+        }
+        .cat-card:active { transform: scale(0.95); }
+        .cat-icon {
+            width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+        }
+        .cat-name { font-weight: 700; color: #334155; }
+    </style>
+
+    <script>
+        // Redirect with category parameter
+        function goToService(type) {
+            window.location.href = `services.html?category=${type}`;
+        }
+    </script>
+
         <div class="nav">
             <div class="nav-item active" onclick="window.location.href='index.html'"><i class="fa-solid fa-house"></i>Home</div>
             <div class="nav-item" onclick="window.location.href='services.html'"><i class="fa-solid fa-paint-roller"></i>Services</div>
