@@ -9,131 +9,118 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        :root { --p: #0D9488; --p-light: #14B8A6; --accent: #F59E0B; --bg: #F0FDFA; --text: #134E4A; --white: #FFFFFF; --success: #22c55e; }
+        :root { --p: #0D9488; --p-light: #14B8A6; --bg: #F0FDFA; --text: #134E4A; --white: #FFFFFF; --success: #22c55e; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 100px; }
 
         .header { position: fixed; top: 0; width: 100%; height: 60px; background: var(--white); display: flex; align-items: center; padding: 0 20px; z-index: 100; border-bottom: 1px solid #CCFBF1; }
         .back-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-right: 15px; color: var(--p); }
-        .back-btn:hover { background: #F0FDFA; }
         .header-title { font-weight: 700; font-size: 1.1rem; }
 
         .content { margin-top: 80px; padding: 0 20px; }
 
-        /* Category Tabs */
+        /* Scrollable Tabs */
         .category-tabs { 
             display: flex; gap: 10px; margin-bottom: 20px; 
-            overflow-x: auto; padding-bottom: 5px;
+            overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;
         }
+        .category-tabs::-webkit-scrollbar { display: none; }
+        
         .tab { 
-            padding: 10px 20px; background: white; border: 2px solid #CCFBF1; 
+            padding: 10px 20px; background: white; border: 1px solid #CCFBF1; 
             border-radius: 25px; font-weight: 600; font-size: 0.85rem; 
-            cursor: pointer; white-space: nowrap; transition: all 0.2s;
-            color: var(--gray);
+            cursor: pointer; white-space: nowrap; color: #64748B; transition: 0.2s;
         }
         .tab.active { 
             background: var(--p); color: white; border-color: var(--p);
-            box-shadow: 0 4px 15px rgba(13,148,136,0.3);
+            box-shadow: 0 4px 10px rgba(13,148,136,0.2);
         }
 
         /* Service Cards */
         .service-card { 
             background: white; border-radius: 20px; margin-bottom: 20px; 
-            overflow: hidden; box-shadow: 0 4px 15px rgba(13,148,136,0.08);
-            border: 1px solid #CCFBF1; display: none;
+            overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #F0FDFA; display: none; animation: fadeIn 0.3s;
         }
-        .service-card.active { display: block; animation: fadeIn 0.3s; }
+        .service-card.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .service-header { 
             padding: 20px; display: flex; align-items: center; gap: 15px;
-            background: linear-gradient(135deg, #F0FDFA, #E0F2FE);
+            background: #F8FAFC; border-bottom: 1px dashed #E2E8F0;
         }
         .service-icon { 
-            width: 60px; height: 60px; background: linear-gradient(135deg, var(--p), var(--p-light)); 
-            border-radius: 16px; display: flex; align-items: center; 
-            justify-content: center; color: white; font-size: 1.5rem;
+            width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; 
+            justify-content: center; font-size: 1.3rem;
         }
-        .service-title { font-size: 1.2rem; font-weight: 700; color: var(--p); }
-        .service-subtitle { font-size: 0.85rem; color: #64748B; }
+        .service-title { font-size: 1.1rem; font-weight: 700; color: #334155; }
+        .service-subtitle { font-size: 0.8rem; color: #94A3B8; }
 
         .service-body { padding: 20px; }
         .feature-list { list-style: none; margin-bottom: 20px; }
         .feature-list li { 
-            padding: 10px 0; border-bottom: 1px solid #F0FDFA; 
-            display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+            padding: 8px 0; border-bottom: 1px solid #F1F5F9; 
+            display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #475569;
         }
-        .feature-list li i { color: var(--success); }
+        .feature-list li i { color: var(--success); font-size: 0.8rem; }
 
         .price-tag { 
-            display: inline-block; background: #CCFBF1; color: var(--p-dark); 
-            padding: 8px 16px; border-radius: 20px; font-weight: 700; 
-            font-size: 0.9rem; margin-bottom: 15px;
+            display: inline-block; background: #F0FDF4; color: #15803D; 
+            padding: 6px 14px; border-radius: 20px; font-weight: 700; 
+            font-size: 0.85rem; margin-bottom: 15px; border: 1px solid #DCFCE7;
         }
 
         .btn { 
             width: 100%; padding: 14px; border-radius: 12px; border: none; 
             background: var(--p); color: white; font-weight: 700; 
             cursor: pointer; display: flex; align-items: center; 
-            justify-content: center; gap: 8px; transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(13,148,136,0.3);
+            justify-content: center; gap: 8px; font-size: 0.95rem;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,148,136,0.4); }
+        .btn:active { transform: scale(0.98); }
+
+        /* Icon Backgrounds (Matching Index) */
+        .p-bg { background: #F0FDFA; color: #0D9488; }
+        .c-bg { background: #FEF3C7; color: #D97706; }
+        .a-bg { background: #DBEAFE; color: #2563EB; }
+        .cl-bg { background: #DCFCE7; color: #16A34A; }
+        .pl-bg { background: #E0E7FF; color: #4F46E5; }
+        .el-bg { background: #FEF9C3; color: #CA8A04; }
+        .wa-bg { background: #CFFAFE; color: #0891B2; }
+        .pe-bg { background: #FEE2E2; color: #DC2626; }
 
         /* Estimator Modal */
         .modal-overlay { 
             position: fixed; inset: 0; background: rgba(0,0,0,0.5); 
-            z-index: 1000; display: none; align-items: center; justify-content: center;
-            padding: 20px;
+            z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
         }
         .modal-overlay.active { display: flex; }
         .modal { 
-            background: white; border-radius: 24px; width: 100%; max-width: 400px;
-            max-height: 80vh; overflow: hidden; animation: modalPop 0.3s;
+            background: white; border-radius: 20px; width: 100%; max-width: 400px;
+            padding: 20px; animation: popIn 0.2s;
         }
-        @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        .modal-header { 
-            padding: 20px; background: linear-gradient(135deg, var(--p), var(--p-light));
-            color: white;
-        }
-        .modal-title { font-size: 1.2rem; font-weight: 700; }
-        .modal-body { padding: 20px; overflow-y: auto; }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
         .input-group { margin-bottom: 15px; }
-        .input-label { font-weight: 600; font-size: 0.85rem; color: var(--p); margin-bottom: 5px; display: block; }
+        .input-label { font-weight: 600; font-size: 0.85rem; margin-bottom: 5px; display: block; }
         .input-field { 
-            width: 100%; padding: 12px; border: 2px solid #CCFBF1; 
+            width: 100%; padding: 12px; border: 2px solid #E2E8F0; 
             border-radius: 10px; font-size: 0.9rem; outline: none;
         }
-        .input-field:focus { border-color: var(--p); }
-        
         .estimate-result { 
-            background: #F0FDFA; padding: 20px; border-radius: 12px; 
-            text-align: center; margin-top: 15px; border: 2px dashed var(--p-light);
-        }
-        .estimate-amount { font-size: 2rem; font-weight: 800; color: var(--p); }
-        
-        .close-btn { 
-            position: absolute; top: 15px; right: 15px; 
-            width: 32px; height: 32px; background: rgba(255,255,255,0.2);
-            border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; color: white; cursor: pointer;
+            background: #F8FAFC; padding: 15px; border-radius: 12px; 
+            text-align: center; margin-top: 15px; border: 1px dashed #CBD5E1;
+            display: none;
         }
 
-        /* Bottom Nav */
+        /* Nav */
         .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 10px; }
         .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 12px; }
         .nav-item.active { color: var(--p); background: #F0FDFA; }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
-
-        @media (min-width: 768px) {
-            body { max-width: 480px; margin: 0 auto; border-left: 1px solid #CCFBF1; border-right: 1px solid #CCFBF1; }
-            .nav, .header { max-width: 480px; left: 50%; transform: translateX(-50%); }
-        }
     </style>
 </head>
 <body>
+
     <div class="header">
         <div class="back-btn" onclick="window.location.href='index.html'">
             <i class="fa-solid fa-arrow-left"></i>
@@ -142,322 +129,275 @@
     </div>
 
     <div class="content">
-        <!-- Category Tabs -->
         <div class="category-tabs">
             <div class="tab active" onclick="filterServices('all')">All</div>
             <div class="tab" onclick="filterServices('painting')">Painting</div>
-            <div class="tab" onclick="filterServices('waterproofing')">Waterproofing</div>
+            <div class="tab" onclick="filterServices('carpenter')">Carpenter</div>
+            <div class="tab" onclick="filterServices('ac')">AC Repair</div>
             <div class="tab" onclick="filterServices('cleaning')">Cleaning</div>
+            <div class="tab" onclick="filterServices('plumber')">Plumber</div>
+            <div class="tab" onclick="filterServices('electrician')">Electrician</div>
+            <div class="tab" onclick="filterServices('waterproofing')">Waterproofing</div>
+            <div class="tab" onclick="filterServices('pest')">Pest Control</div>
         </div>
 
-        <!-- Painting Services -->
         <div class="service-card active" data-category="painting">
             <div class="service-header">
-                <div class="service-icon">
-                    <i class="fa-solid fa-paint-roller"></i>
-                </div>
-                <div>
-                    <div class="service-title">Home Painting</div>
-                    <div class="service-subtitle">Interior & Exterior</div>
-                </div>
+                <div class="service-icon p-bg"><i class="fa-solid fa-paint-roller"></i></div>
+                <div><div class="service-title">House Painting</div><div class="service-subtitle">Interior & Exterior</div></div>
             </div>
             <div class="service-body">
                 <div class="price-tag">Starting ₹12/sqft</div>
                 <ul class="feature-list">
-                    <li><i class="fa-solid fa-check"></i> Premium Quality Paints</li>
-                    <li><i class="fa-solid fa-check"></i> Wall Preparation & Putty</li>
-                    <li><i class="fa-solid fa-check"></i> Furniture Covering</li>
-                    <li><i class="fa-solid fa-check"></i> Post-Cleaning Included</li>
+                    <li><i class="fa-solid fa-check"></i> Premium Asian Paints</li>
+                    <li><i class="fa-solid fa-check"></i> Masking & Cleaning included</li>
                     <li><i class="fa-solid fa-check"></i> 1 Year Warranty</li>
                 </ul>
-                <button class="btn" onclick="openEstimator('painting')">
-                    <i class="fa-solid fa-calculator"></i> Get Estimate
-                </button>
+                <button class="btn" onclick="openEstimator('painting')">Get Estimate</button>
             </div>
         </div>
 
-        <div class="service-card active" data-category="painting">
+        <div class="service-card active" data-category="carpenter">
             <div class="service-header">
-                <div class="service-icon" style="background: linear-gradient(135deg, #0EA5E9, #38BDF8);">
-                    <i class="fa-solid fa-brush"></i>
-                </div>
-                <div>
-                    <div class="service-title">Texture Painting</div>
-                    <div class="service-subtitle">Designer Walls</div>
-                </div>
+                <div class="service-icon c-bg"><i class="fa-solid fa-hammer"></i></div>
+                <div><div class="service-title">Wood Works</div><div class="service-subtitle">Repairs & New Furniture</div></div>
             </div>
             <div class="service-body">
-                <div class="price-tag" style="background: #E0F2FE; color: #0369A1;">Starting ₹85/sqft</div>
+                <div class="price-tag">Visit Charge ₹199</div>
                 <ul class="feature-list">
-                    <li><i class="fa-solid fa-check" style="color: #0EA5E9;"></i> Royal Play Designs</li>
-                    <li><i class="fa-solid fa-check" style="color: #0EA5E9;"></i> Stencil Patterns</li>
-                    <li><i class="fa-solid fa-check" style="color: #0EA5E9;"></i> 3D Effects</li>
-                    <li><i class="fa-solid fa-check" style="color: #0EA5E9;"></i> Metallic Finishes</li>
+                    <li><i class="fa-solid fa-check"></i> Door/Lock Repair</li>
+                    <li><i class="fa-solid fa-check"></i> Furniture Assembly</li>
+                    <li><i class="fa-solid fa-check"></i> New Wardrobe Making</li>
                 </ul>
-                <button class="btn" style="background: #0EA5E9;" onclick="openEstimator('texture')">
-                    <i class="fa-solid fa-images"></i> View Designs
-                </button>
+                <button class="btn" onclick="openEstimator('carpenter')">Book Carpenter</button>
             </div>
         </div>
 
-        <!-- Waterproofing -->
-        <div class="service-card active" data-category="waterproofing">
-            <div class="service-header" style="background: linear-gradient(135deg, #DBEAFE, #F0FDFA);">
-                <div class="service-icon" style="background: linear-gradient(135deg, #3B82F6, #60A5FA);">
-                    <i class="fa-solid fa-droplet-slash"></i>
-                </div>
-                <div>
-                    <div class="service-title" style="color: #1E40AF;">Waterproofing</div>
-                    <div class="service-subtitle">Bathroom, Terrace, Walls</div>
-                </div>
+        <div class="service-card active" data-category="ac">
+            <div class="service-header">
+                <div class="service-icon a-bg"><i class="fa-solid fa-snowflake"></i></div>
+                <div><div class="service-title">AC Service</div><div class="service-subtitle">Repair & Installation</div></div>
             </div>
             <div class="service-body">
-                <div class="price-tag" style="background: #DBEAFE; color: #1E40AF;">Starting ₹80/sqft</div>
+                <div class="price-tag">Service @ ₹599</div>
                 <ul class="feature-list">
-                    <li><i class="fa-solid fa-check" style="color: #3B82F6;"></i> Advanced Chemical Treatment</li>
-                    <li><i class="fa-solid fa-check" style="color: #3B82F6;"></i> Leak Detection</li>
-                    <li><i class="fa-solid fa-check" style="color: #3B82F6;"></i> Terrace Waterproofing</li>
-                    <li><i class="fa-solid fa-check" style="color: #3B82F6;"></i> 5 Year Warranty</li>
+                    <li><i class="fa-solid fa-check"></i> Jet Cleaning Service</li>
+                    <li><i class="fa-solid fa-check"></i> Gas Filling (R32/R22)</li>
+                    <li><i class="fa-solid fa-check"></i> Installation/Uninstallation</li>
                 </ul>
-                <button class="btn" style="background: #3B82F6;" onclick="openEstimator('waterproofing')">
-                    <i class="fa-solid fa-magnifying-glass"></i> Get Quote
-                </button>
+                <button class="btn" onclick="openEstimator('ac')">Book AC Service</button>
             </div>
         </div>
 
-        <!-- Cleaning -->
         <div class="service-card active" data-category="cleaning">
-            <div class="service-header" style="background: linear-gradient(135deg, #DCFCE7, #F0FDFA);">
-                <div class="service-icon" style="background: linear-gradient(135deg, #22C55E, #4ADE80);">
-                    <i class="fa-solid fa-broom"></i>
-                </div>
-                <div>
-                    <div class="service-title" style="color: #166534;">Deep Cleaning</div>
-                    <div class="service-subtitle">Walls, Floors, Furniture</div>
-                </div>
+            <div class="service-header">
+                <div class="service-icon cl-bg"><i class="fa-solid fa-broom"></i></div>
+                <div><div class="service-title">Deep Cleaning</div><div class="service-subtitle">Full Home Cleaning</div></div>
             </div>
             <div class="service-body">
-                <div class="price-tag" style="background: #DCFCE7; color: #166534;">Starting ₹5/sqft</div>
+                <div class="price-tag">Starting ₹2999 (1BHK)</div>
                 <ul class="feature-list">
-                    <li><i class="fa-solid fa-check" style="color: #22C55E;"></i> Wall Dusting & Washing</li>
-                    <li><i class="fa-solid fa-check" style="color: #22C55E;"></i> Floor Scrubbing</li>
-                    <li><i class="fa-solid fa-check" style="color: #22C55E;"></i> Eco-friendly Chemicals</li>
-                    <li><i class="fa-solid fa-check" style="color: #22C55E;"></i> Same Day Service</li>
+                    <li><i class="fa-solid fa-check"></i> Floor Scrubbing</li>
+                    <li><i class="fa-solid fa-check"></i> Bathroom & Kitchen Deep Clean</li>
+                    <li><i class="fa-solid fa-check"></i> Sofa/Carpet Cleaning</li>
                 </ul>
-                <button class="btn" style="background: #22C55E;" onclick="openEstimator('cleaning')">
-                    <i class="fa-solid fa-calendar-check"></i> Book Now
-                </button>
+                <button class="btn" onclick="openEstimator('cleaning')">Book Cleaning</button>
             </div>
         </div>
+
+        <div class="service-card active" data-category="plumber">
+            <div class="service-header">
+                <div class="service-icon pl-bg"><i class="fa-solid fa-faucet-drip"></i></div>
+                <div><div class="service-title">Plumbing</div><div class="service-subtitle">Leakages & Fittings</div></div>
+            </div>
+            <div class="service-body">
+                <div class="price-tag">Visit Charge ₹149</div>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> Tap/Mixer Repair</li>
+                    <li><i class="fa-solid fa-check"></i> Pipe Leakage Fix</li>
+                    <li><i class="fa-solid fa-check"></i> Water Tank Cleaning</li>
+                </ul>
+                <button class="btn" onclick="openEstimator('plumber')">Book Plumber</button>
+            </div>
+        </div>
+
+        <div class="service-card active" data-category="electrician">
+            <div class="service-header">
+                <div class="service-icon el-bg"><i class="fa-solid fa-bolt"></i></div>
+                <div><div class="service-title">Electrician</div><div class="service-subtitle">Wiring & Appliance</div></div>
+            </div>
+            <div class="service-body">
+                <div class="price-tag">Visit Charge ₹149</div>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> Fan/Light Installation</li>
+                    <li><i class="fa-solid fa-check"></i> Switchboard Repair</li>
+                    <li><i class="fa-solid fa-check"></i> Inverter/Wiring Works</li>
+                </ul>
+                <button class="btn" onclick="openEstimator('electrician')">Book Electrician</button>
+            </div>
+        </div>
+
+        <div class="service-card active" data-category="waterproofing">
+            <div class="service-header">
+                <div class="service-icon wa-bg"><i class="fa-solid fa-cloud-showers-heavy"></i></div>
+                <div><div class="service-title">Waterproofing</div><div class="service-subtitle">Roof & Wall Seepage</div></div>
+            </div>
+            <div class="service-body">
+                <div class="price-tag">Starting ₹80/sqft</div>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> Dr. Fixit Chemical Treatment</li>
+                    <li><i class="fa-solid fa-check"></i> Terrace Crack Filling</li>
+                    <li><i class="fa-solid fa-check"></i> 5 Years Warranty</li>
+                </ul>
+                <button class="btn" onclick="openEstimator('waterproofing')">Get Quote</button>
+            </div>
+        </div>
+
+        <div class="service-card active" data-category="pest">
+            <div class="service-header">
+                <div class="service-icon pe-bg"><i class="fa-solid fa-bug"></i></div>
+                <div><div class="service-title">Pest Control</div><div class="service-subtitle">Cockroach & Termite</div></div>
+            </div>
+            <div class="service-body">
+                <div class="price-tag">Starting ₹999</div>
+                <ul class="feature-list">
+                    <li><i class="fa-solid fa-check"></i> Cockroach/Ant Spray</li>
+                    <li><i class="fa-solid fa-check"></i> Termite Treatment</li>
+                    <li><i class="fa-solid fa-check"></i> Bed Bug Solution</li>
+                </ul>
+                <button class="btn" onclick="openEstimator('pest')">Book Pest Control</button>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Estimator Modal -->
     <div class="modal-overlay" id="estimatorModal" onclick="closeEstimator(event)">
         <div class="modal" onclick="event.stopPropagation()">
-            <div class="modal-header" style="position: relative;">
-                <div class="close-btn" onclick="closeEstimator()">
-                    <i class="fa-solid fa-xmark"></i>
-                </div>
-                <div class="modal-title" id="modalTitle">Quick Estimate</div>
-                <p style="opacity: 0.9; font-size: 0.85rem; margin-top: 5px;">Enter details for instant quote</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: var(--text);">Estimate / Booking</h3>
+                <i class="fa-solid fa-xmark" onclick="closeEstimator()" style="cursor: pointer; font-size: 1.2rem;"></i>
             </div>
-            <div class="modal-body">
-                <div class="input-group">
-                    <label class="input-label">Area (sq ft)</label>
-                    <input type="number" class="input-field" id="estArea" placeholder="e.g. 1000" oninput="calculateEstimate()">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Service Type</label>
-                    <select class="input-field" id="estType" onchange="calculateEstimate()">
-                        <option value="12">Standard Painting - ₹12/sqft</option>
-                        <option value="26">Premium Painting - ₹26/sqft</option>
-                        <option value="80">Waterproofing - ₹80/sqft</option>
-                        <option value="5">Deep Cleaning - ₹5/sqft</option>
-                    </select>
-                </div>
-                
-                <div class="estimate-result" id="estimateResult" style="display: none;">
-                    <div style="font-size: 0.85rem; color: #64748B; margin-bottom: 5px;">Estimated Cost</div>
-                    <div class="estimate-amount" id="estimateAmount">₹0</div>
-                    <p style="font-size: 0.75rem; color: #94A3B8; margin-top: 10px;">*Final price may vary based on site inspection</p>
-                </div>
-                
-                <button class="btn" style="margin-top: 20px;" onclick="bookService()">
-                    Book This Service <i class="fa-solid fa-arrow-right"></i>
-                </button>
+            
+            <div class="input-group">
+                <label class="input-label">Select Service Rate</label>
+                <select class="input-field" id="estType" onchange="calculateEstimate()">
+                    <option value="12">Painting - ₹12/sqft</option>
+                    <option value="80">Waterproofing - ₹80/sqft</option>
+                    <option value="5">Cleaning - ₹5/sqft</option>
+                    <option value="599">AC Service - ₹599/Unit</option>
+                    <option value="199">Carpenter Visit - ₹199</option>
+                    <option value="149">Plumber Visit - ₹149</option>
+                    <option value="149">Electrician Visit - ₹149</option>
+                    <option value="999">Pest Control - ₹999</option>
+                </select>
             </div>
+
+            <div class="input-group">
+                <label class="input-label">Quantity / Area (sqft)</label>
+                <input type="number" class="input-field" id="estArea" placeholder="e.g. 1 or 1000" oninput="calculateEstimate()">
+            </div>
+            
+            <div class="estimate-result" id="estimateResult">
+                <div style="font-size: 0.85rem; color: #64748B;">Estimated Total</div>
+                <div class="estimate-amount" id="estimateAmount" style="font-size: 1.5rem; font-weight: 800; color: var(--p);">₹0</div>
+            </div>
+            
+            <button class="btn" style="margin-top: 20px;" onclick="bookService()">
+                Proceed to Book <i class="fa-solid fa-arrow-right"></i>
+            </button>
         </div>
     </div>
 
-    <!-- Bottom Nav -->
     <div class="nav">
-        <div class="nav-item" onclick="window.location.href='index.html'">
-            <i class="fa-solid fa-house"></i><span>Home</span>
-        </div>
-        <div class="nav-item active" onclick="window.location.href='services.html'">
-            <i class="fa-solid fa-paint-roller"></i><span>Services</span>
-        </div>
-        <div class="nav-item" onclick="window.location.href='bookings.html'">
-            <i class="fa-solid fa-box-open"></i><span>Orders</span>
-        </div>
-        <div class="nav-item" onclick="window.location.href='about.html'">
-            <i class="fa-solid fa-user"></i><span>Profile</span>
-        </div>
+        <div class="nav-item" onclick="window.location.href='index.html'"><i class="fa-solid fa-house"></i><span>Home</span></div>
+        <div class="nav-item active" onclick="window.location.href='services.html'"><i class="fa-solid fa-paint-roller"></i><span>Services</span></div>
+        <div class="nav-item" onclick="window.location.href='bookings.html'"><i class="fa-solid fa-box-open"></i><span>Orders</span></div>
+        <div class="nav-item" onclick="window.location.href='about.html'"><i class="fa-solid fa-user"></i><span>Profile</span></div>
     </div>
 
     <script>
-        // Filter Services
+        // 1. FILTER LOGIC
+        // URL se category padho
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedCat = urlParams.get('category') || 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            filterServices(selectedCat);
+        });
+
         function filterServices(category) {
-            // Update tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.textContent.toLowerCase().includes(category) || (category === 'all' && tab.textContent === 'All')) {
-                    tab.classList.add('active');
+            // Update Tabs
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active');
+                if(t.textContent.toLowerCase().includes(category) || (category === 'all' && t.textContent === 'All')) {
+                    t.classList.add('active');
                 }
             });
-            
-            // Show/hide cards
+
+            // Show Cards
             document.querySelectorAll('.service-card').forEach(card => {
                 if (category === 'all' || card.dataset.category === category) {
                     card.classList.add('active');
+                    card.style.display = 'block';
                 } else {
                     card.classList.remove('active');
+                    card.style.display = 'none';
                 }
             });
         }
 
-        // Estimator Modal
+        // 2. MODAL & CALCULATION LOGIC
         function openEstimator(type) {
             const modal = document.getElementById('estimatorModal');
-            const title = document.getElementById('modalTitle');
+            modal.classList.add('active');
             
-            const titles = {
-                'painting': 'Painting Estimate',
-                'texture': 'Texture Design Estimate',
-                'waterproofing': 'Waterproofing Quote',
-                'cleaning': 'Cleaning Estimate'
+            // Auto-select dropdown based on type
+            const typeMap = {
+                'painting': '12', 'waterproofing': '80', 'cleaning': '5',
+                'ac': '599', 'carpenter': '199', 'plumber': '149',
+                'electrician': '149', 'pest': '999'
             };
             
-            title.textContent = titles[type] || 'Quick Estimate';
-            
-            // Set default rate
-            const rates = { 'painting': 12, 'texture': 85, 'waterproofing': 80, 'cleaning': 5 };
-            document.getElementById('estType').value = rates[type] || 12;
-            
-            modal.classList.add('active');
-            document.getElementById('estArea').focus();
+            if(typeMap[type]) {
+                document.getElementById('estType').value = typeMap[type];
+            }
         }
 
         function closeEstimator(e) {
-            if (!e || e.target.id === 'estimatorModal') {
+            if (!e || e.target.id === 'estimatorModal' || e.target.classList.contains('fa-xmark')) {
                 document.getElementById('estimatorModal').classList.remove('active');
-                document.getElementById('estimateResult').style.display = 'none';
-                document.getElementById('estArea').value = '';
             }
         }
 
         function calculateEstimate() {
-            const area = parseFloat(document.getElementById('estArea').value) || 0;
+            const qty = parseFloat(document.getElementById('estArea').value) || 0;
             const rate = parseFloat(document.getElementById('estType').value) || 0;
-            const total = Math.round(area * rate);
+            const total = qty * rate;
             
-            if (area > 0) {
-                document.getElementById('estimateAmount').textContent = '₹' + total.toLocaleString('en-IN');
-                document.getElementById('estimateResult').style.display = 'block';
-            } else {
-                document.getElementById('estimateResult').style.display = 'none';
-            }
+            document.getElementById('estimateResult').style.display = 'block';
+            document.getElementById('estimateAmount').textContent = '₹' + total.toLocaleString();
         }
 
         function bookService() {
-            const area = document.getElementById('estArea').value;
-            if (!area) {
-                alert('Please enter area size');
-                return;
-            }
+            const qty = document.getElementById('estArea').value;
+            const select = document.getElementById('estType');
+            const typeText = select.options[select.selectedIndex].text;
+            const total = document.getElementById('estimateAmount').textContent;
             
-            const estimate = document.getElementById('estimateAmount').textContent;
-            localStorage.setItem('quickEstimate', estimate);
-            
-            window.location.href = 'bookings.html?action=new&estimate=' + encodeURIComponent(estimate);
-        }
-        
-    // 1. URL se Category nikalo (e.g., ?category=painting)
-    const urlParams = new URLSearchParams(window.location.search);
-    const selectedCat = urlParams.get('category') || 'all';
+            if(!qty) return alert("Please enter Quantity or Area");
 
-    // Page Load hote hi Filter karo
-    document.addEventListener('DOMContentLoaded', () => {
-        filterServices(selectedCat);
-        
-        // Auto-select tab
-        document.querySelectorAll('.tab').forEach(t => {
-            t.classList.remove('active');
-            if(t.textContent.toLowerCase().includes(selectedCat)) t.classList.add('active');
-        });
-    });
+            // Save for Checkout
+            const billData = {
+  service: typeText,
+                area: qty,
+                total: total,
+                date: new Date().toLocaleDateString()
+            };
+            localStorage.setItem('pendingOrder', JSON.stringify(billData));
 
-    // 2. Filter Function
-    function filterServices(category) {
-        const cards = document.querySelectorAll('.service-card');
-        let found = false;
-        
-        cards.forEach(card => {
-            if (category === 'all' || card.dataset.category === category) {
-                card.style.display = 'block';
-                found = true;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        // Agar koi service na mile (e.g. Carpenter abhi add nahi kiya)
-        if (!found) {
-            // Show "Coming Soon" message (Optional)
-            // alert('This service is coming soon!');
-        }
-    }
-
-    // 3. Calculator & Bill Logic
-    function openEstimator(type) {
-        document.getElementById('estimatorModal').classList.add('active');
-        // Set type logic here...
-    }
-
-    function calculateEstimate() {
-        const area = document.getElementById('estArea').value;
-        const rate = document.getElementById('estType').value;
-        const total = area * rate;
-        
-        document.getElementById('estimateAmount').textContent = '₹' + total.toLocaleString();
-        document.getElementById('estimateResult').style.display = 'block';
-    }
-
-    // 4. View Bill & Book (Updated)
-    function bookService() {
-        const area = document.getElementById('estArea').value;
-        const typeText = document.getElementById('estType').options[document.getElementById('estType').selectedIndex].text;
-        const total = document.getElementById('estimateAmount').textContent;
-        
-        if(!area) return alert("Enter Area");
-
-        // Bill ka Data object banao
-        const billData = {
-            service: typeText,
-            area: area,
-            total: total,
-            date: new Date().toLocaleDateString()
-        };
-
-        // Data ko LocalStorage me save karo (Checkout page ke liye)
-        localStorage.setItem('pendingOrder', JSON.stringify(billData));
-
-        // User se pucho: Bill dekhna hai ya Book karna hai?
-        if(confirm(`ESTIMATE BILL\n\nService: ${typeText}\nArea: ${area} sqft\nTotal: ${total}\n\nClick OK to Proceed to Booking`)) {
+            // Redirect
             window.location.href = 'checkout.html';
         }
-    }
-    
     </script>
 </body>
 </html>
