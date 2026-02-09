@@ -6,7 +6,6 @@
     <meta name="theme-color" content="#0D9488">
     <title>My Profile | UrbanPaintPro</title>
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -16,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        :root { --p: #0D9488; --p-light: #14B8A6; --accent: #F59E0B; --bg: #F0FDFA; --text: #134E4A; --white: #FFFFFF; }
+        :root { --p: #0D9488; --p-light: #14B8A6; --bg: #F0FDFA; --text: #134E4A; --white: #FFFFFF; --error: #ef4444; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 100px; }
 
@@ -26,15 +25,17 @@
 
         .content { margin-top: 80px; padding: 0 20px; }
 
+        /* Profile Card */
         .profile-card { 
             background: linear-gradient(135deg, var(--p), var(--p-light)); 
             color: white; padding: 30px 20px; border-radius: 20px; 
             text-align: center; margin-bottom: 25px; position: relative;
+            box-shadow: 0 10px 25px rgba(13,148,136,0.2);
         }
         .profile-img-container { position: relative; display: inline-block; }
         .profile-img { 
             width: 100px; height: 100px; border-radius: 50%; 
-            border: 4px solid rgba(255,255,255,0.3); object-fit: cover;
+            border: 4px solid rgba(255,255,255,0.3); object-fit: cover; background: #fff;
         }
         .camera-btn {
             position: absolute; bottom: 0; right: 0;
@@ -46,33 +47,37 @@
         .profile-name { font-size: 1.4rem; font-weight: 700; margin-top: 15px; }
         .profile-phone { opacity: 0.9; font-size: 0.9rem; margin-top: 5px; }
 
+        /* Stats Row */
         .stats-row { 
             display: flex; justify-content: space-around; 
             background: white; padding: 20px; border-radius: 16px;
             margin-bottom: 25px; box-shadow: 0 4px 15px rgba(13,148,136,0.08);
+            border: 1px solid #CCFBF1;
         }
         .stat-box { text-align: center; }
         .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--p); }
-        .stat-label { font-size: 0.75rem; color: #64748B; margin-top: 5px; }
+        .stat-label { font-size: 0.75rem; color: #64748B; margin-top: 5px; font-weight: 600; }
 
+        /* Menu */
         .menu-card { 
             background: white; border-radius: 16px; 
             overflow: hidden; box-shadow: 0 4px 15px rgba(13,148,136,0.08);
-            margin-bottom: 20px;
+            margin-bottom: 20px; border: 1px solid #CCFBF1;
         }
         .menu-item { 
             display: flex; align-items: center; gap: 15px; 
             padding: 18px; border-bottom: 1px solid #F0FDFA;
-            cursor: pointer;
+            cursor: pointer; transition: 0.2s;
         }
+        .menu-item:active { background: #F0FDFA; }
         .menu-item:last-child { border-bottom: none; }
         .menu-icon { 
-            width: 45px; height: 45px; background: #F0FDFA; 
-            border-radius: 12px; display: flex; align-items: center;
-            justify-content: center; color: var(--p); font-size: 1.2rem;
+            width: 40px; height: 40px; background: #F0FDFA; 
+            border-radius: 10px; display: flex; align-items: center;
+            justify-content: center; color: var(--p); font-size: 1.1rem;
         }
-        .menu-text { flex: 1; font-weight: 600; }
-        .menu-arrow { color: #94A3B8; }
+        .menu-text { flex: 1; font-weight: 600; color: #334155; }
+        .menu-arrow { color: #CBD5E1; }
 
         /* Edit Modal */
         .modal-overlay { 
@@ -86,30 +91,53 @@
             padding: 25px; animation: popIn 0.3s;
         }
         @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; }
+        .modal-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+        
         .input-group { margin-bottom: 15px; }
         .input-label { font-weight: 600; font-size: 0.85rem; color: var(--p); margin-bottom: 5px; display: block; }
         .input-field { 
             width: 100%; padding: 14px; border: 2px solid #CCFBF1; 
             border-radius: 12px; font-size: 0.95rem; outline: none;
         }
+        .input-field:focus { border-color: var(--p); }
+        
         .btn-save { 
             width: 100%; padding: 16px; background: var(--p); color: white;
             border: none; border-radius: 12px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(13,148,136,0.3);
         }
 
+        /* Loading */
+        .page-loader {
+            position: fixed; inset: 0; background: white; z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #CCFBF1;
+            border-top-color: var(--p); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Nav */
         .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 10px; }
         .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 12px; }
         .nav-item.active { color: var(--p); background: #F0FDFA; }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
 
         @media (min-width: 768px) {
-            body { max-width: 480px; margin: 0 auto; }
-            .nav, .header { max-width: 480px; left: 50%; transform: translateX(-50%); }
+            body { max-width: 480px; margin: 0 auto; border-left: 1px solid #CCFBF1; border-right: 1px solid #CCFBF1;}
+            .nav, .header, .page-loader { max-width: 480px; left: 50%; transform: translateX(-50%); }
         }
     </style>
 </head>
 <body>
+
+    <div class="page-loader" id="pageLoader">
+        <div class="spinner"></div>
+        <p style="color: #64748B; font-weight: 500;">Loading Profile...</p>
+    </div>
+
     <div class="header">
         <div class="header-title">My Profile</div>
         <div class="logout-btn" onclick="logout()">
@@ -118,7 +146,6 @@
     </div>
 
     <div class="content">
-        <!-- Profile -->
         <div class="profile-card">
             <div class="profile-img-container">
                 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" class="profile-img" id="profileImage">
@@ -127,11 +154,10 @@
                 </div>
                 <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="uploadPhoto(this)">
             </div>
-            <div class="profile-name" id="profileName">Loading...</div>
+            <div class="profile-name" id="profileName">...</div>
             <div class="profile-phone" id="profilePhone">...</div>
         </div>
 
-        <!-- Stats -->
         <div class="stats-row">
             <div class="stat-box">
                 <div class="stat-value" id="statOrders">0</div>
@@ -142,12 +168,11 @@
                 <div class="stat-label">Spent</div>
             </div>
             <div class="stat-box">
-                <div class="stat-value" id="statMember">New</div>
+                <div class="stat-value" id="statMember">2026</div>
                 <div class="stat-label">Member</div>
             </div>
         </div>
 
-        <!-- Menu -->
         <div class="menu-card">
             <div class="menu-item" onclick="openEditModal()">
                 <div class="menu-icon"><i class="fa-solid fa-user-pen"></i></div>
@@ -157,11 +182,6 @@
             <div class="menu-item" onclick="window.location.href='bookings.html'">
                 <div class="menu-icon"><i class="fa-solid fa-box-open"></i></div>
                 <div class="menu-text">My Orders</div>
-                <i class="fa-solid fa-chevron-right menu-arrow"></i>
-            </div>
-            <div class="menu-item" onclick="window.location.href='services.html'">
-                <div class="menu-icon"><i class="fa-solid fa-paint-roller"></i></div>
-                <div class="menu-text">Book Service</div>
                 <i class="fa-solid fa-chevron-right menu-arrow"></i>
             </div>
         </div>
@@ -180,7 +200,6 @@
         </div>
     </div>
 
-    <!-- Edit Modal -->
     <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
         <div class="modal" onclick="event.stopPropagation()">
             <div class="modal-title">Edit Profile</div>
@@ -199,30 +218,22 @@
     </div>
 
     <div class="nav">
-        <div class="nav-item" onclick="window.location.href='index.html'">
-            <i class="fa-solid fa-house"></i><span>Home</span>
-        </div>
-        <div class="nav-item" onclick="window.location.href='services.html'">
-            <i class="fa-solid fa-paint-roller"></i><span>Services</span>
-        </div>
-        <div class="nav-item" onclick="window.location.href='bookings.html'">
-            <i class="fa-solid fa-box-open"></i><span>Orders</span>
-        </div>
-        <div class="nav-item active" onclick="window.location.href='about.html'">
-            <i class="fa-solid fa-user"></i><span>Profile</span>
-        </div>
+        <div class="nav-item" onclick="window.location.href='index.html'"><i class="fa-solid fa-house"></i>Home</div>
+        <div class="nav-item" onclick="window.location.href='services.html'"><i class="fa-solid fa-paint-roller"></i>Services</div>
+        <div class="nav-item" onclick="window.location.href='bookings.html'"><i class="fa-solid fa-box-open"></i>Orders</div>
+        <div class="nav-item active" onclick="window.location.href='about.html'"><i class="fa-solid fa-user"></i>Profile</div>
     </div>
 
     <script>
-        // ==================== FIREBASE CONFIG ====================
+        // ==================== FIREBASE CONFIG (CORRECTED) ====================
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
+            apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
             authDomain: "urban-paint-pro.firebaseapp.com",
-            databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app",
+            databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
             projectId: "urban-paint-pro",
-            storageBucket: "urban-paint-pro.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            storageBucket: "urban-paint-pro.firebasestorage.app",
+            messagingSenderId: "929763117480",
+            appId: "1:929763117480:web:560057baeb12672078b59d"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -233,45 +244,47 @@
         let currentUser = null;
         let userProfile = {};
 
-        // ==================== AUTH ====================
+        // ==================== AUTH CHECK ====================
         auth.onAuthStateChanged((user) => {
+            const loader = document.getElementById('pageLoader');
+            
             if (user) {
+                // User logged in hai
                 currentUser = user;
                 loadUserData(user.uid);
                 loadUserStats(user.uid);
+                loader.style.display = 'none'; // Loader hatao
             } else {
+                // User login nahi hai -> Home par bhejo
                 window.location.href = 'index.html';
             }
         });
 
-        // ==================== LOAD USER DATA ====================
+        // ==================== LOAD DATA ====================
         async function loadUserData(uid) {
             try {
                 const snapshot = await db.ref(`users/${uid}/profile`).once('value');
                 userProfile = snapshot.val() || {};
                 
-                // Set display data
-                const name = userProfile.name || 'Urban User';
-                const phone = currentUser.email?.replace('@urbanpaintpro.com', '') || '';
-                const photo = userProfile.photo || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                const name = userProfile.name || currentUser.displayName || 'Urban User';
+                const email = userProfile.email || currentUser.email || '';
+                const phone = currentUser.phoneNumber || 'Linked Account';
+                const photo = userProfile.photo || currentUser.photoURL || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
                 
                 document.getElementById('profileName').textContent = name;
-                document.getElementById('profilePhone').textContent = phone;
+                document.getElementById('profilePhone').textContent = email || phone;
                 document.getElementById('profileImage').src = photo;
                 
-                // Pre-fill edit form
                 document.getElementById('editName').value = name;
-                document.getElementById('editEmail').value = userProfile.email || '';
+                document.getElementById('editEmail').value = email;
                 
             } catch (error) {
                 console.error('Error loading profile:', error);
             }
         }
 
-        // ==================== LOAD STATS ====================
         async function loadUserStats(uid) {
             try {
-                // Get orders count and total spent
                 const ordersSnap = await db.ref(`users/${uid}/orders`).once('value');
                 const orders = ordersSnap.val() || {};
                 
@@ -279,106 +292,102 @@
                 const totalSpent = Object.values(orders).reduce((sum, o) => sum + (o.amount || 0), 0);
                 
                 document.getElementById('statOrders').textContent = orderCount;
-                document.getElementById('statSpent').textContent = '₹' + (totalSpent / 1000).toFixed(1) + 'k';
+                if(totalSpent > 1000) {
+                    document.getElementById('statSpent').textContent = '₹' + (totalSpent / 1000).toFixed(1) + 'k';
+                } else {
+                    document.getElementById('statSpent').textContent = '₹' + totalSpent;
+                }
                 
-                // Member since
-                const memberSince = userProfile.createdAt ? 
-                    new Date(userProfile.createdAt).getFullYear() : '2024';
-                document.getElementById('statMember').textContent = memberSince;
+                // Member Year
+                const joinDate = new Date(currentUser.metadata.creationTime);
+                document.getElementById('statMember').textContent = joinDate.getFullYear();
                 
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
         }
 
-        // ==================== SAVE PROFILE ====================
+        // ==================== EDIT PROFILE ====================
         async function saveProfile() {
             const name = document.getElementById('editName').value.trim();
             const email = document.getElementById('editEmail').value.trim();
+            const btn = document.querySelector('.btn-save');
             
-            if (!name) {
-                alert('Please enter your name');
-                return;
-            }
+            if (!name) return alert('Name required');
+            
+            btn.innerHTML = 'Saving...';
+            btn.disabled = true;
 
             try {
-                const updates = {
+                await db.ref(`users/${currentUser.uid}/profile`).update({
                     name: name,
                     email: email,
                     updatedAt: firebase.database.ServerValue.TIMESTAMP
-                };
+                });
                 
-                await db.ref(`users/${currentUser.uid}/profile`).update(updates);
+                // Firebase Auth Profile bhi update karein
+                await currentUser.updateProfile({ displayName: name });
                 
-                // Update UI
                 document.getElementById('profileName').textContent = name;
+                document.getElementById('profilePhone').textContent = email || document.getElementById('profilePhone').textContent;
+                
                 closeEditModal();
-                alert('Profile updated successfully!');
+                alert('Profile updated!');
                 
             } catch (error) {
-                console.error('Error saving profile:', error);
-                alert('Error saving profile: ' + error.message);
+                alert('Error: ' + error.message);
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Save Changes';
+                btn.disabled = false;
             }
         }
 
-        // ==================== UPLOAD PHOTO ====================
+        // ==================== PHOTO UPLOAD ====================
         async function uploadPhoto(input) {
             const file = input.files[0];
             if (!file) return;
-            
+
             if (file.size > 2 * 1024 * 1024) {
-                alert('Photo must be less than 2MB');
+                alert('Image size should be less than 2MB');
                 return;
             }
 
+            const img = document.getElementById('profileImage');
+            const oldSrc = img.src;
+            img.style.opacity = '0.5';
+
             try {
-                // Show loading
-                document.getElementById('profileImage').style.opacity = '0.5';
-                
-                // Upload to Firebase Storage
-                const storageRef = storage.ref(`users/${currentUser.uid}/profile.jpg`);
+                const storageRef = storage.ref(`users/${currentUser.uid}/profile_${Date.now()}.jpg`);
                 await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
                 
-                // Get download URL
-                const downloadURL = await storageRef.getDownloadURL();
+                await db.ref(`users/${currentUser.uid}/profile/photo`).set(url);
+                await currentUser.updateProfile({ photoURL: url });
                 
-                // Save to database
-                await db.ref(`users/${currentUser.uid}/profile/photo`).set(downloadURL);
-                
-                // Update UI
-                document.getElementById('profileImage').src = downloadURL;
-                document.getElementById('profileImage').style.opacity = '1';
-                
-                alert('Photo updated!');
+                img.src = url;
                 
             } catch (error) {
-                console.error('Error uploading photo:', error);
-                document.getElementById('profileImage').style.opacity = '1';
-                alert('Upload failed: ' + error.message);
+                console.error(error);
+                alert('Upload failed');
+                img.src = oldSrc;
+            } finally {
+                img.style.opacity = '1';
             }
         }
 
         // ==================== LOGOUT ====================
-        async function logout() {
-            if (!confirm('Are you sure you want to logout?')) return;
-            
-            try {
-                await auth.signOut();
-                window.location.href = 'index.html';
-            } catch (error) {
-                console.error('Logout error:', error);
+        function logout() {
+            if(confirm('Are you sure you want to logout?')) {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                });
             }
         }
 
-        // ==================== UI FUNCTIONS ====================
-        function openEditModal() {
-            document.getElementById('editModal').classList.add('active');
-        }
-
-        function closeEditModal(e) {
-            if (!e || e.target.id === 'editModal') {
-                document.getElementById('editModal').classList.remove('active');
-            }
+        // UI Helpers
+        function openEditModal() { document.getElementById('editModal').classList.add('active'); }
+        function closeEditModal(e) { 
+            if (!e || e.target.id === 'editModal') document.getElementById('editModal').classList.remove('active'); 
         }
     </script>
 </body>
