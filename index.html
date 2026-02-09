@@ -243,31 +243,82 @@
         const db = firebase.database();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-        // --- AUTH CHECK & LOADER LOGIC ---
+    
+        // ... Firebase Config (Same as before) ...
+
+        // --- AUTH & DATA CAPTURE ---
         auth.onAuthStateChanged((user) => {
             const loader = document.getElementById('initial-loader');
             const loginLayer = document.getElementById('login-layer');
             const mainApp = document.getElementById('main-app');
 
             if (user) {
-                // Logged In
+                // 1. UI Show
                 mainApp.style.display = 'block';
                 loginLayer.style.display = 'none';
-                document.getElementById('greeting').textContent = `Hello, ${user.displayName?.split(' ')[0] || 'User'}! 👋`;
+
+                // 2. Real-time Name Update (Jo humne baat ki thi)
+                const profileRef = db.ref('users/' + user.uid + '/profile');
+                profileRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    const realName = data?.name || user.displayName || 'User';
+                    const firstName = realName.split(' ')[0];
+                    document.getElementById('greeting').textContent = `Hello, ${firstName}! 👋`;
+                });
+
+                // 3. MAGIC STEP: Sara Data + Location Capture karo
+                saveFullCustomerData(user);
+
             } else {
-                // Not Logged In
                 loginLayer.style.display = 'flex';
                 mainApp.style.display = 'none';
             }
             
-            // Hide Loader
             if(loader) loader.style.display = 'none';
         });
 
-        // --- NAVIGATION ---
-        function goToService(type) {
-            window.location.href = `services.html?category=${type}`;
+        // --- ZOMATO STYLE DATA CAPTURE FUNCTION ---
+        function saveFullCustomerData(user) {
+            const uid = user.uid;
+            
+            // 1. Basic Data (Marketing ke liye)
+            const userData = {
+                name: user.displayName || 'Unknown User',
+                email: user.email || '',
+                phone: user.phoneNumber || '', // WhatsApp Marketing ke liye best hai
+                lastLogin: firebase.database.ServerValue.TIMESTAMP,
+                deviceType: /Mobi/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop' // Pata chalega user kispe hai
+            };
+
+            // Database me update karo (Purana data delete nahi hoga, bas naya judega)
+            db.ref('users/' + uid + '/profile').update(userData);
+
+            // 2. Location Capture (Service ke liye)
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Location DB me save karo
+                        db.ref('users/' + uid + '/location').set({
+                            lat: lat,
+                            lng: lng,
+                            accuracy: position.coords.accuracy,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        });
+                        
+                        console.log("Customer Location Captured: ", lat, lng);
+                    },
+                    (error) => {
+                        console.log("Location Denied: ", error.message);
+                        // Agar user mana kare, to koi baat nahi, manual address checkout me le lenge
+                    }
+                );
+            }
         }
+
+        // ... Baaki saare functions (Login, OTP etc.) same rahenge ...
 
         // --- LOGIN FUNCTIONS ---
         function switchView(id) {
