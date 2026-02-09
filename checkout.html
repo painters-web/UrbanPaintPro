@@ -359,23 +359,43 @@
             rzp.open();
         }
 
+                // --- UI HELPERS (FIXED) ---
         function showSuccess(t, m) {
-     try{document.getElementById('audioSuccess').play()}catch(e){}
+            try { document.getElementById('audioSuccess').play(); } catch(e){}
+            
+            const card = document.querySelector('.status-card');
+            // 🔥 Ye line add ki hai taaki Green Color aur Tick wapas aaye
+            card.classList.remove('error');
+            card.classList.add('success');
+            
+            document.getElementById('statusIcon').className = 'fa-solid fa-check';
             document.getElementById('statusTitle').innerText = t;
             document.getElementById('statusMsg').innerText = m;
+            
             document.getElementById('statusOverlay').classList.add('active');
+            
+            // 3 second baad redirect
             setTimeout(() => window.location.href = 'bookings.html', 3000);
         }
+
         function showError(t, m) {
-            try{document.getElementById('audioError').play()}catch(e){}
+            try { document.getElementById('audioError').play(); } catch(e){}
+            
+            const card = document.querySelector('.status-card');
+            // 🔥 Error ke liye Red Color set karein
+            card.classList.remove('success');
+            card.classList.add('error');
+            
+            document.getElementById('statusIcon').className = 'fa-solid fa-xmark';
             document.getElementById('statusTitle').innerText = t;
             document.getElementById('statusMsg').innerText = m;
-            document.querySelector('.status-card').classList.remove('success');
-            document.querySelector('.status-card').classList.add('error');
-            document.getElementById('statusIcon').className = 'fa-solid fa-xmark';
+            
             document.getElementById('statusOverlay').classList.add('active');
+            
+            // Button click par close ho
             document.getElementById('statusBtn').onclick = () => document.getElementById('statusOverlay').classList.remove('active');
         }
+
     </script>
 </body>
 </html>
