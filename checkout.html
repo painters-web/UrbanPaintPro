@@ -1,10 +1,12 @@
-<!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout | HomePaintingApp</title>
+    <title>Checkout | UrbanPaintPro</title>
     
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -13,113 +15,181 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F0FDFA; margin: 0; color: #134E4A; }
-        
-        /* Steps Header */
-        .steps-header {
-            background: white; padding: 20px; display: flex; justify-content: space-between;
-            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #CCFBF1;
-        }
-        .step-dot { 
-            width: 30px; height: 30px; background: #E2E8F0; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; font-weight: 700; color: #64748B;
-        }
-        .step-dot.active { background: #0D9488; color: white; }
-        .step-line { flex: 1; height: 2px; background: #E2E8F0; margin: 15px 10px; }
+        :root { --p: #0D9488; --bg: #F8FAFC; --text: #1E293B; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
 
-        /* Full Sheet Sections */
-        .step-content { display: none; padding: 20px; animation: slideIn 0.3s; }
-        .step-content.active { display: block; }
+        /* Header */
+        .header { background: white; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #E2E8F0; position: sticky; top: 0; z-index: 100; }
+        .back-btn { font-size: 1.2rem; margin-right: 15px; cursor: pointer; }
+        .header-title { font-weight: 700; font-size: 1.1rem; }
+
+        /* Progress Bar */
+        .progress-container { padding: 20px; background: white; margin-bottom: 10px; }
+        .steps { display: flex; justify-content: space-between; position: relative; }
+        .steps::before { content: ''; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: #E2E8F0; z-index: 0; }
+        .step { position: relative; z-index: 1; text-align: center; width: 33%; }
+        .step-circle { width: 30px; height: 30px; background: #E2E8F0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 700; color: #64748B; transition: 0.3s; }
+        .step.active .step-circle { background: var(--p); color: white; }
+        .step-label { font-size: 0.75rem; color: #64748B; font-weight: 600; }
+        .step.active .step-label { color: var(--p); }
+
+        /* Content Sections */
+        .section { display: none; padding: 15px; animation: slideIn 0.3s; }
+        .section.active { display: block; }
         @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; }
-        
-        .input-box { width: 100%; padding: 15px; border: 2px solid #CCFBF1; border-radius: 12px; margin-bottom: 15px; font-size: 1rem; }
-        
-        .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .slot-btn { 
-            padding: 15px; border: 2px solid #CCFBF1; border-radius: 12px; 
-            text-align: center; cursor: pointer; font-weight: 600; background: white;
-        }
-        .slot-btn.selected { border-color: #0D9488; background: #F0FDFA; color: #0D9488; }
+        .card { background: white; padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #F1F5F9; }
+        .input-group { margin-bottom: 15px; }
+        .label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: #475569; }
+        .input { width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-size: 1rem; outline: none; }
+        .input:focus { border-color: var(--p); }
 
-        .bill-summary { background: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; }
+        /* Slot Grid */
+        .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .slot-btn { padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 600; }
+        .slot-btn.selected { border-color: var(--p); background: #F0FDFA; color: var(--p); }
 
-        .bottom-bar {
-            position: fixed; bottom: 0; width: 100%; padding: 20px; background: white;
-            border-top: 1px solid #CCFBF1; display: flex; justify-content: space-between; align-items: center;
-        }
-        .btn-next {
-            background: #0D9488; color: white; border: none; padding: 12px 30px;
-            border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer;
-        }
-        .btn-back { color: #64748B; background: none; border: none; font-weight: 600; cursor: pointer; }
+        /* Bill Summary */
+        .bill-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
+        .bill-total { border-top: 1px dashed #CBD5E1; padding-top: 10px; margin-top: 10px; font-weight: 800; font-size: 1.1rem; color: var(--p); }
 
+        /* Payment Methods */
+        .pay-option { 
+            display: flex; align-items: center; padding: 15px; 
+            border: 2px solid #E2E8F0; border-radius: 12px; 
+            margin-bottom: 10px; cursor: pointer; transition: 0.2s;
+        }
+        .pay-option.selected { border-color: var(--p); background: #F0FDFA; }
+        .pay-icon { width: 40px; margin-right: 15px; }
+        .pay-info div { font-weight: 700; font-size: 0.95rem; }
+        .pay-info small { color: #64748B; font-size: 0.8rem; }
+
+        /* Bottom Bar */
+        .bottom-bar { 
+            position: fixed; bottom: 0; width: 100%; background: white; 
+            padding: 15px; border-top: 1px solid #E2E8F0; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .total-display { font-size: 1.2rem; font-weight: 800; color: var(--text); }
+        .action-btn { 
+            background: var(--p); color: white; border: none; 
+            padding: 12px 30px; border-radius: 10px; font-weight: 700; 
+            font-size: 1rem; cursor: pointer;
+        }
+        .action-btn:disabled { background: #CBD5E1; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-    <div class="steps-header">
-        <div class="step-dot active" id="dot1">1</div>
-        <div class="step-line"></div>
-        <div class="step-dot" id="dot2">2</div>
-        <div class="step-line"></div>
-        <div class="step-dot" id="dot3">3</div>
+    <div class="header">
+        <i class="fa-solid fa-arrow-left back-btn" onclick="window.history.back()"></i>
+        <div class="header-title">Secure Checkout</div>
     </div>
 
-    <div class="step-content active" id="step1">
-        <div class="section-title">Where to serve? 📍</div>
-        <input type="text" class="input-box" id="fullName" placeholder="Full Name">
-        <input type="tel" class="input-box" id="phone" placeholder="Phone Number">
-        <textarea class="input-box" id="address" rows="4" placeholder="House No, Street, Landmark"></textarea>
-        <input type="text" class="input-box" id="pincode" placeholder="Pincode">
-    </div>
-
-    <div class="step-content" id="step2">
-        <div class="section-title">When to visit? 📅</div>
-        <label style="font-weight: 600; display: block; margin-bottom: 10px;">Select Date</label>
-        <input type="date" class="input-box" id="serviceDate">
-        
-        <label style="font-weight: 600; display: block; margin-bottom: 10px;">Select Time</label>
-        <div class="slot-grid">
-            <div class="slot-btn" onclick="selectSlot(this, '09:00 AM - 12:00 PM')">Morning<br><small>9AM - 12PM</small></div>
-            <div class="slot-btn" onclick="selectSlot(this, '12:00 PM - 03:00 PM')">Afternoon<br><small>12PM - 3PM</small></div>
-            <div class="slot-btn" onclick="selectSlot(this, '03:00 PM - 06:00 PM')">Evening<br><small>3PM - 6PM</small></div>
+    <div class="progress-container">
+        <div class="steps">
+            <div class="step active" id="step1-ind">
+                <div class="step-circle">1</div>
+                <div class="step-label">Address</div>
+            </div>
+            <div class="step" id="step2-ind">
+                <div class="step-circle">2</div>
+                <div class="step-label">Slot</div>
+            </div>
+            <div class="step" id="step3-ind">
+                <div class="step-circle">3</div>
+                <div class="step-label">Payment</div>
+            </div>
         </div>
     </div>
 
-    <div class="step-content" id="step3">
-        <div class="section-title">Order Summary 🧾</div>
-        
-        <div class="bill-summary">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <span id="summService">Service</span>
-                <span id="summArea" style="font-weight: 700;">--</span>
+    <div id="step1" class="section active">
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">Contact Details</h3>
+            <div class="input-group">
+                <label class="label">Full Name</label>
+                <input type="text" id="userName" class="input" placeholder="Enter your name">
             </div>
-            <hr style="border: 0; border-top: 1px dashed #CBD5E1; margin: 10px 0;">
-            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 800; color: #0D9488;">
-                <span>Total Amount</span>
-                <span id="summTotal">₹0</span>
+            <div class="input-group">
+                <label class="label">Phone Number</label>
+                <input type="tel" id="userPhone" class="input" placeholder="10-digit mobile number" maxlength="10">
             </div>
         </div>
 
-        <div class="section-title">Payment Method 💳</div>
-        <div class="slot-btn selected" style="text-align: left; display: flex; align-items: center; gap: 10px;">
-            <i class="fa-solid fa-money-bill-wave"></i>
-            <div>
-                <div>Pay after Service</div>
-                <small>Cash / UPI upon completion</small>
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">Service Address</h3>
+            <div class="input-group">
+                <label class="label">House No / Flat / Building</label>
+                <input type="text" id="addr1" class="input" placeholder="e.g. A-102, Green Valley">
             </div>
+            <div class="input-group">
+                <label class="label">Street / Area / Landmark</label>
+                <input type="text" id="addr2" class="input" placeholder="e.g. Near City Mall, Sector 4">
+            </div>
+            <div class="input-group">
+                <label class="label">Pincode</label>
+                <input type="tel" id="pincode" class="input" placeholder="e.g. 110001" maxlength="6">
+            </div>
+        </div>
+    </div>
+
+    <div id="step2" class="section">
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">Select Date</h3>
+            <input type="date" id="serviceDate" class="input" style="margin-bottom: 15px;">
+            
+            <h3 style="margin-bottom: 15px;">Select Time</h3>
+            <div class="slot-grid">
+                <div class="slot-btn" onclick="selectSlot(this, '09:00 AM - 11:00 AM')">09 AM - 11 AM</div>
+                <div class="slot-btn" onclick="selectSlot(this, '11:00 AM - 01:00 PM')">11 AM - 01 PM</div>
+                <div class="slot-btn" onclick="selectSlot(this, '02:00 PM - 04:00 PM')">02 PM - 04 PM</div>
+                <div class="slot-btn" onclick="selectSlot(this, '04:00 PM - 06:00 PM')">04 PM - 06 PM</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="step3" class="section">
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">Order Summary</h3>
+            <div id="billItems">
+                </div>
+            <div class="bill-row bill-total">
+                <span>To Pay</span>
+                <span id="finalTotal">₹0</span>
+            </div>
+        </div>
+
+        <h3 style="margin: 0 0 10px 5px;">Payment Method</h3>
+        
+        <div class="pay-option selected" onclick="selectPayment('online')" id="payOnline">
+            <img src="https://cdn.iconscout.com/icon/free/png-256/razorpay-1649771-1399875.png" class="pay-icon" alt="Razorpay">
+            <div class="pay-info">
+                <div>Pay Online (Razorpay)</div>
+                <small>UPI, Card, Netbanking, Wallet</small>
+            </div>
+            <i class="fa-solid fa-circle-check" style="margin-left: auto; color: var(--p);"></i>
+        </div>
+
+        <div class="pay-option" onclick="selectPayment('cod')" id="payCOD">
+            <div class="pay-icon" style="font-size: 1.5rem; text-align: center; color: #F59E0B;">
+                <i class="fa-solid fa-money-bill-wave"></i>
+            </div>
+            <div class="pay-info">
+                <div>Cash on Delivery</div>
+                <small>Pay cash after service</small>
+            </div>
+            <i class="fa-regular fa-circle" style="margin-left: auto; color: #CBD5E1;"></i>
         </div>
     </div>
 
     <div class="bottom-bar">
-        <button class="btn-back" id="backBtn" onclick="prevStep()">Cancel</button>
-        <button class="btn-next" id="nextBtn" onclick="nextStep()">Next <i class="fa-solid fa-arrow-right"></i></button>
+        <div class="total-display" id="footerTotal">₹0</div>
+        <button class="action-btn" id="mainBtn" onclick="nextStep()">Next Step</button>
     </div>
 
     <script>
-        // FIREBASE CONFIG
+        // --- 1. FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
             authDomain: "urban-paint-pro.firebaseapp.com",
@@ -133,114 +203,226 @@
         const db = firebase.database();
         const auth = firebase.auth();
 
+        // --- 2. STATE ---
         let currentStep = 1;
         let selectedSlotTime = '';
+        let paymentMethod = 'online'; // Default Razorpay
         let orderData = JSON.parse(localStorage.getItem('pendingOrder')) || {};
+        
+        // --- 3. INIT ---
+        window.onload = () => {
+            // Check Data
+            if (!orderData || !orderData.total) {
+                alert('No order data found!');
+                window.location.href = 'services.html';
+                return;
+            }
 
-        // Load Summary on Step 3
-        function loadSummary() {
-            document.getElementById('summService').textContent = orderData.service || 'Service';
-            document.getElementById('summArea').textContent = (orderData.area || '0') + ' sqft';
-            document.getElementById('summTotal').textContent = orderData.total || '₹0';
+            // Set UI
+            document.getElementById('finalTotal').textContent = '₹' + orderData.total.toLocaleString();
+            document.getElementById('footerTotal').textContent = '₹' + orderData.total.toLocaleString();
+            renderBill();
+
+            // Set Default Date (Tomorrow)
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('serviceDate').valueAsDate = tomorrow;
+
+            // Auto-fill User Data if Logged In
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    if(user.displayName) document.getElementById('userName').value = user.displayName;
+                    if(user.phoneNumber) document.getElementById('userPhone').value = user.phoneNumber;
+                }
+            });
+        };
+
+        function renderBill() {
+            const container = document.getElementById('billItems');
+            if(orderData.details && Array.isArray(orderData.details)) {
+                // Menu Items List
+                container.innerHTML = orderData.details.map(item => `
+                    <div class="bill-row">
+                        <span>${item.name} x ${item.qty}</span>
+                        <span>₹${item.price * item.qty}</span>
+                    </div>
+                `).join('');
+            } else {
+                // Single/Project Service
+                container.innerHTML = `
+                    <div class="bill-row">
+                        <span>${orderData.service}</span>
+                        <span>₹${orderData.total}</span>
+                    </div>
+                `;
+            }
         }
 
+        // --- 4. NAVIGATION ---
+        function nextStep() {
+            const btn = document.getElementById('mainBtn');
+
+            if (currentStep === 1) {
+                // Validate Step 1
+                const name = document.getElementById('userName').value;
+                const phone = document.getElementById('userPhone').value;
+                const addr1 = document.getElementById('addr1').value;
+                
+                if(!name || !phone || !addr1) return alert("Please fill all details");
+                if(phone.length < 10) return alert("Invalid Phone Number");
+
+                currentStep = 2;
+                btn.textContent = 'Next Step';
+            } 
+            else if (currentStep === 2) {
+                // Validate Step 2
+                const date = document.getElementById('serviceDate').value;
+                if(!date || !selectedSlotTime) return alert("Please select Date & Time");
+
+                currentStep = 3;
+                btn.textContent = paymentMethod === 'online' ? `Pay ₹${orderData.total}` : 'Place Order';
+            } 
+            else if (currentStep === 3) {
+                processOrder();
+                return;
+            }
+
+            updateUI();
+        }
+
+        function updateUI() {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            // Show current
+            document.getElementById('step' + currentStep).classList.add('active');
+            
+            // Update Indicators
+            document.querySelectorAll('.step').forEach((el, idx) => {
+                if (idx + 1 <= currentStep) el.classList.add('active');
+                else el.classList.remove('active');
+            });
+        }
+
+        // --- 5. SELECTION LOGIC ---
         function selectSlot(el, time) {
             document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
             el.classList.add('selected');
             selectedSlotTime = time;
         }
 
-        function nextStep() {
-            if(currentStep === 1) {
-                // Validate Address
-                if(!document.getElementById('fullName').value || !document.getElementById('phone').value || !document.getElementById('address').value) {
-                    return alert("Please fill all details");
-                }
-                currentStep = 2;
-            } else if(currentStep === 2) {
-                // Validate Slot
-                if(!document.getElementById('serviceDate').value || !selectedSlotTime) {
-                    return alert("Please select Date & Time");
-                }
-                loadSummary();
-                currentStep = 3;
-                document.getElementById('nextBtn').innerHTML = 'Place Order <i class="fa-solid fa-check"></i>';
-                document.getElementById('backBtn').textContent = 'Back';
-            } else if(currentStep === 3) {
-                placeOrder();
-                return;
-            }
-            updateUI();
-        }
-
-        function prevStep() {
-            if(currentStep === 1) window.history.back();
-            if(currentStep > 1) currentStep--;
-            if(currentStep < 3) document.getElementById('nextBtn').innerHTML = 'Next <i class="fa-solid fa-arrow-right"></i>';
-            updateUI();
-        }
-
-        function updateUI() {
-            // Hide all
-            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.step-dot').forEach(el => el.classList.remove('active'));
+        function selectPayment(method) {
+            paymentMethod = method;
+            const btn = document.getElementById('mainBtn');
             
-            // Show current
-            document.getElementById('step' + currentStep).classList.add('active');
-            for(let i=1; i<=currentStep; i++) document.getElementById('dot' + i).classList.add('active');
+            // Toggle Visuals
+            if(method === 'online') {
+                document.getElementById('payOnline').classList.add('selected');
+                document.getElementById('payCOD').classList.remove('selected');
+                document.getElementById('payOnline').querySelector('.fa-circle-check').className = 'fa-solid fa-circle-check';
+                document.getElementById('payCOD').querySelector('.fa-circle').className = 'fa-regular fa-circle';
+                document.getElementById('payOnline').querySelector('.fa-circle-check').style.color = 'var(--p)';
+                btn.textContent = `Pay ₹${orderData.total}`;
+            } else {
+                document.getElementById('payCOD').classList.add('selected');
+                document.getElementById('payOnline').classList.remove('selected');
+                document.getElementById('payCOD').querySelector('.fa-circle').className = 'fa-solid fa-circle-check';
+                document.getElementById('payOnline').querySelector('.fa-circle-check').className = 'fa-regular fa-circle';
+                document.getElementById('payCOD').querySelector('.fa-circle').style.color = 'var(--p)';
+                btn.textContent = 'Place Order (COD)';
+            }
         }
 
-        async function placeOrder() {
+        // --- 6. ORDER PROCESSING ---
+        async function processOrder() {
             const user = auth.currentUser;
-            if(!user) return alert("Please Login First");
+            if(!user) return alert("Please Login first!");
 
-            const btn = document.getElementById('nextBtn');
-            btn.innerHTML = 'Booking...';
+            const btn = document.getElementById('mainBtn');
             btn.disabled = true;
+            btn.textContent = 'Processing...';
 
-            const finalOrder = {
+            const fullOrder = {
+                ...orderData,
                 userId: user.uid,
                 customer: {
-                    name: document.getElementById('fullName').value,
-                    phone: document.getElementById('phone').value,
-                    address: document.getElementById('address').value,
+                    name: document.getElementById('userName').value,
+                    phone: document.getElementById('userPhone').value,
+                    address: document.getElementById('addr1').value + ", " + document.getElementById('addr2').value,
                     pincode: document.getElementById('pincode').value
                 },
-                serviceDetails: {
-                    ...orderData,
+                slot: {
                     date: document.getElementById('serviceDate').value,
                     time: selectedSlotTime
                 },
+                paymentMethod: paymentMethod,
+                paymentStatus: 'pending',
                 status: 'pending',
                 createdAt: firebase.database.ServerValue.TIMESTAMP
             };
 
-            try {
-                // Save to Orders Node
-                const newOrderRef = db.ref('orders').push();
-                await newOrderRef.set(finalOrder);
-
-                // Save to User History
-                await db.ref(`users/${user.uid}/orders/${newOrderRef.key}`).set(finalOrder);
-
-                alert("Booking Successful! 🎉");
-                localStorage.removeItem('pendingOrder');
-                window.location.href = 'bookings.html';
-
-            } catch (error) {
-                alert("Error: " + error.message);
-                btn.disabled = false;
-                btn.innerHTML = 'Place Order';
+            if (paymentMethod === 'cod') {
+                // Save directly for COD
+                saveOrderToFirebase(fullOrder);
+            } else {
+                // Open Razorpay
+                openRazorpay(fullOrder);
             }
         }
 
-        // Auto fill phone if logged in
-        auth.onAuthStateChanged(user => {
-            if(user) {
-                document.getElementById('phone').value = user.phoneNumber || '';
-                document.getElementById('fullName').value = user.displayName || '';
+        function openRazorpay(orderData) {
+            var options = {
+                "key": "rzp_live_SDPY6guf8rfUr4", // YOUR LIVE KEY
+                "amount": orderData.total * 100, // Amount in paise
+                "currency": "INR",
+                "name": "UrbanPaintPro",
+                "description": orderData.service,
+                "image": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+                "handler": function (response){
+                    // Success Callback
+                    orderData.paymentStatus = 'paid';
+                    orderData.paymentId = response.razorpay_payment_id;
+                    saveOrderToFirebase(orderData);
+                },
+                "prefill": {
+                    "name": orderData.customer.name,
+                    "email": auth.currentUser.email || "",
+                    "contact": orderData.customer.phone
+                },
+                "theme": {
+                    "color": "#0D9488"
+                },
+                "modal": {
+                    "ondismiss": function(){
+                        document.getElementById('mainBtn').disabled = false;
+                        document.getElementById('mainBtn').textContent = `Pay ₹${orderData.total}`;
+                        alert('Payment Cancelled');
+                    }
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+        }
+
+        async function saveOrderToFirebase(finalOrder) {
+            try {
+                // 1. Save to global 'orders'
+                const newOrderRef = db.ref('orders').push();
+                await newOrderRef.set(finalOrder);
+
+                // 2. Save to user history
+                await db.ref(`users/${finalOrder.userId}/orders/${newOrderRef.key}`).set(finalOrder);
+
+                // Success
+                localStorage.removeItem('pendingOrder');
+                alert(finalOrder.paymentMethod === 'cod' ? 'Order Placed Successfully!' : 'Payment Successful! Booking Confirmed.');
+                window.location.href = 'bookings.html';
+
+            } catch (error) {
+                console.error(error);
+                alert("Error saving order: " + error.message);
+                document.getElementById('mainBtn').disabled = false;
             }
-        });
+        }
     </script>
 </body>
 </html>
