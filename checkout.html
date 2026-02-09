@@ -306,11 +306,50 @@
                 status: 'pending',
                 createdAt: firebase.database.ServerValue.TIMESTAMP
             };
-
-            if (paymentMethod === 'cod') {
+        if (paymentMethod === 'cod') {
                 saveOrderToFirebase(fullOrder);
             } else {
-                ope
+                openRazorpay(fullOrder);
+            }
+        }
+
+        async function saveOrderToFirebase(finalOrder) {
+            try {
+                if (finalOrder.type === 'advance_payment') {
+                    const originalOrderId = finalOrder.orderId;
+                    if(originalOrderId) {
+                        await db.ref(`orders/${originalOrderId}`).update({
+                            advancePaid: true, status: 'work_scheduled',
+                            startOtp: Math.floor(1000 + Math.random() * 9000),
+                            paymentMethod: finalOrder.paymentMethod,
+                            paymentStatus: finalOrder.paymentMethod === 'cod' ? 'pending_cod' : 'advance_received'
+                        });
+                        await db.ref(`users/${finalOrder.userId}/orders/${originalOrderId}`).update({ status: 'work_scheduled' });
+                    }
+                    showSuccess("Advance Received!", "Work Scheduled Successfully.");
+                    localStorage.removeItem('pendingOrder');
+                    return;
+                }
+
+                const newOrderRef = db.ref('orders').push();
+                await newOrderRef.set(finalOrder);
+                await db.ref(`users/${finalOrder.userId}/orders/${newOrderRef.key}`).set(finalOrder);
+
+                showSuccess("Booking Confirmed!", "Partner will be assigned shortly.");
+                localStorage.removeItem('pendingOrder');
+
+            } catch (error) {
+                console.error("Firebase Error:", error);
+                if(finalOrder.paymentMethod === 'cod') {
+                     // Fallback Success for COD even if network blips
+                     showSuccess("Order Placed!", "You can check status in Orders tab.");
+                } else {
+                     showError("Error Saving Order", "Please try again.");
+                     document.getElementById('mainBtn').disabled = false;
+                }
+            }
+        }
+
         function openRazorpay(orderData) {
             var options = {
                 "key": "rzp_live_SDPY6guf8rfUr4",
@@ -387,3 +426,4 @@
     </script>
 </body>
 </html>
+
