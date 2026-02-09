@@ -78,6 +78,45 @@
             font-size: 1rem; cursor: pointer;
         }
         .action-btn:disabled { background: #CBD5E1; cursor: not-allowed; }
+    /* Status Overlay */
+.status-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+    z-index: 3000; display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(5px);
+}
+.status-overlay.active { display: flex; animation: fadeIn 0.3s; }
+
+.status-card {
+    background: white; width: 90%; max-width: 350px;
+    border-radius: 24px; padding: 30px; text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.status-overlay.active .status-card { transform: scale(1); }
+
+/* Icon Animation */
+.status-icon-box {
+    width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; color: white;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Success Theme */
+.status-card.success .status-icon-box { background: var(--p); box-shadow: 0 10px 20px rgba(13,148,136,0.3); }
+.status-card.success h2 { color: var(--p); }
+.status-card.success .status-btn { background: var(--p); }
+
+/* Error Theme */
+.status-card.error .status-icon-box { background: #EF4444; box-shadow: 0 10px 20px rgba(239,68,68,0.3); }
+.status-card.error h2 { color: #EF4444; }
+.status-card.error .status-btn { background: #EF4444; }
+
+.status-btn {
+    width: 100%; padding: 14px; border: none; border-radius: 12px;
+    color: white; font-weight: 700; font-size: 1rem; margin-top: 20px; cursor: pointer;
+}
+            
     </style>
 </head>
 <body>
@@ -187,7 +226,20 @@
         <div class="total-display" id="footerTotal">₹0</div>
         <button class="action-btn" id="mainBtn" onclick="nextStep()">Next Step</button>
     </div>
+<div id="statusOverlay" class="status-overlay">
+    <div class="status-card">
+        <div class="status-icon-box" id="statusIconBox">
+            <i class="fa-solid fa-check" id="statusIcon"></i>
+        </div>
+        <h2 id="statusTitle">Booking Confirmed!</h2>
+        <p id="statusMsg">Your expert is being assigned.</p>
+        <button class="status-btn" id="statusBtn" onclick="closeStatusModal()">OK</button>
+    </div>
+</div>
 
+<audio id="audioSuccess" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+<audio id="audioError" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
+        
     <script>
         // --- 1. FIREBASE CONFIG ---
         const firebaseConfig = {
@@ -392,38 +444,115 @@
                 "theme": {
                     "color": "#0D9488"
                 },
-                "modal": {
+                   "modal": {
                     "ondismiss": function(){
-                        document.getElementById('mainBtn').disabled = false;
-                        document.getElementById('mainBtn').textContent = `Pay ₹${orderData.total}`;
-                        alert('Payment Cancelled');
+                        // 🔥 SHOW ERROR WHEN CLOSED/FAILED
+                        showError("Payment Cancelled", "You cancelled the payment process.");
                     }
                 }
             };
             var rzp1 = new Razorpay(options);
+            
+            // Add failure handler if SDK supports it, but modal dismiss covers most manual cancellations
+            rzp1.on('payment.failed', function (response){
+                showError("Payment Failed", response.error.description);
+            });
+
             rzp1.open();
         }
 
-        async function saveOrderToFirebase(finalOrder) {
+
+
+         async function saveOrderToFirebase(finalOrder) {
             try {
-                // 1. Save to global 'orders'
+await db.ref(`users/${finalOrder.userId}/orders/${newOrderRef.key}`).set(finalOrder);
+
+                    
+                
+                // ADVANCE PAYMENT LOGIC
+                if (orderData.type === 'advance_payment') {
+                    // ... (DB Update Code) ...
+                    
+                    // 🔥 REPLACE ALERT WITH SUCCESS UI
+                    showSuccess("Payment Successful!", "Advance received. Work Scheduled.");
+                    localStorage.removeItem('pendingOrder');
+                    return;
+                }
+
+                // NORMAL ORDER LOGIC
                 const newOrderRef = db.ref('orders').push();
                 await newOrderRef.set(finalOrder);
-
-                // 2. Save to user history
                 await db.ref(`users/${finalOrder.userId}/orders/${newOrderRef.key}`).set(finalOrder);
 
-                // Success
+                // 🔥 REPLACE ALERT WITH SUCCESS UI
                 localStorage.removeItem('pendingOrder');
-                alert(finalOrder.paymentMethod === 'cod' ? 'Order Placed Successfully!' : 'Payment Successful! Booking Confirmed.');
-                window.location.href = 'bookings.html';
+                showSuccess("Booking Confirmed!", "Your partner will be assigned shortly.");
 
             } catch (error) {
                 console.error(error);
-                alert("Error saving order: " + error.message);
-                document.getElementById('mainBtn').disabled = false;
+                // 🔥 REPLACE ALERT WITH ERROR UI
+                showError("Error Saving Order", error.message);
             }
-        }
+                                }
+                    
+            // --- UI FEEDBACK FUNCTIONS ---
+
+function showSuccess(title, msg) {
+    const overlay = document.getElementById('statusOverlay');
+    const card = overlay.querySelector('.status-card');
+    const btn = document.getElementById('statusBtn');
+    
+    // Play Sound
+    document.getElementById('audioSuccess').play().catch(e => console.log(e));
+
+    // Set Content
+    card.className = 'status-card success';
+    document.getElementById('statusIcon').className = 'fa-solid fa-check';
+    document.getElementById('statusTitle').innerText = title || "Booking Confirmed! 🎉";
+    document.getElementById('statusMsg').innerText = msg || "Redirecting to your orders...";
+    
+    // Auto Redirect logic
+    btn.innerText = "View Orders";
+    btn.onclick = () => window.location.href = 'bookings.html';
+    
+    // Show
+    overlay.classList.add('active');
+
+    // Auto redirect after 3 seconds
+    setTimeout(() => {
+        window.location.href = 'bookings.html';
+    }, 3000);
+}
+
+function showError(title, msg) {
+    const overlay = document.getElementById('statusOverlay');
+    const card = overlay.querySelector('.status-card');
+    const btn = document.getElementById('statusBtn');
+    
+    // Play Sound
+    document.getElementById('audioError').play().catch(e => console.log(e));
+
+    // Set Content
+    card.className = 'status-card error';
+    document.getElementById('statusIcon').className = 'fa-solid fa-xmark';
+    document.getElementById('statusTitle').innerText = title || "Booking Failed 😔";
+    document.getElementById('statusMsg').innerText = msg || "Something went wrong. Please try again.";
+    
+    btn.innerText = "Try Again";
+    btn.onclick = () => {
+        overlay.classList.remove('active');
+        document.getElementById('mainBtn').disabled = false;
+        document.getElementById('mainBtn').textContent = "Pay Now";
+    };
+    
+    // Show
+    overlay.classList.add('active');
+}
+
+function closeStatusModal() {
+    document.getElementById('statusOverlay').classList.remove('active');
+}
+            
     </script>
 </body>
 </html>
