@@ -1,4 +1,4 @@
-        <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -19,12 +19,11 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
 
-        /* Header */
         .header { background: white; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #E2E8F0; position: sticky; top: 0; z-index: 100; }
         .back-btn { font-size: 1.2rem; margin-right: 15px; cursor: pointer; }
         .header-title { font-weight: 700; font-size: 1.1rem; }
 
-        /* Progress Bar */
+        /* Steps */
         .progress-container { padding: 20px; background: white; margin-bottom: 10px; }
         .steps { display: flex; justify-content: space-between; position: relative; }
         .steps::before { content: ''; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: #E2E8F0; z-index: 0; }
@@ -34,7 +33,7 @@
         .step-label { font-size: 0.75rem; color: #64748B; font-weight: 600; }
         .step.active .step-label { color: var(--p); }
 
-        /* Content Sections */
+        /* Sections */
         .section { display: none; padding: 15px; animation: slideIn 0.3s; }
         .section.active { display: block; }
         @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
@@ -45,78 +44,60 @@
         .input { width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-size: 1rem; outline: none; }
         .input:focus { border-color: var(--p); }
 
-        /* Slot Grid */
         .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .slot-btn { padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 600; }
         .slot-btn.selected { border-color: var(--p); background: #F0FDFA; color: var(--p); }
 
-        /* Bill Summary */
         .bill-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
         .bill-total { border-top: 1px dashed #CBD5E1; padding-top: 10px; margin-top: 10px; font-weight: 800; font-size: 1.1rem; color: var(--p); }
 
-        /* Payment Methods */
-        .pay-option { 
-            display: flex; align-items: center; padding: 15px; 
-            border: 2px solid #E2E8F0; border-radius: 12px; 
-            margin-bottom: 10px; cursor: pointer; transition: 0.2s;
-        }
+        .pay-option { display: flex; align-items: center; padding: 15px; border: 2px solid #E2E8F0; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
         .pay-option.selected { border-color: var(--p); background: #F0FDFA; }
         .pay-icon { width: 40px; margin-right: 15px; }
         .pay-info div { font-weight: 700; font-size: 0.95rem; }
         .pay-info small { color: #64748B; font-size: 0.8rem; }
 
-        /* Bottom Bar */
-        .bottom-bar { 
-            position: fixed; bottom: 0; width: 100%; background: white; 
-            padding: 15px; border-top: 1px solid #E2E8F0; 
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
         .total-display { font-size: 1.2rem; font-weight: 800; color: var(--text); }
-        .action-btn { 
-            background: var(--p); color: white; border: none; 
-            padding: 12px 30px; border-radius: 10px; font-weight: 700; 
-            font-size: 1rem; cursor: pointer;
-        }
+        .action-btn { background: var(--p); color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; }
         .action-btn:disabled { background: #CBD5E1; cursor: not-allowed; }
-    /* Status Overlay */
-.status-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-    z-index: 3000; display: none; align-items: center; justify-content: center;
-    backdrop-filter: blur(5px);
-}
-.status-overlay.active { display: flex; animation: fadeIn 0.3s; }
 
-.status-card {
-    background: white; width: 90%; max-width: 350px;
-    border-radius: 24px; padding: 30px; text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.status-overlay.active .status-card { transform: scale(1); }
-
-/* Icon Animation */
-.status-icon-box {
-    width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 2.5rem; color: white;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-/* Success Theme */
-.status-card.success .status-icon-box { background: var(--p); box-shadow: 0 10px 20px rgba(13,148,136,0.3); }
-.status-card.success h2 { color: var(--p); }
-.status-card.success .status-btn { background: var(--p); }
-
-/* Error Theme */
-.status-card.error .status-icon-box { background: #EF4444; box-shadow: 0 10px 20px rgba(239,68,68,0.3); }
-.status-card.error h2 { color: #EF4444; }
-.status-card.error .status-btn { background: #EF4444; }
-
-.status-btn {
-    width: 100%; padding: 14px; border: none; border-radius: 12px;
-    color: white; font-weight: 700; font-size: 1rem; margin-top: 20px; cursor: pointer;
-}
-            
+        /* STATUS POPUP */
+        .status-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            z-index: 3000; display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .status-overlay.active { display: flex; animation: fadeIn 0.3s; }
+        
+        .status-card {
+            background: white; width: 90%; max-width: 350px;
+            border-radius: 24px; padding: 30px; text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: scale(0.8); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .status-overlay.active .status-card { transform: scale(1); }
+        
+        .status-icon-box {
+            width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; color: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Themes */
+        .status-card.success .status-icon-box { background: var(--p); box-shadow: 0 10px 20px rgba(13,148,136,0.3); }
+        .status-card.success h2 { color: var(--p); }
+        .status-card.success .status-btn { background: var(--p); }
+        
+        .status-card.error .status-icon-box { background: #EF4444; box-shadow: 0 10px 20px rgba(239,68,68,0.3); }
+        .status-card.error h2 { color: #EF4444; }
+        .status-card.error .status-btn { background: #EF4444; }
+        
+        .status-btn {
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            color: white; font-weight: 700; font-size: 1rem; margin-top: 20px; cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -128,97 +109,56 @@
 
     <div class="progress-container">
         <div class="steps">
-            <div class="step active" id="step1-ind">
-                <div class="step-circle">1</div>
-                <div class="step-label">Address</div>
-            </div>
-            <div class="step" id="step2-ind">
-                <div class="step-circle">2</div>
-                <div class="step-label">Slot</div>
-            </div>
-            <div class="step" id="step3-ind">
-                <div class="step-circle">3</div>
-                <div class="step-label">Payment</div>
-            </div>
+            <div class="step active" id="step1-ind"><div class="step-circle">1</div><div class="step-label">Address</div></div>
+            <div class="step" id="step2-ind"><div class="step-circle">2</div><div class="step-label">Slot</div></div>
+            <div class="step" id="step3-ind"><div class="step-circle">3</div><div class="step-label">Payment</div></div>
         </div>
     </div>
 
     <div id="step1" class="section active">
         <div class="card">
-            <h3 style="margin-bottom: 15px;">Contact Details</h3>
-            <div class="input-group">
-                <label class="label">Full Name</label>
-                <input type="text" id="userName" class="input" placeholder="Enter your name">
-            </div>
-            <div class="input-group">
-                <label class="label">Phone Number</label>
-                <input type="tel" id="userPhone" class="input" placeholder="10-digit mobile number" maxlength="10">
-            </div>
+            <h3>Contact Details</h3>
+            <div class="input-group"><label class="label">Name</label><input type="text" id="userName" class="input" placeholder="Your Name"></div>
+            <div class="input-group"><label class="label">Phone</label><input type="tel" id="userPhone" class="input" placeholder="Mobile Number"></div>
         </div>
-
         <div class="card">
-            <h3 style="margin-bottom: 15px;">Service Address</h3>
-            <div class="input-group">
-                <label class="label">House No / Flat / Building</label>
-                <input type="text" id="addr1" class="input" placeholder="e.g. A-102, Green Valley">
-            </div>
-            <div class="input-group">
-                <label class="label">Street / Area / Landmark</label>
-                <input type="text" id="addr2" class="input" placeholder="e.g. Near City Mall, Sector 4">
-            </div>
-            <div class="input-group">
-                <label class="label">Pincode</label>
-                <input type="tel" id="pincode" class="input" placeholder="e.g. 110001" maxlength="6">
-            </div>
+            <h3>Address</h3>
+            <div class="input-group"><label class="label">House No / Flat</label><input type="text" id="addr1" class="input" placeholder="e.g. A-101"></div>
+            <div class="input-group"><label class="label">Area / Landmark</label><input type="text" id="addr2" class="input" placeholder="e.g. Sector 4"></div>
+            <div class="input-group"><label class="label">Pincode</label><input type="tel" id="pincode" class="input" placeholder="e.g. 110001"></div>
         </div>
     </div>
 
     <div id="step2" class="section">
         <div class="card">
-            <h3 style="margin-bottom: 15px;">Select Date</h3>
-            <input type="date" id="serviceDate" class="input" style="margin-bottom: 15px;">
-            
-            <h3 style="margin-bottom: 15px;">Select Time</h3>
+            <h3>Select Date</h3>
+            <input type="date" id="serviceDate" class="input" style="margin-bottom:15px;">
+            <h3>Select Time</h3>
             <div class="slot-grid">
-                <div class="slot-btn" onclick="selectSlot(this, '09:00 AM - 11:00 AM')">09 AM - 11 AM</div>
-                <div class="slot-btn" onclick="selectSlot(this, '11:00 AM - 01:00 PM')">11 AM - 01 PM</div>
-                <div class="slot-btn" onclick="selectSlot(this, '02:00 PM - 04:00 PM')">02 PM - 04 PM</div>
-                <div class="slot-btn" onclick="selectSlot(this, '04:00 PM - 06:00 PM')">04 PM - 06 PM</div>
+                <div class="slot-btn" onclick="selectSlot(this, '09 AM - 11 AM')">09 AM - 11 AM</div>
+                <div class="slot-btn" onclick="selectSlot(this, '11 AM - 01 PM')">11 AM - 01 PM</div>
+                <div class="slot-btn" onclick="selectSlot(this, '02 PM - 04 PM')">02 PM - 04 PM</div>
+                <div class="slot-btn" onclick="selectSlot(this, '04 PM - 06 PM')">04 PM - 06 PM</div>
             </div>
         </div>
     </div>
 
     <div id="step3" class="section">
         <div class="card">
-            <h3 style="margin-bottom: 15px;">Order Summary</h3>
-            <div id="billItems">
-                </div>
-            <div class="bill-row bill-total">
-                <span>To Pay</span>
-                <span id="finalTotal">₹0</span>
-            </div>
+            <h3>Order Summary</h3>
+            <div id="billItems"></div>
+            <div class="bill-row bill-total"><span>To Pay</span><span id="finalTotal">₹0</span></div>
         </div>
-
-        <h3 style="margin: 0 0 10px 5px;">Payment Method</h3>
-        
+        <h3>Payment Method</h3>
         <div class="pay-option selected" onclick="selectPayment('online')" id="payOnline">
-            <img src="https://cdn.iconscout.com/icon/free/png-256/razorpay-1649771-1399875.png" class="pay-icon" alt="Razorpay">
-            <div class="pay-info">
-                <div>Pay Online (Razorpay)</div>
-                <small>UPI, Card, Netbanking, Wallet</small>
-            </div>
-            <i class="fa-solid fa-circle-check" style="margin-left: auto; color: var(--p);"></i>
+            <img src="https://cdn.iconscout.com/icon/free/png-256/razorpay-1649771-1399875.png" class="pay-icon">
+            <div class="pay-info"><div>Pay Online</div><small>UPI, Cards, Netbanking</small></div>
+            <i class="fa-solid fa-circle-check" style="margin-left:auto; color:var(--p);"></i>
         </div>
-
         <div class="pay-option" onclick="selectPayment('cod')" id="payCOD">
-            <div class="pay-icon" style="font-size: 1.5rem; text-align: center; color: #F59E0B;">
-                <i class="fa-solid fa-money-bill-wave"></i>
-            </div>
-            <div class="pay-info">
-                <div>Cash on Delivery</div>
-                <small>Pay cash after service</small>
-            </div>
-            <i class="fa-regular fa-circle" style="margin-left: auto; color: #CBD5E1;"></i>
+            <div class="pay-icon" style="font-size:1.5rem; text-align:center; color:#F59E0B;"><i class="fa-solid fa-money-bill-wave"></i></div>
+            <div class="pay-info"><div>Cash on Delivery</div><small>Pay after service</small></div>
+            <i class="fa-regular fa-circle" style="margin-left:auto; color:#CBD5E1;"></i>
         </div>
     </div>
 
@@ -226,22 +166,21 @@
         <div class="total-display" id="footerTotal">₹0</div>
         <button class="action-btn" id="mainBtn" onclick="nextStep()">Next Step</button>
     </div>
-<div id="statusOverlay" class="status-overlay">
-    <div class="status-card">
-        <div class="status-icon-box" id="statusIconBox">
-            <i class="fa-solid fa-check" id="statusIcon"></i>
-        </div>
-        <h2 id="statusTitle">Booking Confirmed!</h2>
-        <p id="statusMsg">Your expert is being assigned.</p>
-        <button class="status-btn" id="statusBtn" onclick="closeStatusModal()">OK</button>
-    </div>
-</div>
 
-<audio id="audioSuccess" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
-<audio id="audioError" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
-        
+    <div id="statusOverlay" class="status-overlay">
+        <div class="status-card">
+            <div class="status-icon-box" id="statusIconBox"><i class="fa-solid fa-check" id="statusIcon"></i></div>
+            <h2 id="statusTitle">Booking Confirmed!</h2>
+            <p id="statusMsg">Your expert is being assigned.</p>
+            <button class="status-btn" id="statusBtn" onclick="closeStatusModal()">OK</button>
+        </div>
+    </div>
+
+    <audio id="audioSuccess" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="audioError" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
+
     <script>
-        // --- 1. FIREBASE CONFIG ---
+        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
             authDomain: "urban-paint-pro.firebaseapp.com",
@@ -255,32 +194,24 @@
         const db = firebase.database();
         const auth = firebase.auth();
 
-        // --- 2. STATE ---
         let currentStep = 1;
         let selectedSlotTime = '';
-        let paymentMethod = 'online'; // Default Razorpay
+        let paymentMethod = 'online';
         let orderData = JSON.parse(localStorage.getItem('pendingOrder')) || {};
-        
-        // --- 3. INIT ---
+
         window.onload = () => {
-            // Check Data
             if (!orderData || !orderData.total) {
                 alert('No order data found!');
                 window.location.href = 'services.html';
                 return;
             }
-
-            // Set UI
             document.getElementById('finalTotal').textContent = '₹' + orderData.total.toLocaleString();
             document.getElementById('footerTotal').textContent = '₹' + orderData.total.toLocaleString();
             renderBill();
-
-            // Set Default Date (Tomorrow)
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
             document.getElementById('serviceDate').valueAsDate = tomorrow;
 
-            // Auto-fill User Data if Logged In
             auth.onAuthStateChanged(user => {
                 if (user) {
                     if(user.displayName) document.getElementById('userName').value = user.displayName;
@@ -292,70 +223,33 @@
         function renderBill() {
             const container = document.getElementById('billItems');
             if(orderData.details && Array.isArray(orderData.details)) {
-                // Menu Items List
-                container.innerHTML = orderData.details.map(item => `
-                    <div class="bill-row">
-                        <span>${item.name} x ${item.qty}</span>
-                        <span>₹${item.price * item.qty}</span>
-                    </div>
-                `).join('');
+                container.innerHTML = orderData.details.map(item => `<div class="bill-row"><span>${item.name} x ${item.qty}</span><span>₹${item.price * item.qty}</span></div>`).join('');
             } else {
-                // Single/Project Service
-                container.innerHTML = `
-                    <div class="bill-row">
-                        <span>${orderData.service}</span>
-                        <span>₹${orderData.total}</span>
-                    </div>
-                `;
+                container.innerHTML = `<div class="bill-row"><span>${orderData.service}</span><span>₹${orderData.total}</span></div>`;
             }
         }
 
-        // --- 4. NAVIGATION ---
+        // Navigation
         function nextStep() {
             const btn = document.getElementById('mainBtn');
-
             if (currentStep === 1) {
-                // Validate Step 1
-                const name = document.getElementById('userName').value;
-                const phone = document.getElementById('userPhone').value;
-                const addr1 = document.getElementById('addr1').value;
-                
-                if(!name || !phone || !addr1) return alert("Please fill all details");
-                if(phone.length < 10) return alert("Invalid Phone Number");
-
-                currentStep = 2;
-                btn.textContent = 'Next Step';
-            } 
-            else if (currentStep === 2) {
-                // Validate Step 2
-                const date = document.getElementById('serviceDate').value;
-                if(!date || !selectedSlotTime) return alert("Please select Date & Time");
-
-                currentStep = 3;
-                btn.textContent = paymentMethod === 'online' ? `Pay ₹${orderData.total}` : 'Place Order';
-            } 
-            else if (currentStep === 3) {
-                processOrder();
-                return;
+                if(!document.getElementById('userName').value || !document.getElementById('userPhone').value || !document.getElementById('addr1').value) return alert("Fill all details");
+                currentStep = 2; btn.textContent = 'Next Step';
+            } else if (currentStep === 2) {
+                if(!document.getElementById('serviceDate').value || !selectedSlotTime) return alert("Select Slot");
+                currentStep = 3; btn.textContent = paymentMethod === 'online' ? `Pay ₹${orderData.total}` : 'Place Order';
+            } else if (currentStep === 3) {
+                processOrder(); return;
             }
-
             updateUI();
         }
 
         function updateUI() {
-            // Hide all sections
             document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-            // Show current
             document.getElementById('step' + currentStep).classList.add('active');
-            
-            // Update Indicators
-            document.querySelectorAll('.step').forEach((el, idx) => {
-                if (idx + 1 <= currentStep) el.classList.add('active');
-                else el.classList.remove('active');
-            });
+            document.querySelectorAll('.step').forEach((el, idx) => el.classList.toggle('active', idx + 1 <= currentStep));
         }
 
-        // --- 5. SELECTION LOGIC ---
         function selectSlot(el, time) {
             document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
             el.classList.add('selected');
@@ -365,8 +259,6 @@
         function selectPayment(method) {
             paymentMethod = method;
             const btn = document.getElementById('mainBtn');
-            
-            // Toggle Visuals
             if(method === 'online') {
                 document.getElementById('payOnline').classList.add('selected');
                 document.getElementById('payCOD').classList.remove('selected');
@@ -384,112 +276,50 @@
             }
         }
 
-                // --- 6. ORDER PROCESSING (FIXED) ---
+        // --- SAFE PROCESS ORDER ---
         async function processOrder() {
             const user = auth.currentUser;
             if(!user) return alert("Please Login first!");
 
-            const btn = document.getElementById('mainBtn');
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
+            document.getElementById('mainBtn').disabled = true;
+            document.getElementById('mainBtn').textContent = 'Processing...';
 
             const fullOrder = {
-                ...orderData,
+                orderId: orderData.orderId || '',
+                type: orderData.type || 'service',
                 userId: user.uid,
                 customer: {
-                    name: document.getElementById('userName').value,
-                    phone: document.getElementById('userPhone').value,
-                    address: document.getElementById('addr1').value + ", " + document.getElementById('addr2').value,
-                    pincode: document.getElementById('pincode').value
+                    name: document.getElementById('userName').value || 'User',
+                    phone: document.getElementById('userPhone').value || '',
+                    address: (document.getElementById('addr1').value || '') + ", " + (document.getElementById('addr2').value || ''),
+                    pincode: document.getElementById('pincode').value || ''
                 },
                 slot: {
-                    date: document.getElementById('serviceDate').value,
-                    time: selectedSlotTime
+                    date: document.getElementById('serviceDate').value || new Date().toLocaleDateString(),
+                    time: selectedSlotTime || '09 AM - 11 AM'
                 },
-                // 🔥 FIX: Price ko 'amount' naam se save kar rahe hain
-                amount: orderData.total, 
-                
+                amount: orderData.total || 0,
+                total: orderData.total || 0,
+                details: orderData.details || [],
                 paymentMethod: paymentMethod,
-                paymentStatus: 'pending',
+                paymentStatus: paymentMethod === 'cod' ? 'pending_cod' : 'pending',
                 status: 'pending',
                 createdAt: firebase.database.ServerValue.TIMESTAMP
             };
 
-               if (paymentMethod === 'cod') {
-                // COD ke liye seedha Success function
+            if (paymentMethod === 'cod') {
                 saveOrderToFirebase(fullOrder);
             } else {
-                // Online ke liye Razorpay
-                openRazorpay(fullOrder);
-            }
-        }
-
-        async function saveOrderToFirebase(finalOrder) {
-            try {
-                // 1. ADVANCE PAYMENT LOGIC
-                if (finalOrder.type === 'advance_payment') {
-                    const originalOrderId = finalOrder.orderId;
-                    if(originalOrderId) {
-                        // Update Original Order
-                        await db.ref(`orders/${originalOrderId}`).update({
-                            advancePaid: true,
-                            status: 'work_scheduled',
-                            startOtp: Math.floor(1000 + Math.random() * 9000),
-                            paymentMethod: finalOrder.paymentMethod,
-                            paymentStatus: finalOrder.paymentMethod === 'cod' ? 'pending_cod' : 'advance_received'
-                        });
-                        
-                        // User History Update
-                        await db.ref(`users/${finalOrder.userId}/orders/${originalOrderId}`).update({
-                            status: 'work_scheduled'
-                        });
-                    }
-
-                    // 🔥 SUCCESS UI & SOUND
-                    showSuccess("Advance Confirmed!", "Work has been scheduled.");
-                    localStorage.removeItem('pendingOrder');
-                    return;
-                }
-
-                // 2. NORMAL NEW ORDER LOGIC
-                // Firebase ko undefined values pasand nahi, isliye humne upar fix kiya
-                const newOrderRef = db.ref('orders').push();
-                
-                // Hum 'set' ki jagah 'update' use karenge jo zyada safe hai
-                await newOrderRef.set(finalOrder);
-                
-                // User history
-                await db.ref(`users/${finalOrder.userId}/orders/${newOrderRef.key}`).set(finalOrder);
-
-                // 🔥 SUCCESS UI & SOUND
-                localStorage.removeItem('pendingOrder');
-                showSuccess("Booking Confirmed! 🎉", "Partner will be assigned shortly.");
-
-            } catch (error) {
-                console.error("Firebase Error:", error);
-                
-                // Agar COD hai to user ko Fail mat dikhao, bas Console me error dalo
-                // (Optional: Fallback Success agar error minor hai)
-                if (finalOrder.paymentMethod === 'cod') {
-                     showSuccess("Order Placed!", "You can check status in Orders tab.");
-                } else {
-                     showError("Error Saving Order", "Please try again or contact support.");
-                     document.getElementById('mainBtn').disabled = false;
-                }
-            }
-        }
-
-
+                ope
         function openRazorpay(orderData) {
             var options = {
-                "key": "rzp_live_SDPY6guf8rfUr4", // YOUR LIVE KEY
-                "amount": orderData.total * 100, // Amount in paise
+                "key": "rzp_live_SDPY6guf8rfUr4",
+                "amount": (orderData.total || 1) * 100,
                 "currency": "INR",
-                "name": "HomePainting",
-                "description": orderData.service,
+                "name": "UrbanPaintPro",
+                "description": "Service Payment",
                 "image": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
                 "handler": function (response){
-                    // Success Callback
                     orderData.paymentStatus = 'paid';
                     orderData.paymentId = response.razorpay_payment_id;
                     saveOrderToFirebase(orderData);
@@ -499,118 +329,61 @@
                     "email": auth.currentUser.email || "",
                     "contact": orderData.customer.phone
                 },
-                "theme": {
-                    "color": "#0D9488"
-                },
-                   "modal": {
+                "theme": { "color": "#0D9488" },
+                "modal": {
                     "ondismiss": function(){
-                        // 🔥 SHOW ERROR WHEN CLOSED/FAILED
-                        showError("Payment Cancelled", "You cancelled the payment process.");
+                        showError("Payment Cancelled", "Process was stopped.");
+                        document.getElementById('mainBtn').disabled = false;
+                        document.getElementById('mainBtn').textContent = `Pay ₹${orderData.total}`;
                     }
                 }
             };
             var rzp1 = new Razorpay(options);
-            
-            // Add failure handler if SDK supports it, but modal dismiss covers most manual cancellations
             rzp1.on('payment.failed', function (response){
                 showError("Payment Failed", response.error.description);
             });
-
             rzp1.open();
         }
 
-
-
-         async function saveOrderToFirebase(finalOrder) {
-            try {
-await db.ref(`users/${finalOrder.userId}/orders/${newOrderRef.key}`).set(finalOrder);
-
-                    
-                
-                // ADVANCE PAYMENT LOGIC
-                if (orderData.type === 'advance_payment') {
-                    // ... (DB Update Code) ...
-                    
-                    // 🔥 REPLACE ALERT WITH SUCCESS UI
-                    showSuccess("Payment Successful!", "Advance received. Work Scheduled.");
-                    localStorage.removeItem('pendingOrder');
-                    return;
-                }
-
-                // NORMAL ORDER LOGIC
-                const newOrderRef = db.ref('orders').push();
-                await newOrderRef.set(finalOrder);
-                await db.ref(`users/${finalOrder.userId}/orders/${newOrderRef.key}`).set(finalOrder);
-
-                // 🔥 REPLACE ALERT WITH SUCCESS UI
-                localStorage.removeItem('pendingOrder');
-                showSuccess("Booking Confirmed!", "Your partner will be assigned shortly.");
-
-            } catch (error) {
-                console.error(error);
-                // 🔥 REPLACE ALERT WITH ERROR UI
-                showError("Error Saving Order", error.message);
-            }
-                                }
-                    
-            // --- UI FEEDBACK FUNCTIONS ---
-
-function showSuccess(title, msg) {
-    const overlay = document.getElementById('statusOverlay');
-    const card = overlay.querySelector('.status-card');
-    const btn = document.getElementById('statusBtn');
-    
-    // Play Sound
-    document.getElementById('audioSuccess').play().catch(e => console.log(e));
-
-    // Set Content
-    card.className = 'status-card success';
-    document.getElementById('statusIcon').className = 'fa-solid fa-check';
-    document.getElementById('statusTitle').innerText = title || "Booking Confirmed! 🎉";
-    document.getElementById('statusMsg').innerText = msg || "Redirecting to your orders...";
-    
-    // Auto Redirect logic
-    btn.innerText = "View Orders";
-    btn.onclick = () => window.location.href = 'bookings.html';
-    
-    // Show
-    overlay.classList.add('active');
-
-    // Auto redirect after 3 seconds
-    setTimeout(() => {
-        window.location.href = 'bookings.html';
-    }, 3000);
-}
-
-function showError(title, msg) {
-    const overlay = document.getElementById('statusOverlay');
-    const card = overlay.querySelector('.status-card');
-    const btn = document.getElementById('statusBtn');
-    
-    // Play Sound
-    document.getElementById('audioError').play().catch(e => console.log(e));
-
-    // Set Content
-    card.className = 'status-card error';
-    document.getElementById('statusIcon').className = 'fa-solid fa-xmark';
-    document.getElementById('statusTitle').innerText = title || "Booking Failed 😔";
-    document.getElementById('statusMsg').innerText = msg || "Something went wrong. Please try again.";
-    
-    btn.innerText = "Try Again";
-    btn.onclick = () => {
-        overlay.classList.remove('active');
-        document.getElementById('mainBtn').disabled = false;
-        document.getElementById('mainBtn').textContent = "Pay Now";
-    };
-    
-    // Show
-    overlay.classList.add('active');
-}
-
-function closeStatusModal() {
-    document.getElementById('statusOverlay').classList.remove('active');
-}
+        // --- HELPER FUNCTIONS ---
+        function showSuccess(title, msg) {
+            const overlay = document.getElementById('statusOverlay');
+            const card = overlay.querySelector('.status-card');
+            const btn = document.getElementById('statusBtn');
             
+            document.getElementById('audioSuccess').play().catch(e=>console.log(e));
+            card.className = 'status-card success';
+            document.getElementById('statusIcon').className = 'fa-solid fa-check';
+            document.getElementById('statusTitle').innerText = title;
+            document.getElementById('statusMsg').innerText = msg;
+            
+            btn.innerText = "View Orders";
+            btn.onclick = () => window.location.href = 'bookings.html';
+            overlay.classList.add('active');
+            setTimeout(() => window.location.href = 'bookings.html', 3000);
+        }
+
+        function showError(title, msg) {
+            const overlay = document.getElementById('statusOverlay');
+            const card = overlay.querySelector('.status-card');
+            const btn = document.getElementById('statusBtn');
+            
+            document.getElementById('audioError').play().catch(e=>console.log(e));
+            card.className = 'status-card error';
+            document.getElementById('statusIcon').className = 'fa-solid fa-xmark';
+            document.getElementById('statusTitle').innerText = title;
+            document.getElementById('statusMsg').innerText = msg;
+            
+            btn.innerText = "Try Again";
+            btn.onclick = () => {
+                overlay.classList.remove('active');
+                document.getElementById('mainBtn').disabled = false;
+                document.getElementById('mainBtn').textContent = paymentMethod === 'online' ? `Pay ₹${orderData.total}` : 'Place Order';
+            };
+            overlay.classList.add('active');
+        }
+
+        function closeStatusModal() { document.getElementById('statusOverlay').classList.remove('active'); }
     </script>
 </body>
 </html>
