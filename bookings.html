@@ -328,7 +328,8 @@
                         </div>
                         <div class="order-footer">
                             <div>
-                                <div class="order-amount">₹${(order.amount || 0).toLocaleString()}</div>
+                                <div class="order-amount">₹${(order.amount || order.total || 0).toLocaleString()}</div>
+
                                 <div style="font-size: 0.8rem; color: #94A3B8;">${date}</div>
                             </div>
                             <button class="btn-track" onclick="openTracking('${order.id}')">
