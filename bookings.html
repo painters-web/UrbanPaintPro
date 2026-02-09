@@ -1,12 +1,9 @@
-<!DOCTYPE html>
+                                            <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0D9488">
     <title>My Bookings | UrbanPaintPro</title>
-    
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -15,398 +12,321 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        :root { --p: #0D9488; --p-light: #14B8A6; --accent: #F59E0B; --bg: #F0FDFA; --text: #134E4A; --white: #FFFFFF; --success: #22c55e; --warning: #f59e0b; }
+        :root { --p: #0D9488; --bg: #F0FDFA; --text: #134E4A; --warning: #F59E0B; --success: #22c55e; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 100px; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 100px; }
 
-        .header { position: fixed; top: 0; width: 100%; height: 60px; background: var(--white); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; border-bottom: 1px solid #CCFBF1; }
+        .header { position: fixed; top: 0; width: 100%; height: 60px; background: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; border-bottom: 1px solid #CCFBF1; }
         .header-title { font-weight: 700; font-size: 1.1rem; }
-        .refresh-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--p); }
-        .refresh-btn.spinning { animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
         .content { margin-top: 80px; padding: 0 20px; }
 
-        .new-booking-btn { 
-            width: 100%; padding: 16px; background: linear-gradient(135deg, var(--p), var(--p-light));
-            color: white; border: none; border-radius: 14px; font-weight: 700;
-            font-size: 1rem; cursor: pointer; margin-bottom: 20px;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            box-shadow: 0 4px 15px rgba(13,148,136,0.3);
+        /* Order Card */
+        .order-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; border-left: 4px solid var(--p); box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: relative; }
+        
+        .otp-badge { 
+            background: #FEF3C7; color: #D97706; padding: 5px 10px; border-radius: 8px; 
+            font-weight: 800; letter-spacing: 1px; border: 1px dashed #D97706; display: inline-block; margin-top: 5px;
         }
 
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { 
-            flex: 1; padding: 12px; text-align: center; 
-            background: white; border-radius: 10px; font-weight: 600;
-            cursor: pointer; border: 2px solid transparent;
-        }
-        .tab.active { border-color: var(--p); color: var(--p); background: #F0FDFA; }
+        .status-badge { float: right; font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 12px; background: #E2E8F0; }
+        .status-badge.action { background: var(--warning); color: white; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
-        .loading-state { text-align: center; padding: 60px 20px; color: #64748B; }
-        .loading-spinner {
-            width: 40px; height: 40px; border: 3px solid #CCFBF1;
-            border-top-color: var(--p); border-radius: 50%;
-            animation: spin 1s linear infinite; margin: 0 auto 15px;
-        }
+        .action-btn { width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
+        .btn-primary { background: var(--p); color: white; }
+        .btn-outline { border: 2px solid var(--p); color: var(--p); background: transparent; }
 
-        .order-card { 
-            background: white; border-radius: 16px; padding: 20px; 
-            margin-bottom: 15px; box-shadow: 0 2px 10px rgba(13,148,136,0.08);
-            border-left: 4px solid var(--p); display: none;
-        }
-        .order-card.active { display: block; animation: slideIn 0.3s; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-        .order-card.completed { border-left-color: var(--success); }
-        .order-card.pending { border-left-color: var(--warning); }
-
-        .order-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px; }
-        .order-id { font-size: 0.75rem; color: #94A3B8; font-weight: 600; }
-        .order-status { 
-            padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; 
-            font-weight: 700; text-transform: uppercase;
-        }
-        .order-status.ongoing { background: #F0FDFA; color: var(--p); }
-        .order-status.completed { background: #DCFCE7; color: #166534; }
-        .order-status.pending { background: #FEF3C7; color: #92400E; }
-
-        .order-service { font-weight: 700; font-size: 1rem; margin-bottom: 5px; }
-        .order-details { color: #64748B; font-size: 0.85rem; margin-bottom: 15px; }
-
-        .progress-bar { height: 6px; background: #E2E8F0; border-radius: 3px; margin-bottom: 15px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--p), var(--p-light)); border-radius: 3px; transition: width 0.5s; }
-
-        .order-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #F0FDFA; }
-        .order-amount { font-weight: 800; font-size: 1.1rem; color: var(--p); }
-        .btn-track { 
-            background: var(--p); color: white; border: none; 
-            padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; 
-            font-weight: 600; cursor: pointer;
-        }
-
-        .empty-state { text-align: center; padding: 60px 20px; color: #94A3B8; display: none; }
-        .empty-state.active { display: block; }
-        .empty-icon { font-size: 4rem; margin-bottom: 20px; opacity: 0.5; }
-
-        /* Tracking Modal */
-        .modal-overlay { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.5); 
-            z-index: 1000; display: none; align-items: flex-end;
-        }
+        /* MODALS */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .modal-overlay.active { display: flex; }
-        .tracking-sheet { 
-            background: white; width: 100%; border-radius: 24px 24px 0 0;
-            padding: 30px 20px; max-height: 70vh; overflow-y: auto;
-            animation: slideUp 0.3s;
-        }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .timeline { position: relative; padding-left: 30px; }
-        .timeline::before {
-            content: ''; position: absolute; left: 8px; top: 0; bottom: 0;
-            width: 2px; background: #E2E8F0;
-        }
-        .timeline-item { position: relative; padding-bottom: 25px; opacity: 0.5; }
-        .timeline-item.active { opacity: 1; }
-        .timeline-item.completed { opacity: 1; }
-        .timeline-dot { 
-            position: absolute; left: -26px; width: 18px; height: 18px;
-            background: #E2E8F0; border-radius: 50%; border: 3px solid white;
-            box-shadow: 0 0 0 2px #E2E8F0;
-        }
-        .timeline-item.active .timeline-dot { background: var(--p); box-shadow: 0 0 0 2px var(--p); }
-        .timeline-item.completed .timeline-dot { background: var(--success); box-shadow: 0 0 0 2px var(--success); }
+        .modal-box { background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 25px; animation: popIn 0.3s; text-align: center; }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 10px; }
+        /* Rating Stars */
+        .star-rating { font-size: 2rem; color: #CBD5E1; margin: 15px 0; cursor: pointer; }
+        .star-rating i.active { color: #F59E0B; }
+
+        /* Slot Grid */
+        .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .slot-item { padding: 10px; border: 1px solid #CBD5E1; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
+        .slot-item.selected { background: var(--p); color: white; border-color: var(--p); }
+
+        /* Nav */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
         .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 12px; }
         .nav-item.active { color: var(--p); background: #F0FDFA; }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
-
-        @media (min-width: 768px) {
-            body { max-width: 480px; margin: 0 auto; }
-            .nav, .header { max-width: 480px; left: 50%; transform: translateX(-50%); }
-        }
     </style>
 </head>
 <body>
+
     <div class="header">
-        <div class="header-title">My Bookings</div>
-        <div class="refresh-btn" id="refreshBtn" onclick="loadOrders()">
-            <i class="fa-solid fa-rotate-right"></i>
-        </div>
+        <div class="header-title">My Orders</div>
     </div>
 
-    <div class="content">
-        <button class="new-booking-btn" onclick="window.location.href='index.html'">
-            <i class="fa-solid fa-plus"></i> Book New Service
-        </button>
-
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('active')">Active</div>
-            <div class="tab" onclick="switchTab('completed')">Completed</div>
-            <div class="tab" onclick="switchTab('all')">All</div>
-        </div>
-
-        <!-- Loading State -->
-        <div class="loading-state" id="loadingState">
-            <div class="loading-spinner"></div>
-            <p>Loading your orders...</p>
-        </div>
-
-        <!-- Orders Container -->
-        <div id="ordersContainer" style="display: none;"></div>
-
-        <!-- Empty State -->
-        <div class="empty-state" id="emptyState">
-            <div class="empty-icon"><i class="fa-solid fa-box-open"></i></div>
-            <p>No orders found</p>
-            <button class="new-booking-btn" style="width: auto; padding: 12px 30px; margin-top: 15px;" onclick="window.location.href='index.html'">
-                Book Your First Service
-            </button>
-        </div>
+    <div class="content" id="ordersList">
+        <div style="text-align: center; margin-top: 50px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>
     </div>
 
-    <!-- Tracking Modal -->
-    <div class="modal-overlay" id="trackingModal" onclick="closeTracking(event)">
-        <div class="tracking-sheet" onclick="event.stopPropagation()">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <div style="font-size: 1.3rem; font-weight: 700;">Order Tracking</div>
-                <div style="width: 40px; height: 40px; background: #F0FDFA; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="closeTracking()">
-                    <i class="fa-solid fa-xmark" style="color: var(--p);"></i>
-                </div>
+    <div class="modal-overlay" id="quoteModal">
+        <div class="modal-box">
+            <h3>Review Quote</h3>
+            <p style="color:#64748B; font-size:0.9rem;">Partner: <b id="qPartner">...</b></p>
+            <div style="font-size:2rem; font-weight:800; color:var(--p); margin:10px 0;" id="qAmount">₹0</div>
+            
+            <p style="margin-top:15px; font-size:0.9rem;">How was the quote experience?</p>
+            <div class="star-rating" id="quoteStars">
+                <i class="fa-solid fa-star" onclick="rate(1)"></i>
+                <i class="fa-solid fa-star" onclick="rate(2)"></i>
+                <i class="fa-solid fa-star" onclick="rate(3)"></i>
+                <i class="fa-solid fa-star" onclick="rate(4)"></i>
+                <i class="fa-solid fa-star" onclick="rate(5)"></i>
             </div>
-            <div class="timeline" id="trackingTimeline"></div>
+            <textarea id="quoteFeedback" placeholder="Any comments?" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd;"></textarea>
+            
+            <button class="action-btn btn-primary" onclick="submitQuoteReview()">Accept & Select Slot</button>
+            <button class="action-btn btn-outline" onclick="closeModal('quoteModal')">Review Later</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="slotModal">
+        <div class="modal-box">
+            <h3>Schedule Work</h3>
+            <p style="color:#64748B; font-size:0.9rem;">When should the partner start?</p>
+            
+            <input type="date" id="slotDate" style="width:100%; padding:10px; margin:15px 0; border:1px solid #ddd; border-radius:8px;">
+            
+            <div class="slot-grid">
+                <div class="slot-item" onclick="selectTime(this, 'Morning')">Morning<br>9AM - 12PM</div>
+                <div class="slot-item" onclick="selectTime(this, 'Afternoon')">Afternoon<br>12PM - 3PM</div>
+            </div>
+
+            <p style="font-size:0.8rem; color:var(--warning); margin-top:10px;">
+                <i class="fa-solid fa-circle-info"></i> You need to pay <b>15% Advance</b> to confirm.
+            </p>
+
+            <button class="action-btn btn-primary" onclick="proceedToPayment()">Pay 15% Advance</button>
+            <button class="action-btn btn-outline" onclick="closeModal('slotModal')">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="finalModal">
+        <div class="modal-box">
+            <h3>Work Completed! 🎉</h3>
+            <p>Please rate the partner's work.</p>
+            <div class="star-rating" id="finalStars">
+                <i class="fa-solid fa-star" onclick="rateFinal(1)"></i>
+                <i class="fa-solid fa-star" onclick="rateFinal(2)"></i>
+                <i class="fa-solid fa-star" onclick="rateFinal(3)"></i>
+                <i class="fa-solid fa-star" onclick="rateFinal(4)"></i>
+                <i class="fa-solid fa-star" onclick="rateFinal(5)"></i>
+            </div>
+            <button class="action-btn btn-primary" onclick="submitFinalReview()">Submit Review</button>
         </div>
     </div>
 
     <div class="nav">
-        <div class="nav-item" onclick="window.location.href='index.html'">
-            <i class="fa-solid fa-house"></i><span>Home</span>
-        </div>
-        <div class="nav-item" onclick="window.location.href='services.html'">
-            <i class="fa-solid fa-paint-roller"></i><span>Services</span>
-        </div>
-        <div class="nav-item active" onclick="window.location.href='bookings.html'">
-            <i class="fa-solid fa-box-open"></i><span>Orders</span>
-        </div>
-        <div class="nav-item" onclick="window.location.href='about.html'">
-            <i class="fa-solid fa-user"></i><span>Profile</span>
-        </div>
+        <div class="nav-item" onclick="window.location.href='index.html'"><i class="fa-solid fa-house"></i>Home</div>
+        <div class="nav-item active" onclick="window.location.href='bookings.html'"><i class="fa-solid fa-box-open"></i>Orders</div>
+        <div class="nav-item" onclick="window.location.href='about.html'"><i class="fa-solid fa-user"></i>Profile</div>
     </div>
 
     <script>
-        // ==================== FIREBASE CONFIG (Same as index.html) ====================
+        // FIREBASE CONFIG
         const firebaseConfig = {
-        apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
-        authDomain: "urban-paint-pro.firebaseapp.com",
-        databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
-        projectId: "urban-paint-pro",
-        storageBucket: "urban-paint-pro.firebasestorage.app",
-        messagingSenderId: "929763117480",
-        appId: "1:929763117480:web:560057baeb12672078b59d"
+            apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+            authDomain: "urban-paint-pro.firebaseapp.com",
+            databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "urban-paint-pro",
+            storageBucket: "urban-paint-pro.firebasestorage.app",
+            messagingSenderId: "929763117480",
+            appId: "1:929763117480:web:560057baeb12672078b59d"
         };
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.database();
-        
+        const auth = firebase.auth();
 
-        
-        let currentUser = null;
-        let allOrders = [];
+        let currentOrder = null;
+        let selectedRating = 0;
+        let selectedTime = '';
 
-        // ==================== AUTH CHECK ====================
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                loadOrders();
-                setupRealtimeListener();
-            } else {
-                window.location.href = 'index.html';
-            }
+        auth.onAuthStateChanged(user => {
+            if(user) loadOrders(user.uid);
+            else window.location.href = 'index.html';
         });
 
-        // ==================== LOAD ORDERS FROM FIREBASE ====================
-        async function loadOrders() {
-            const refreshBtn = document.getElementById('refreshBtn');
-            refreshBtn.classList.add('spinning');
-            
-            document.getElementById('loadingState').style.display = 'block';
-            document.getElementById('ordersContainer').style.display = 'none';
-            document.getElementById('emptyState').classList.remove('active');
+        // LOAD ORDERS
+        function loadOrders(uid) {
+            db.ref(`users/${uid}/orders`).on('value', snap => {
+                const data = snap.val() || {};
+                const list = document.getElementById('ordersList');
+                list.innerHTML = '';
 
-            try {
-                // Method 1: Get orders from user's node (faster)
-                const userOrdersSnap = await db.ref(`users/${currentUser.uid}/orders`).once('value');
-                const userOrders = userOrdersSnap.val() || {};
-                
-                // Convert to array and sort by date
-                allOrders = Object.entries(userOrders).map(([key, value]) => ({
-                    id: key,
-                    ...value
-                })).sort((a, b) => b.createdAt - a.createdAt);
-
-                renderOrders();
-                
-            } catch (error) {
-                console.error('Error loading orders:', error);
-                alert('Error loading orders. Please try again.');
-            } finally {
-                document.getElementById('loadingState').style.display = 'none';
-                refreshBtn.classList.remove('spinning');
-            }
-        }
-
-        // ==================== REAL-TIME UPDATES ====================
-        function setupRealtimeListener() {
-            // Listen for order status changes in real-time
-            db.ref(`users/${currentUser.uid}/orders`).on('child_changed', (snapshot) => {
-                const updatedOrder = snapshot.val();
-                const orderId = snapshot.key;
-                
-                // Update in local array
-                const index = allOrders.findIndex(o => o.id === orderId);
-                if (index !== -1) {
-                    allOrders[index] = { id: orderId, ...updatedOrder };
-                    renderOrders();
-                    showNotification(`Order #${orderId.slice(-6).toUpperCase()} updated!`);
+                if(Object.keys(data).length === 0) {
+                    list.innerHTML = '<div style="text-align:center; margin-top:50px;">No Bookings Found</div>';
+                    return;
                 }
-            });
 
-            // Listen for new orders
-            db.ref(`users/${currentUser.uid}/orders`).on('child_added', (snapshot) => {
-                const newOrder = snapshot.val();
-                const orderId = snapshot.key;
-                
-                // Check if already exists
-                if (!allOrders.find(o => o.id === orderId)) {
-                    allOrders.unshift({ id: orderId, ...newOrder });
-                    renderOrders();
-                }
+                Object.entries(data).sort((a,b) => b[1].createdAt - a[1].createdAt).forEach(([key, order]) => {
+                    renderOrderCard(key, order, list);
+                });
             });
         }
 
-        // ==================== RENDER ORDERS ====================
-        function renderOrders(filter = 'active') {
-            const container = document.getElementById('ordersContainer');
+        // RENDER LOGIC
+        function renderOrderCard(id, order, container) {
+            let statusBadge = `<span class="status-badge">${order.status}</span>`;
+            let actionArea = '';
+            let otpDisplay = '';
+
+            // --- 1. VISIT OTP (Before Quote) ---
+            if (order.status === 'pending' || order.status === 'ongoing') {
+                if (!order.visitOtp) generateOtp(id, 'visitOtp'); // Generate if missing
+                otpDisplay = `<div class="otp-badge">VISIT OTP: ${order.visitOtp || '...'}</div>`;
+                statusBadge = `<span class="status-badge">Partner Visiting</span>`;
+            }
+
+            // --- 2. QUOTE RECEIVED (Action Required) ---
+            else if (order.status === 'quote_received') {
+                statusBadge = `<span class="status-badge action">Action Required</span>`;
+                actionArea = `<button class="action-btn btn-primary" onclick="openQuoteReview('${id}')">View Quote & Rate</button>`;
+            }
+
+            // --- 3. PAY 15% ADVANCE (After Slot Selection) ---
+            else if (order.status === 'advance_pending') {
+                statusBadge = `<span class="status-badge action">Payment Pending</span>`;
+                actionArea = `<button class="action-btn btn-primary" onclick="proceedToPayment('${id}')">Pay 15% Advance</button>`;
+            }
+
+            // --- 4. WORK STARTED (Start OTP) ---
+            else if (order.status === 'work_scheduled' || order.status === 'work_started') {
+                if (!order.startOtp) generateOtp(id, 'startOtp');
+                otpDisplay = `<div class="otp-badge" style="border-color:var(--p); color:var(--p); background:#F0FDFA;">START WORK OTP: ${order.startOtp || '...'}</div>`;
+                statusBadge = `<span class="status-badge" style="background:#DCFCE7; color:green;">Work Scheduled</span>`;
+            }
+
+            // --- 5. COMPLETED (Final Review) ---
+            else if (order.status === 'completed_pending_review') {
+                actionArea = `<button class="action-btn btn-outline" onclick="openFinalReview('${id}')">Rate Partner</button>`;
+            }
+
+            const html = `
+                <div class="order-card">
+                    ${statusBadge}
+                    <div style="font-weight:700; font-size:1.1rem;">${order.service}</div>
+                    <div style="color:#64748B; font-size:0.8rem; margin-bottom:10px;">ID: #${id.slice(-6).toUpperCase()}</div>
+                    ${otpDisplay}
+                    ${actionArea}
+                </div>
+            `;
+            container.innerHTML += html;
+        }
+
+        // --- HELPERS ---
+        function generateOtp(orderId, type) {
+            const otp = Math.floor(1000 + Math.random() * 9000); // 4 Digit
+            db.ref(`orders/${orderId}`).update({ [type]: otp });
+            db.ref(`users/${auth.currentUser.uid}/orders/${orderId}`).update({ [type]: otp });
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // --- FLOW 1: QUOTE REVIEW ---
+        async function openQuoteReview(id) {
+            const snap = await db.ref(`orders/${id}`).once('value');
+            currentOrder = { id, ...snap.val() };
             
-            let filteredOrders = allOrders;
-            if (filter === 'active') {
-                filteredOrders = allOrders.filter(o => ['pending', 'ongoing', 'accepted'].includes(o.status));
-            } else if (filter === 'completed') {
-                filteredOrders = allOrders.filter(o => o.status === 'completed');
-            }
-
-            if (filteredOrders.length === 0) {
-                container.style.display = 'none';
-                document.getElementById('emptyState').classList.add('active');
-                return;
-            }
-
-            container.style.display = 'block';
-            document.getElementById('emptyState').classList.remove('active');
-
-            container.innerHTML = filteredOrders.map(order => {
-                const orderIdShort = order.id.slice(-6).toUpperCase();
-                const statusClass = order.status === 'completed' ? 'completed' : 
-                                   order.status === 'pending' ? 'pending' : 'ongoing';
-                const progress = order.status === 'completed' ? 100 : 
-                                order.status === 'ongoing' ? 60 : 25;
-                
-                const date = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN') : 'Recently';
-                
-                return `
-                    <div class="order-card ${statusClass} active" data-status="${order.status}">
-                        <div class="order-header">
-                            <div>
-                                <div class="order-id">ORDER #${orderIdShort}</div>
-                                <div class="order-service">${order.service || 'Painting Service'}</div>
-                                <div class="order-details">${order.details?.brand || 'Premium'} • ${order.details?.product || 'Standard'}</div>
-                            </div>
-                            <span class="order-status ${statusClass}">${order.status}</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${progress}%;"></div>
-                        </div>
-                        <div class="order-footer">
-                            <div>
-                                <div class="order-amount">₹${(order.amount || order.total || 0).toLocaleString()}</div>
-
-                                <div style="font-size: 0.8rem; color: #94A3B8;">${date}</div>
-                            </div>
-                            <button class="btn-track" onclick="openTracking('${order.id}')">
-                                <i class="fa-solid fa-location-dot"></i> Track
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // ==================== TRACKING ====================
-        async function openTracking(orderId) {
-            const modal = document.getElementById('trackingModal');
-            const timeline = document.getElementById('trackingTimeline');
+            // Dummy Quote Data if not present
+            const amt = currentOrder.amount || currentOrder.total || 15000;
+            document.getElementById('qAmount').innerText = '₹' + amt.toLocaleString();
+            document.getElementById('qPartner').innerText = currentOrder.assignedPartner?.name || "Service Partner";
             
-            // Get order details from Firebase
-            const orderSnap = await db.ref(`orders/${orderId}`).once('value');
-            const order = orderSnap.val();
+            document.getElementById('quoteModal').classList.add('active');
+        }
+
+        function rate(n) {
+            selectedRating = n;
+            document.querySelectorAll('#quoteStars i').forEach((s, i) => {
+                s.classList.toggle('active', i < n);
+            });
+        }
+
+        function submitQuoteReview() {
+            if(selectedRating === 0) return alert("Please rate the quote/visit experience.");
             
-            if (!order) {
-                alert('Order not found');
-                return;
+            // Save Rating 1 & Move to Slot Selection
+            db.ref(`orders/${currentOrder.id}`).update({
+                quoteRating: selectedRating,
+                quoteFeedback: document.getElementById('quoteFeedback').value,
+                status: 'slot_selection_pending' // Internal state
+            });
+            
+            closeModal('quoteModal');
+            document.getElementById('slotModal').classList.add('active');
+        }
+
+        // --- FLOW 2: SLOT & ADVANCE ---
+        function selectTime(el, time) {
+            document.querySelectorAll('.slot-item').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedTime = time;
+        }
+
+        function proceedToPayment(id) {
+            if(id) currentOrder = { id }; // If called directly from button
+            
+            const date = document.getElementById('slotDate').value;
+            if(!date && !currentOrder.slotDate) return alert("Select Date"); // Simple validation
+
+            // Save Slot Info
+            if(date) {
+                db.ref(`orders/${currentOrder.id}`).update({ slotDate: date, slotTime: selectedTime || 'Morning' });
             }
 
-            // Build timeline based on order status
-            const stages = [
-                { name: 'Booking Confirmed', time: order.createdAt, completed: true },
-                { name: 'Partner Assigned', time: order.assignedAt, completed: !!order.assignedAt },
-                { name: 'Site Inspection', time: order.inspectionAt, completed: !!order.inspectionAt },
-                { name: 'Work Started', time: order.startedAt, completed: !!order.startedAt },
-                { name: 'Project Completed', time: order.completedAt, completed: order.status === 'completed' }
-            ];
-
-            timeline.innerHTML = stages.map((stage, index) => {
-                const isActive = stage.completed && !stages[index + 1]?.completed;
-                const isCompleted = stage.completed;
-                const time = stage.time ? new Date(stage.time).toLocaleString('en-IN', { 
-                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
-                }) : 'Pending';
+            // Get Amount for calculation
+            db.ref(`orders/${currentOrder.id}`).once('value').then(snap => {
+                const order = snap.val();
+                const total = order.amount || order.total || 0;
                 
-                return `
-                    <div class="timeline-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}">
-                        <div class="timeline-dot"></div>
-                        <div style="font-weight: 600;">${stage.name}</div>
-                        <div style="font-size: 0.8rem; color: #94A3B8;">${time}</div>
-                    </div>
-                `;
-            }).join('');
+                // 🔥 15% ADVANCE LOGIC
+                const advanceAmount = Math.round(total * 0.15); 
 
-            modal.classList.add('active');
+                // Prepare Checkout Data
+                const checkoutData = {
+                    service: `Advance: ${order.service}`,
+                    total: advanceAmount, // Payment Page par sirf 15% mangega
+                    type: 'advance_payment', // Special Type
+                    orderId: currentOrder.id, // Link to original order
+                    details: [{ name: "15% Booking Advance", price: advanceAmount, qty: 1 }]
+                };
+
+                localStorage.setItem('pendingOrder', JSON.stringify(checkoutData));
+                window.location.href = 'checkout.html';
+            });
         }
 
-        function closeTracking(e) {
-            if (!e || e.target.id === 'trackingModal') {
-                document.getElementById('trackingModal').classList.remove('active');
-            }
+        // --- FLOW 3: FINAL REVIEW ---
+        function openFinalReview(id) {
+            currentOrder = { id };
+            document.getElementById('finalModal').classList.add('active');
+        }
+        function rateFinal(n) {
+            selectedRating = n;
+            document.querySelectorAll('#finalStars i').forEach((s, i) => s.classList.toggle('active', i < n));
+        }
+        function submitFinalReview() {
+            db.ref(`orders/${currentOrder.id}`).update({
+                finalRating: selectedRating,
+                status: 'completed'
+            });
+            db.ref(`users/${auth.currentUser.uid}/orders/${currentOrder.id}`).update({
+                finalRating: selectedRating,
+                status: 'completed'
+            });
+            closeModal('finalModal');
+            alert("Thank you! Service Completed.");
         }
 
-        // ==================== UI FUNCTIONS ====================
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            renderOrders(tab);
-        }
-
-        function showNotification(message) {
-            // Simple notification
-            if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification('UrbanPaintPro', { body: message });
-            }
-        }
-
-        // Request notification permission
-        if ('Notification' in window) {
-            Notification.requestPermission();
-        }
     </script>
 </body>
 </html>
