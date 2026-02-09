@@ -226,7 +226,18 @@
         </div>
     </div>
 
-    <script>
+        <script>
+        // --- 1. NAVIGATION FUNCTIONS (Inhe sabse upar rakha hai taaki ye hamesha chalein) ---
+        function goToService(type) {
+            console.log("Going to service:", type); // Debugging ke liye
+            window.location.href = `services.html?category=${type}`;
+        }
+
+        function switchView(id) {
+            document.querySelectorAll('.form-view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+            
         // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
