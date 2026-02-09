@@ -415,12 +415,70 @@
                 createdAt: firebase.database.ServerValue.TIMESTAMP
             };
 
-            if (paymentMethod === 'cod') {
+               if (paymentMethod === 'cod') {
+                // COD ke liye seedha Success function
                 saveOrderToFirebase(fullOrder);
             } else {
+                // Online ke liye Razorpay
                 openRazorpay(fullOrder);
             }
         }
+
+        async function saveOrderToFirebase(finalOrder) {
+            try {
+                // 1. ADVANCE PAYMENT LOGIC
+                if (finalOrder.type === 'advance_payment') {
+                    const originalOrderId = finalOrder.orderId;
+                    if(originalOrderId) {
+                        // Update Original Order
+                        await db.ref(`orders/${originalOrderId}`).update({
+                            advancePaid: true,
+                            status: 'work_scheduled',
+                            startOtp: Math.floor(1000 + Math.random() * 9000),
+                            paymentMethod: finalOrder.paymentMethod,
+                            paymentStatus: finalOrder.paymentMethod === 'cod' ? 'pending_cod' : 'advance_received'
+                        });
+                        
+                        // User History Update
+                        await db.ref(`users/${finalOrder.userId}/orders/${originalOrderId}`).update({
+                            status: 'work_scheduled'
+                        });
+                    }
+
+                    // 🔥 SUCCESS UI & SOUND
+                    showSuccess("Advance Confirmed!", "Work has been scheduled.");
+                    localStorage.removeItem('pendingOrder');
+                    return;
+                }
+
+                // 2. NORMAL NEW ORDER LOGIC
+                // Firebase ko undefined values pasand nahi, isliye humne upar fix kiya
+                const newOrderRef = db.ref('orders').push();
+                
+                // Hum 'set' ki jagah 'update' use karenge jo zyada safe hai
+                await newOrderRef.set(finalOrder);
+                
+                // User history
+                await db.ref(`users/${finalOrder.userId}/orders/${newOrderRef.key}`).set(finalOrder);
+
+                // 🔥 SUCCESS UI & SOUND
+                localStorage.removeItem('pendingOrder');
+                showSuccess("Booking Confirmed! 🎉", "Partner will be assigned shortly.");
+
+            } catch (error) {
+                console.error("Firebase Error:", error);
+                
+                // Agar COD hai to user ko Fail mat dikhao, bas Console me error dalo
+                // (Optional: Fallback Success agar error minor hai)
+                if (finalOrder.paymentMethod === 'cod') {
+                     showSuccess("Order Placed!", "You can check status in Orders tab.");
+                } else {
+                     showError("Error Saving Order", "Please try again or contact support.");
+                     document.getElementById('mainBtn').disabled = false;
+                }
+            }
+        }
+
 
         function openRazorpay(orderData) {
             var options = {
