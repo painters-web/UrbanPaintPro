@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+            <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -52,34 +52,33 @@
         .pay-option.selected { border-color: var(--p); background: #F0FDFA; }
         .pay-icon { width: 40px; margin-right: 15px; }
         
+        /* Disabled State for COD */
+        .pay-option.disabled { opacity: 0.5; cursor: not-allowed; background: #F1F5F9; border-color: #E2E8F0; }
+        
         .bottom-bar { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
         .total-display { font-size: 1.2rem; font-weight: 800; color: var(--text); }
         .action-btn { background: var(--p); color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; }
         .action-btn:disabled { background: #CBD5E1; cursor: not-allowed; }
 
-        /* STATUS POPUP */
+        /* Status Popup */
         .status-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .status-overlay.active { display: flex; animation: fadeIn 0.3s; }
         .status-card { background: white; width: 90%; max-width: 350px; border-radius: 24px; padding: 30px; text-align: center; transform: scale(0.9); transition: 0.3s; }
         .status-overlay.active .status-card { transform: scale(1); }
-        
         .status-icon-box { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white; }
-        
         .status-card.success .status-icon-box { background: var(--p); }
         .status-card.success h2 { color: var(--p); }
         .status-card.success .status-btn { background: var(--p); }
-        
         .status-card.error .status-icon-box { background: #EF4444; }
         .status-card.error h2 { color: #EF4444; }
         .status-card.error .status-btn { background: #EF4444; }
-        
         .status-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; color: white; font-weight: 700; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <i class="fa-solid fa-arrow-left back-btn" onclick="window.location.href='services.html'"></i>
+        <i class="fa-solid fa-arrow-left back-btn" onclick="window.history.back()"></i>
         <div class="header-title">Checkout</div>
     </div>
 
@@ -134,14 +133,16 @@
                 <div class="bill-row bill-total"><span>To Pay</span><span id="finalTotal">₹0</span></div>
             </div>
             <h3>Payment Method</h3>
+            
             <div class="pay-option selected" onclick="selectPayment('online')" id="payOnline">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/razorpay-1649771-1399875.png" class="pay-icon">
-                <div class="pay-info"><div>Pay Online</div><small>UPI, Cards</small></div>
+                <div class="pay-info"><div>Pay Online</div><small>UPI, Cards, Netbanking</small></div>
                 <i class="fa-solid fa-circle-check" style="margin-left:auto; color:var(--p);"></i>
             </div>
+            
             <div class="pay-option" onclick="selectPayment('cod')" id="payCOD">
                 <div class="pay-icon" style="font-size:1.5rem; color:#F59E0B;"><i class="fa-solid fa-money-bill-wave"></i></div>
-                <div class="pay-info"><div>Cash on Delivery</div><small>Pay after service</small></div>
+                <div class="pay-info"><div>Cash on Delivery</div><small id="codText">Pay after service</small></div>
                 <i class="fa-regular fa-circle" style="margin-left:auto; color:#CBD5E1;"></i>
             </div>
         </div>
@@ -165,7 +166,6 @@
     <audio id="audioError" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
 
     <script>
-        // --- FIREBASE SETUP ---
         const firebaseConfig = {
             apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
             authDomain: "urban-paint-pro.firebaseapp.com",
@@ -175,48 +175,46 @@
             messagingSenderId: "929763117480",
             appId: "1:929763117480:web:560057baeb12672078b59d"
         };
-        
-        // Error handling if Firebase fails to load
-        try {
-            firebase.initializeApp(firebaseConfig);
-        } catch(e) {
-            console.error("Firebase Init Error", e);
-            alert("App Error: Firebase not loaded. Check internet.");
-        }
-        
+        try { firebase.initializeApp(firebaseConfig); } catch(e){}
         const db = firebase.database();
         const auth = firebase.auth();
 
-        // --- STATE ---
         let currentStep = 1;
         let selectedSlotTime = '';
         let paymentMethod = 'online';
         let orderData = null;
 
-        // --- INIT ---
         window.onload = () => {
             try {
-                const rawData = localStorage.getItem('pendingOrder');
-                if (!rawData) throw new Error("No Data");
-                orderData = JSON.parse(rawData);
+                orderData = JSON.parse(localStorage.getItem('pendingOrder'));
+                if (!orderData) throw new Error();
             } catch (e) {
                 document.getElementById('checkoutForm').style.display = 'none';
                 document.getElementById('errorBox').style.display = 'block';
                 return;
             }
 
-            // Fill Data
-            document.getElementById('finalTotal').textContent = '₹' + (orderData.total || 0).toLocaleString();
-            document.getElementById('footerTotal').textContent = '₹' + (orderData.total || 0).toLocaleString();
+            document.getElementById('finalTotal').textContent = '₹' + (orderData.total||0).toLocaleString();
+            document.getElementById('footerTotal').textContent = '₹' + (orderData.total||0).toLocaleString();
             renderBill();
-            
-            // Set Date to tomorrow
+
             const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
             document.getElementById('serviceDate').valueAsDate = tmr;
 
-            // Auto-fill User
+            // --- 🔥 COD LOGIC HERE ---
+            // Agar "Advance Payment" hai, to COD ko Disable/Hide kar do
+            if (orderData.type === 'advance_payment') {
+                const codBtn = document.getElementById('payCOD');
+                codBtn.classList.add('disabled');
+                codBtn.onclick = null; // Click disable
+                codBtn.style.opacity = '0.5';
+                document.getElementById('codText').innerText = "Not available for Advance";
+                // Force Online Selection
+                selectPayment('online');
+            }
+
             auth.onAuthStateChanged(user => {
-                if (user) {
+                if(user) {
                     if(user.displayName) document.getElementById('userName').value = user.displayName;
                     if(user.phoneNumber) document.getElementById('userPhone').value = user.phoneNumber;
                 }
@@ -226,48 +224,30 @@
         function renderBill() {
             const container = document.getElementById('billItems');
             if(orderData.details && Array.isArray(orderData.details)) {
-                container.innerHTML = orderData.details.map(i => 
-                    `<div class="bill-row"><span>${i.name}</span><span>₹${i.price}</span></div>`
-                ).join('');
+                container.innerHTML = orderData.details.map(i => `<div class="bill-row"><span>${i.name}</span><span>₹${i.price}</span></div>`).join('');
             } else {
                 container.innerHTML = `<div class="bill-row"><span>${orderData.service}</span><span>₹${orderData.total}</span></div>`;
             }
         }
 
-        // --- NAVIGATION ---
         function nextStep() {
-            const btn = document.getElementById('mainBtn');
-            
-            if (currentStep === 1) {
-                const name = document.getElementById('userName').value;
-                const phone = document.getElementById('userPhone').value;
-                const addr = document.getElementById('addr1').value;
-                if(!name || !phone || !addr) return alert("Please fill Name, Phone and Address");
-                
+            if(currentStep === 1) {
+                if(!document.getElementById('userName').value || !document.getElementById('userPhone').value) return alert("Fill details");
                 currentStep = 2;
-                btn.textContent = 'Next Step';
-            } 
-            else if (currentStep === 2) {
-                const date = document.getElementById('serviceDate').value;
-                if(!date || !selectedSlotTime) return alert("Please select Date and Time Slot");
-                
+            } else if(currentStep === 2) {
+                if(!selectedSlotTime) return alert("Select Slot");
                 currentStep = 3;
-                btn.textContent = paymentMethod === 'online' ? `Pay ₹${orderData.total}` : 'Place Order';
-            } 
-            else if (currentStep === 3) {
-                processOrder();
-                return;
+                document.getElementById('mainBtn').textContent = paymentMethod === 'online' ? `Pay ₹${orderData.total}` : 'Place Order';
+            } else if(currentStep === 3) {
+                processOrder(); return;
             }
             updateUI();
         }
 
         function updateUI() {
-            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-            document.getElementById('step' + currentStep).classList.add('active');
-            
-            document.querySelectorAll('.step').forEach((el, idx) => {
-                el.classList.toggle('active', idx + 1 <= currentStep);
-            });
+            document.querySelectorAll('.section').forEach(e => e.classList.remove('active'));
+            document.getElementById('step'+currentStep).classList.add('active');
+            document.querySelectorAll('.step').forEach((e,i) => e.classList.toggle('active', i+1<=currentStep));
         }
 
         function selectSlot(el, time) {
@@ -277,34 +257,36 @@
         }
 
         function selectPayment(method) {
+            // Agar Advance hai aur COD click kiya, to mana karo
+            if (orderData.type === 'advance_payment' && method === 'cod') return;
+
             paymentMethod = method;
-            const btn = document.getElementById('mainBtn');
+            document.getElementById('payOnline').classList.toggle('selected', method === 'online');
+            document.getElementById('payCOD').classList.toggle('selected', method === 'cod');
             
+            // Icon Toggles
+            const circle = method === 'online' ? document.querySelector('#payOnline .fa-circle-check') : document.querySelector('#payCOD .fa-circle');
             if(method === 'online') {
-                document.getElementById('payOnline').classList.add('selected');
-                document.getElementById('payCOD').classList.remove('selected');
-                document.getElementById('payOnline').querySelector('.fa-circle-check').className = 'fa-solid fa-circle-check';
-                document.getElementById('payCOD').querySelector('.fa-circle').className = 'fa-regular fa-circle';
-                document.getElementById('payOnline').querySelector('.fa-circle-check').style.color = 'var(--p)';
-                btn.textContent = `Pay ₹${orderData.total}`;
+                document.querySelector('#payOnline .fa-circle-check').className = 'fa-solid fa-circle-check';
+                document.querySelector('#payOnline .fa-circle-check').style.color = 'var(--p)';
+                document.querySelector('#payCOD .fa-circle').className = 'fa-regular fa-circle';
+                document.querySelector('#payCOD .fa-circle').style.color = '#CBD5E1';
+                document.getElementById('mainBtn').textContent = `Pay ₹${orderData.total}`;
             } else {
-                document.getElementById('payCOD').classList.add('selected');
-                document.getElementById('payOnline').classList.remove('selected');
-                document.getElementById('payCOD').querySelector('.fa-circle').className = 'fa-solid fa-circle-check';
-                document.getElementById('payOnline').querySelector('.fa-circle-check').className = 'fa-regular fa-circle';
-                document.getElementById('payCOD').querySelector('.fa-circle').style.color = 'var(--p)';
-                btn.textContent = 'Place Order (COD)';
+                document.querySelector('#payCOD .fa-circle').className = 'fa-solid fa-circle-check';
+                document.querySelector('#payCOD .fa-circle').style.color = 'var(--p)';
+                document.querySelector('#payOnline .fa-circle-check').className = 'fa-regular fa-circle';
+                document.querySelector('#payOnline .fa-circle-check').style.color = '#CBD5E1';
+                document.getElementById('mainBtn').textContent = 'Place Order (COD)';
             }
         }
 
-        // --- ORDER LOGIC ---
         async function processOrder() {
             const user = auth.currentUser;
-            if(!user) return alert("Please Login to place order");
+            if(!user) return alert("Login First");
 
-            const btn = document.getElementById('mainBtn');
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
+            document.getElementById('mainBtn').disabled = true;
+            document.getElementById('mainBtn').textContent = 'Processing...';
 
             const fullOrder = {
                 orderId: orderData.orderId || '',
@@ -329,128 +311,70 @@
                 createdAt: firebase.database.ServerValue.TIMESTAMP
             };
 
-            if (paymentMethod === 'cod') {
-                saveOrderToFirebase(fullOrder);
-            } else {
-                openRazorpay(fullOrder);
-            }
+            if(paymentMethod === 'cod') saveOrder(fullOrder);
+            else openRazorpay(fullOrder);
         }
 
-        async function saveOrderToFirebase(finalOrder) {
+        async function saveOrder(order) {
             try {
-                // Advance Payment Logic
-                if (finalOrder.type === 'advance_payment') {
-                    const originalOrderId = finalOrder.orderId;
-                    if(originalOrderId) {
-                        await db.ref(`orders/${originalOrderId}`).update({
-                            advancePaid: true,
-                            status: 'work_scheduled',
-                            startOtp: Math.floor(1000 + Math.random() * 9000),
-                            paymentMethod: finalOrder.paymentMethod,
-                            paymentStatus: finalOrder.paymentMethod === 'cod' ? 'pending_cod' : 'advance_received'
-                        });
-                        await db.ref(`users/${finalOrder.userId}/orders/${originalOrderId}`).update({
-                            status: 'work_scheduled'
-                        });
-                    }
-                    showSuccess("Advance Paid!", "Work Scheduled Successfully.");
-                    return;
-                }
-
-                // Normal Order Logic
-                const newOrderRef = db.ref('orders').push();
-                await newOrderRef.set(finalOrder);
-                await db.ref(`users/${finalOrder.userId}/orders/${newOrderRef.key}`).set(finalOrder);
-
-                showSuccess("Booking Confirmed! 🎉", "Partner will be assigned shortly.");
-
-            } catch (error) {
-                console.error("Firebase Error:", error);
-                // Fallback for COD
-                if(finalOrder.paymentMethod === 'cod') {
-                     showSuccess("Order Placed!", "Check status in Orders tab.");
+                if(order.type === 'advance_payment') {
+                    await db.ref(`orders/${order.orderId}`).update({
+                        advancePaid: true, status: 'work_scheduled', paymentStatus: 'advance_received',
+                        startOtp: Math.floor(1000 + Math.random()*9000)
+                    });
+                    showSuccess("Advance Paid!", "Work Scheduled");
                 } else {
-                     showError("Error", "Could not save order. Try again.");
-                     document.getElementById('mainBtn').disabled = false;
-                     document.getElementById('mainBtn').textContent = "Retry";
+                    const ref = db.ref('orders').push();
+                    await ref.set(order);
+                    await db.ref(`users/${order.userId}/orders/${ref.key}`).set(order);
+                    showSuccess("Order Placed!", "Booking Confirmed");
                 }
+            } catch(e) {
+                console.error(e);
+                if(order.paymentMethod === 'cod') showSuccess("Order Placed!", "Booking Confirmed");
+                else { showError("Error", "Try Again"); document.getElementById('mainBtn').disabled = false; }
             }
         }
 
-        function openRazorpay(orderData) {
+        function openRazorpay(order) {
             var options = {
                 "key": "rzp_live_SDPY6guf8rfUr4",
-                "amount": (orderData.total || 1) * 100,
+                "amount": (order.total || 1) * 100,
                 "currency": "INR",
                 "name": "UrbanPaintPro",
-                "description": "Service Payment",
-                "image": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-                "handler": function (response){
-                    orderData.paymentStatus = 'paid';
-                    orderData.paymentId = response.razorpay_payment_id;
-                    saveOrderToFirebase(orderData);
+                "handler": function (res){
+                    order.paymentStatus = 'paid';
+                    order.paymentId = res.razorpay_payment_id;
+                    saveOrder(order);
                 },
-                "prefill": {
-                    "name": orderData.customer.name,
-                    "email": auth.currentUser.email || "",
-                    "contact": orderData.customer.phone
-                },
-                "theme": { "color": "#0D9488" },
                 "modal": {
                     "ondismiss": function(){
                         document.getElementById('mainBtn').disabled = false;
-                        document.getElementById('mainBtn').textContent = `Pay ₹${orderData.total}`;
-                        showError("Payment Cancelled", "Process stopped by user.");
+                        showError("Cancelled", "Payment cancelled");
                     }
                 }
             };
-            
-            try {
-                var rzp1 = new Razorpay(options);
-                rzp1.on('payment.failed', function (response){
-                    showError("Payment Failed", response.error.description);
-                    document.getElementById('mainBtn').disabled = false;
-                });
-                rzp1.open();
-            } catch(e) {
-                alert("Razorpay Error: Check internet or Key");
-                document.getElementById('mainBtn').disabled = false;
-            }
+            var rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (res){ showError("Failed", res.error.description); });
+            rzp.open();
         }
 
-        // --- UI HELPERS ---
-        function showSuccess(title, msg) {
-            const overlay = document.getElementById('statusOverlay');
-            const card = overlay.querySelector('.status-card');
-            
-            try { document.getElementById('audioSuccess').play(); } catch(e){}
-
-            card.className = 'status-card success';
-            document.getElementById('statusIcon').className = 'fa-solid fa-check';
-            document.getElementById('statusTitle').innerText = title;
-            document.getElementById('statusMsg').innerText = msg;
-            
-            overlay.classList.add('active');
-            localStorage.removeItem('pendingOrder');
-            
-            // Redirect after 3 seconds
+        function showSuccess(t, m) {
+     try{document.getElementById('audioSuccess').play()}catch(e){}
+            document.getElementById('statusTitle').innerText = t;
+            document.getElementById('statusMsg').innerText = m;
+            document.getElementById('statusOverlay').classList.add('active');
             setTimeout(() => window.location.href = 'bookings.html', 3000);
         }
-
-        function showError(title, msg) {
-            const overlay = document.getElementById('statusOverlay');
-            const card = overlay.querySelector('.status-card');
-            const btn = document.getElementById('statusBtn');
-            
-            try { document.getElementById('audioError').play(); } catch(e){}
-
-            card.className = 'status-card error';
+        function showError(t, m) {
+            try{document.getElementById('audioError').play()}catch(e){}
+            document.getElementById('statusTitle').innerText = t;
+            document.getElementById('statusMsg').innerText = m;
+            document.querySelector('.status-card').classList.remove('success');
+            document.querySelector('.status-card').classList.add('error');
             document.getElementById('statusIcon').className = 'fa-solid fa-xmark';
-            document.getElementById('statusTitle').innerText = title;
-            document.getElementById('statusMsg').innerText = msg;
-            
-            btn.onclick = () => overlay.classList.remove('active');
-            overlay.classList.add('active');
+            document.getElementById('statusOverlay').classList.add('active');
+            document.getElementById('statusBtn').onclick = () => document.getElementById('statusOverlay').classList.remove('active');
         }
     </script>
 </body>
