@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0D9488">
-    <title>UrbanPaintPro | Login</title>
+    <title>HomePaintingApp | Home</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -18,163 +18,119 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-        /* --- LOGIN SCREEN STYLES --- */
+        /* --- LOADING SCREEN (Sabse Pehle Ye Dikhega) --- */
+        #initial-loader {
+            position: fixed; inset: 0; background: white; z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid #CCFBF1;
+            border-top-color: var(--p); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- LOGIN SCREEN (Initially Hidden) --- */
         #login-layer {
             position: fixed; inset: 0; background: white; z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            display: none; /* Changed from flex to none to prevent flicker */
+            flex-direction: column; align-items: center; justify-content: center;
             padding: 20px; overflow-y: auto;
         }
 
+        /* --- MAIN APP (Initially Hidden) --- */
+        #main-app { display: none; }
+
+        /* ... Baaki Styles Same ... */
         .login-brand { font-size: 2rem; font-weight: 800; color: var(--p); margin-bottom: 5px; }
         .login-sub { color: #64748B; margin-bottom: 30px; font-size: 0.9rem; }
-        
         .auth-card { width: 100%; max-width: 380px; }
-        
         .input-group { margin-bottom: 15px; width: 100%; position: relative; }
-        .input-field { 
-            width: 100%; padding: 14px 14px 14px 45px; border: 2px solid #CCFBF1; 
-            border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.3s;
-        }
-        .input-field:focus { border-color: var(--p); }
+        .input-field { width: 100%; padding: 14px 14px 14px 45px; border: 2px solid #CCFBF1; border-radius: 12px; outline: none; }
         .input-icon { position: absolute; left: 15px; top: 16px; color: var(--p); }
-
-        .btn { 
-            width: 100%; padding: 14px; border-radius: 12px; border: none; 
-            background: var(--p); color: white; font-weight: 700; font-size: 1rem;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
-            margin-bottom: 12px; transition: 0.2s;
-        }
-        .btn:active { transform: scale(0.98); }
+        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--p); color: white; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; }
         .btn-google { background: white; border: 2px solid #E2E8F0; color: #1E293B; }
         .btn-outline { background: transparent; border: 2px solid var(--p); color: var(--p); }
-
         .divider { text-align: center; margin: 20px 0; color: #94A3B8; font-size: 0.8rem; position: relative; }
         .divider::before, .divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: #E2E8F0; }
         .divider::before { left: 0; } .divider::after { right: 0; }
-
-        .link-text { color: var(--p); font-weight: 600; cursor: pointer; font-size: 0.9rem; text-decoration: none; }
-        .link-text:hover { text-decoration: underline; }
-
+        .link-text { color: var(--p); font-weight: 600; cursor: pointer; text-decoration: none; }
         .form-view { display: none; animation: fadeIn 0.3s; }
         .form-view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- MAIN APP (Hidden by default) --- */
-        #main-app { display: none; }
-        
-        /* Utility */
         .toast { position: fixed; top: 20px; right: 20px; background: #333; color: white; padding: 12px 20px; border-radius: 8px; z-index: 10000; display: none; }
-        #recaptcha-container { margin-bottom: 15px; }
-
-        /* App Specific Styles (Copying essential parts for App View) */
-        .header { position: fixed; top: 0; width: 100%; height: 60px; background: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #CCFBF1; }
+        
+        /* App Styles */
+        .header { position: fixed; top: 0; width: 100%; height: 60px; background: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #CCFBF1; z-index: 100; }
         .hero { margin-top: 60px; padding: 40px 20px; background: linear-gradient(135deg, #0D9488, #14B8A6); color: white; text-align: center; border-radius: 0 0 30px 30px; }
-        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; }
-        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; padding: 8px; border-radius: 12px; cursor: pointer; }
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; }
         .nav-item.active { color: var(--p); background: #F0FDFA; }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
+    <div id="initial-loader">
+        <div class="spinner"></div>
+        <h3 style="color: var(--p);">HomePaintingApp</h3>
+    </div>
+
     <div id="toast" class="toast"></div>
 
     <div id="login-layer">
-        <div class="login-brand">UrbanPaintPro</div>
+        <div class="login-brand">HomePaintinApp</div>
         <p class="login-sub">Login to book your dream service</p>
 
         <div class="auth-card">
-            
             <div id="view-main" class="form-view active">
                 <button class="btn btn-google" onclick="handleGoogleLogin()">
                     <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" width="20"> Continue with Google
                 </button>
-                
                 <div class="divider">OR</div>
-                
-                <button class="btn" onclick="switchView('view-email')">
-                    <i class="fa-solid fa-envelope"></i> Login with Email
-                </button>
-                <button class="btn btn-outline" onclick="switchView('view-phone')">
-                    <i class="fa-solid fa-phone"></i> Login with Phone
-                </button>
+                <button class="btn" onclick="switchView('view-email')"><i class="fa-solid fa-envelope"></i> Login with Email</button>
+                <button class="btn btn-outline" onclick="switchView('view-phone')"><i class="fa-solid fa-phone"></i> Login with Phone</button>
             </div>
 
             <div id="view-email" class="form-view">
-                <div class="input-group">
-                    <i class="fa-solid fa-envelope input-icon"></i>
-                    <input type="email" id="emailInput" class="input-field" placeholder="Email Address">
-                </div>
-                <div class="input-group">
-                    <i class="fa-solid fa-lock input-icon"></i>
-                    <input type="password" id="passInput" class="input-field" placeholder="Password">
-                </div>
-                
-                <div style="text-align: right; margin-bottom: 20px;">
-                    <span class="link-text" onclick="switchView('view-forgot')">Forgot Password?</span>
-                </div>
-
+                <div class="input-group"><i class="fa-solid fa-envelope input-icon"></i><input type="email" id="emailInput" class="input-field" placeholder="Email"></div>
+                <div class="input-group"><i class="fa-solid fa-lock input-icon"></i><input type="password" id="passInput" class="input-field" placeholder="Password"></div>
+                <div style="text-align: right; margin-bottom: 20px;"><span class="link-text" onclick="switchView('view-forgot')">Forgot Password?</span></div>
                 <button class="btn" onclick="handleEmailLogin()">Login</button>
                 <button class="btn btn-outline" onclick="handleSignup()">Create Account</button>
-                
-                <div style="text-align: center; margin-top: 15px;">
-                    <span class="link-text" onclick="switchView('view-main')">← Back</span>
-                </div>
+                <div style="text-align: center; margin-top: 15px;"><span class="link-text" onclick="switchView('view-main')">← Back</span></div>
             </div>
 
             <div id="view-phone" class="form-view">
-                <div class="input-group">
-                    <i class="fa-solid fa-phone input-icon"></i>
-                    <input type="tel" id="phoneInput" class="input-field" placeholder="+91 98765 43210">
-                </div>
-                
+                <div class="input-group"><i class="fa-solid fa-phone input-icon"></i><input type="tel" id="phoneInput" class="input-field" placeholder="+91 98765 43210"></div>
                 <div id="recaptcha-container"></div>
-                
                 <div id="otp-section" style="display: none;">
-                    <div class="input-group">
-                        <i class="fa-solid fa-key input-icon"></i>
-                        <input type="number" id="otpInput" class="input-field" placeholder="Enter 6-digit OTP">
-                    </div>
+                    <div class="input-group"><i class="fa-solid fa-key input-icon"></i><input type="number" id="otpInput" class="input-field" placeholder="Enter OTP"></div>
                 </div>
-
                 <button class="btn" id="phoneBtn" onclick="sendOTP()">Send OTP</button>
                 <button class="btn" id="verifyBtn" onclick="verifyOTP()" style="display: none; background: #22c55e;">Verify OTP</button>
-                
-                <div style="text-align: center; margin-top: 15px;">
-                    <span class="link-text" onclick="switchView('view-main')">← Back</span>
-                </div>
+                <div style="text-align: center; margin-top: 15px;"><span class="link-text" onclick="switchView('view-main')">← Back</span></div>
             </div>
 
             <div id="view-forgot" class="form-view">
-                <h3 style="margin-bottom: 10px; color: var(--text);">Reset Password</h3>
-                <p style="margin-bottom: 20px; font-size: 0.9rem; color: #64748B;">
-                    Enter your email to receive a password reset link.
-                </p>
-                <div class="input-group">
-                    <i class="fa-solid fa-envelope input-icon"></i>
-                    <input type="email" id="resetEmailInput" class="input-field" placeholder="Enter registered email">
-                </div>
-                <button class="btn" onclick="handleResetPassword()">Send Reset Link</button>
-                
-                <div style="text-align: center; margin-top: 15px;">
-                    <span class="link-text" onclick="switchView('view-email')">← Back to Login</span>
-                </div>
+                <h3>Forget Password</h3>
+                <p style="margin-bottom: 20px; color: #64748B;">Enter email to get reset link.</p>
+                <div class="input-group"><i class="fa-solid fa-envelope input-icon"></i><input type="email" id="resetEmailInput" class="input-field" placeholder="Email"></div>
+                <button class="btn" onclick="handleResetPassword()">Send Link</button>
+                <div style="text-align: center; margin-top: 15px;"><span class="link-text" onclick="switchView('view-email')">← Back</span></div>
             </div>
-
         </div>
     </div>
 
     <div id="main-app">
         <div class="header">
-            <div style="font-weight: 800; font-size: 1.2rem; color: var(--p);">UrbanPaintPro</div>
+            <div style="font-weight: 800; font-size: 1.2rem; color: var(--p);">HomePaintingApp</div>
             <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width: 35px; height: 35px; border-radius: 50%;" onclick="window.location.href='about.html'">
         </div>
-
         <div class="hero">
-            <h1>Welcome Home! 🎨</h1>
+            <h1>Welcome HomePaintingApp! 👋</h1>
             <p>Your painting journey starts here.</p>
         </div>
-
         <div style="padding: 20px;">
             <div style="background: white; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid #CCFBF1;">
                 <h3>Book a Service</h3>
@@ -182,7 +138,6 @@
                 <button class="btn" onclick="window.location.href='services.html'">View Services</button>
             </div>
         </div>
-
         <div class="nav">
             <div class="nav-item active" onclick="window.location.href='index.html'"><i class="fa-solid fa-house"></i>Home</div>
             <div class="nav-item" onclick="window.location.href='services.html'"><i class="fa-solid fa-paint-roller"></i>Services</div>
@@ -192,7 +147,7 @@
     </div>
 
     <script>
-        // --- FIREBASE CONFIGURATION (Replace with yours) ---
+        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
             authDomain: "urban-paint-pro.firebaseapp.com",
@@ -208,113 +163,85 @@
         const db = firebase.database();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-        // --- AUTH OBSERVER ---
+        // --- AUTH LOGIC (FIXED) ---
         auth.onAuthStateChanged((user) => {
+            const loader = document.getElementById('initial-loader');
+            const loginLayer = document.getElementById('login-layer');
+            const mainApp = document.getElementById('main-app');
+
             if (user) {
-                // User is logged in -> Show App
-                document.getElementById('login-layer').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
+                // Logged In -> Show App
+                mainApp.style.display = 'block';
+                loginLayer.style.display = 'none';
                 saveUserToDB(user);
             } else {
-                // User is NOT logged in -> Show Login
-                document.getElementById('login-layer').style.display = 'flex';
-                document.getElementById('main-app').style.display = 'none';
+                // Not Logged In -> Show Login
+                loginLayer.style.display = 'flex';
+                mainApp.style.display = 'none';
             }
+            
+            // Hamesha Loader ko last mein hatao
+            if(loader) loader.style.display = 'none';
         });
 
-        // --- VIEW SWITCHER ---
+        // --- FUNCTIONS ---
         function switchView(viewId) {
             document.querySelectorAll('.form-view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
         }
 
-        // --- 1. GOOGLE LOGIN ---
         function handleGoogleLogin() {
-            auth.signInWithPopup(googleProvider)
-                .then(() => showToast('Login Successful!'))
-                .catch((error) => showToast(error.message));
+            auth.signInWithPopup(googleProvider).catch(e => showToast(e.message));
         }
 
-        // --- 2. EMAIL LOGIN & SIGNUP ---
         function handleEmailLogin() {
             const email = document.getElementById('emailInput').value;
             const pass = document.getElementById('passInput').value;
-            if(!email || !pass) return showToast('Please fill all fields');
-            
-            auth.signInWithEmailAndPassword(email, pass)
-                .catch((error) => showToast(error.message));
+            if(!email || !pass) return showToast('Fill all fields');
+            auth.signInWithEmailAndPassword(email, pass).catch(e => showToast(e.message));
         }
 
         function handleSignup() {
             const email = document.getElementById('emailInput').value;
             const pass = document.getElementById('passInput').value;
-            if(!email || !pass) return showToast('Please fill all fields');
-
+            if(!email || !pass) return showToast('Fill all fields');
             auth.createUserWithEmailAndPassword(email, pass)
                 .then(() => showToast('Account Created!'))
-                .catch((error) => showToast(error.message));
+                .catch(e => showToast(e.message));
         }
 
-        // --- 3. FORGOT PASSWORD (EMAIL) ---
         function handleResetPassword() {
             const email = document.getElementById('resetEmailInput').value;
-            if(!email) return showToast('Please enter your email');
-
+            if(!email) return showToast('Enter email');
             auth.sendPasswordResetEmail(email)
-                .then(() => {
-                    showToast('Reset link sent to your email!');
-                    switchView('view-email');
-                })
-                .catch((error) => showToast(error.message));
+                .then(() => { showToast('Link Sent!'); switchView('view-email'); })
+                .catch(e => showToast(e.message));
         }
 
-        // --- 4. PHONE LOGIN (OTP) ---
-        let confirmationResult;
-        
-        // Setup invisible recaptcha
+        // Phone Auth
         window.onload = function() {
-            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-                'size': 'invisible'
-            });
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
         };
-
+        let confirmationResult;
         function sendOTP() {
             const phone = document.getElementById('phoneInput').value;
-            if(!phone || phone.length < 10) return showToast('Enter valid phone number');
-
-            const appVerifier = window.recaptchaVerifier;
-            
-            // Note: For actual phone auth, "Phone Auth" must be enabled in Firebase Console
-            firebase.auth().signInWithPhoneNumber(phone, appVerifier)
+            if(!phone) return showToast('Enter phone');
+            firebase.auth().signInWithPhoneNumber(phone, window.recaptchaVerifier)
                 .then((result) => {
                     confirmationResult = result;
                     document.getElementById('otp-section').style.display = 'block';
                     document.getElementById('phoneBtn').style.display = 'none';
                     document.getElementById('verifyBtn').style.display = 'block';
-                    showToast('OTP Sent!');
-                }).catch((error) => {
-                    showToast(error.message);
-                    // Development fallback (if Firebase Billing not enabled)
-                    alert("Developer Note: Phone Auth requires Blaze Plan for full implementation. Enable it in Console.");
-                });
+                    showToast('OTP Sent');
+                }).catch(e => showToast(e.message));
         }
-
         function verifyOTP() {
             const code = document.getElementById('otpInput').value;
-            if(!code) return showToast('Enter OTP');
-
-            confirmationResult.confirm(code).then((result) => {
-                showToast('Phone Verified!');
-            }).catch((error) => {
-                showToast('Invalid OTP');
-            });
+            confirmationResult.confirm(code).catch(e => showToast('Invalid OTP'));
         }
 
-        // --- HELPER FUNCTIONS ---
         function saveUserToDB(user) {
-            // Save basic info to Realtime Database
-            const ref = db.ref('users/' + user.uid + '/profile');
-            ref.update({
+            db.ref('users/' + user.uid + '/profile').update({
                 email: user.email || user.phoneNumber,
                 name: user.displayName || 'User',
                 lastLogin: firebase.database.ServerValue.TIMESTAMP
@@ -323,8 +250,7 @@
 
         function showToast(msg) {
             const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.style.display = 'block';
+            t.textContent = msg; t.style.display = 'block';
             setTimeout(() => t.style.display = 'none', 3000);
         }
     </script>
