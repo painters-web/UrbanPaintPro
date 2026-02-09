@@ -56,6 +56,60 @@
         .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 12px; }
         .nav-item.active { color: var(--p); background: #F0FDFA; }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+           /* --- NEW PARTNER & SEARCH STYLES --- */
+        
+        /* 1. Searching Animation */
+        .searching-box {
+            text-align: center; padding: 30px 10px;
+            background: linear-gradient(135deg, #F0FDFA, #FFFFFF);
+            border-radius: 16px; border: 1px dashed var(--p);
+        }
+        .radar-spinner {
+            width: 60px; height: 60px; background: var(--p-light);
+            border-radius: 50%; margin: 0 auto 15px; position: relative;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.5rem;
+        }
+        .radar-spinner::before, .radar-spinner::after {
+            content: ''; position: absolute; width: 100%; height: 100%;
+            border-radius: 50%; border: 2px solid var(--p);
+            animation: ripple 2s linear infinite; opacity: 0;
+        }
+        .radar-spinner::after { animation-delay: 1s; }
+        
+        @keyframes ripple {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        /* 2. Partner Profile Card */
+        .partner-card {
+            display: flex; gap: 15px; align-items: center;
+            background: #F8FAFC; padding: 15px; border-radius: 12px;
+            margin: 15px 0; border: 1px solid #E2E8F0;
+        }
+        .partner-img {
+            width: 50px; height: 50px; border-radius: 50%; object-fit: cover;
+            border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .partner-info h4 { margin: 0; font-size: 0.95rem; color: #334155; }
+        .partner-stats { font-size: 0.75rem; color: #64748B; margin-top: 3px; display: flex; align-items: center; gap: 10px; }
+        .rating-badge { background: #DCFCE7; color: #166534; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; }
+
+        /* 3. OTP Box (Clean Look) */
+        .otp-display {
+            background: #FEF3C7; color: #92400E; padding: 10px; 
+            border-radius: 8px; text-align: center; font-weight: 700;
+            letter-spacing: 2px; font-size: 1.1rem; border: 1px dashed #F59E0B;
+            margin-top: 10px;
+        }
+        
+        /* General Status Tags */
+        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .status-pill.searching { background: #E0F2FE; color: #0284C7; }
+        .status-pill.visiting { background: #DCFCE7; color: #166534; }
+        .status-pill.action { background: #FEE2E2; color: #DC2626; animation: pulse 1.5s infinite; }
+      
     </style>
 </head>
 <body>
@@ -174,57 +228,158 @@
         }
 
         // RENDER LOGIC
+                // UPDATED RENDER LOGIC
         function renderOrderCard(id, order, container) {
-            let statusBadge = `<span class="status-badge">${order.status}</span>`;
-            let actionArea = '';
-            let otpDisplay = '';
-
-            // --- 1. VISIT OTP (Before Quote) ---
-            if (order.status === 'pending' || order.status === 'ongoing') {
-                if (!order.visitOtp) generateOtp(id, 'visitOtp'); // Generate if missing
-                otpDisplay = `<div class="otp-badge">VISIT OTP: ${order.visitOtp || '...'}</div>`;
-                statusBadge = `<span class="status-badge">Partner Visiting</span>`;
+            const date = new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+            let cardContent = '';
+            
+            // --- STATE 1: SEARCHING FOR PARTNER (Pending) ---
+            if (order.status === 'pending') {
+                cardContent = `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-id">ORDER #${id.slice(-6).toUpperCase()}</div>
+                                <div class="order-service">${order.service}</div>
+                            </div>
+                            <span class="status-pill searching">Searching</span>
+                        </div>
+                        
+                        <div class="searching-box">
+                            <div class="radar-spinner"><i class="fa-solid fa-magnifying-glass"></i></div>
+                            <div style="font-weight:700; color:#334155;">Finding Expert near you...</div>
+                            <div style="font-size:0.8rem; color:#64748B; margin-top:5px;">Connecting with top rated partners</div>
+                        </div>
+                        
+                        <div class="order-footer">
+                            <div style="font-size:0.8rem; color:#94A3B8;">Requested: ${date}</div>
+                            <button class="btn-track" style="background:#CBD5E1;">Waiting...</button>
+                        </div>
+                    </div>
+                `;
             }
 
-            // --- 2. QUOTE RECEIVED (Action Required) ---
+            // --- STATE 2: PARTNER ASSIGNED / VISITING (Ongoing) ---
+            else if (order.status === 'ongoing' || order.status === 'accepted') {
+                // Generate OTP if missing
+                if (!order.visitOtp) generateOtp(id, 'visitOtp');
+                
+                // Mock Partner Data (Agar database me nahi hai to ye dikhega)
+                const partnerName = order.assignedPartner?.name || "Rahul Sharma";
+                const partnerRating = order.assignedPartner?.rating || "4.8";
+                const partnerJobs = order.assignedPartner?.jobs || "124";
+                const partnerImg = "https://cdn-icons-png.flaticon.com/512/4086/4086679.png"; // Male Avatar
+
+                cardContent = `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-id">ORDER #${id.slice(-6).toUpperCase()}</div>
+                                <div class="order-service">${order.service}</div>
+                            </div>
+                            <span class="status-pill visiting">Partner Assigned</span>
+                        </div>
+
+                        <div class="partner-card">
+                            <img src="${partnerImg}" class="partner-img">
+                            <div class="partner-info">
+                                <h4>${partnerName}</h4>
+                                <div class="partner-stats">
+                                    <span class="rating-badge">★ ${partnerRating}</span>
+                                    <span>• ${partnerJobs} Jobs Completed</span>
+                                </div>
+                            </div>
+                            <a href="tel:+919711904092" style="margin-left:auto; width:35px; height:35px; background:#F0FDFA; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--p);">
+                                <i class="fa-solid fa-phone"></i>
+                            </a>
+                        </div>
+
+                        <div style="font-size:0.8rem; color:#64748B; margin-bottom:5px;">Share OTP when partner arrives:</div>
+                        <div class="otp-display">${order.visitOtp || '....'}</div>
+
+                        <div class="order-footer">
+                            <div class="order-amount">₹0 <small>(Visit Free)</small></div>
+                            <button class="btn-track" onclick="openTracking('${id}')">Track Partner</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- STATE 3: ACTION REQUIRED (Quote Received) ---
             else if (order.status === 'quote_received') {
-                statusBadge = `<span class="status-badge action">Action Required</span>`;
-                actionArea = `<button class="action-btn btn-primary" onclick="openQuoteReview('${id}')">View Quote & Rate</button>`;
+                cardContent = `
+                    <div class="order-card" style="border-left-color:var(--warning);">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-id">ORDER #${id.slice(-6).toUpperCase()}</div>
+                                <div class="order-service">${order.service}</div>
+                            </div>
+                            <span class="status-pill action">Action Required</span>
+                        </div>
+                        
+                        <div style="background:#FFFBEB; padding:15px; border-radius:10px; margin:15px 0; display:flex; align-items:center; gap:10px;">
+                            <div style="background:#FCD34D; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <i class="fa-solid fa-file-invoice-dollar" style="color:#78350F;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700; font-size:0.9rem;">Quote Received</div>
+                                <div style="font-size:0.8rem; color:#92400E;">Partner has submitted the estimate.</div>
+                            </div>
+                        </div>
+
+                        <button class="action-btn btn-primary" onclick="openQuoteReview('${id}')">View Quote & Pay</button>
+                    </div>
+                `;
             }
 
-            // --- 3. PAY 15% ADVANCE (After Slot Selection) ---
-            else if (order.status === 'advance_pending') {
-                statusBadge = `<span class="status-badge action">Payment Pending</span>`;
-                actionArea = `<button class="action-btn btn-primary" onclick="proceedToPayment('${id}')">Pay 15% Advance</button>`;
-            }
-
-            // --- 4. WORK STARTED (Start OTP) ---
-            else if (order.status === 'work_scheduled' || order.status === 'work_started') {
+            // --- STATE 4: WORK SCHEDULED (Advance Paid) ---
+            else if (order.status === 'work_scheduled') {
                 if (!order.startOtp) generateOtp(id, 'startOtp');
-                otpDisplay = `<div class="otp-badge" style="border-color:var(--p); color:var(--p); background:#F0FDFA;">START WORK OTP: ${order.startOtp || '...'}</div>`;
-                statusBadge = `<span class="status-badge" style="background:#DCFCE7; color:green;">Work Scheduled</span>`;
+                cardContent = `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div><div class="order-service">${order.service}</div></div>
+                            <span class="status-pill visiting">Work Scheduled</span>
+                        </div>
+                        <div style="margin:15px 0;">
+                            <div style="font-size:0.8rem; color:#64748B;">Work Start OTP</div>
+                            <div class="otp-display" style="background:#F0FDFA; border-color:var(--p); color:var(--p);">
+                                ${order.startOtp || '....'}
+                            </div>
+                        </div>
+                        <div class="order-footer">
+                            <div class="order-amount">₹${(order.amount || 0).toLocaleString()}</div>
+                            <div style="font-size:0.8rem; color:green;">Advance Paid</div>
+                        </div>
+                    </div>
+                `;
             }
 
-            // --- 5. COMPLETED (Final Review) ---
-            else if (order.status === 'completed_pending_review') {
-                actionArea = `<button class="action-btn btn-outline" onclick="openFinalReview('${id}')">Rate Partner</button>`;
+            // --- STATE 5: COMPLETED ---
+            else if (order.status === 'completed') {
+                cardContent = `
+                    <div class="order-card completed">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-id">#${id.slice(-6).toUpperCase()}</div>
+                                <div class="order-service">${order.service}</div>
+                            </div>
+                            <span class="status-pill visiting" style="background:#DCFCE7;">Completed</span>
+                        </div>
+                        <div class="order-footer">
+                            <div class="order-amount">₹${(order.amount || 0).toLocaleString()}</div>
+                            <button class="btn-track" style="background:transparent; border:1px solid #CBD5E1; color:#64748B;">Invoice</button>
+                        </div>
+                    </div>
+                `;
             }
 
-            const html = `
-                <div class="order-card">
-                    ${statusBadge}
-                    <div style="font-weight:700; font-size:1.1rem;">${order.service}</div>
-                    <div style="color:#64748B; font-size:0.8rem; margin-bottom:10px;">ID: #${id.slice(-6).toUpperCase()}</div>
-                    ${otpDisplay}
-                    ${actionArea}
-                </div>
-            `;
-            container.innerHTML += html;
+            container.innerHTML += cardContent;
         }
-
+      
         // --- HELPERS ---
         function generateOtp(orderId, type) {
-            const otp = Math.floor(1000 + Math.random() * 9000); // 4 Digit
+            lconst otp = Math.floor(1000 + Math.random() * 9000); // 4 Digit
             db.ref(`orders/${orderId}`).update({ [type]: otp });
             db.ref(`users/${auth.currentUser.uid}/orders/${orderId}`).update({ [type]: otp });
         }
