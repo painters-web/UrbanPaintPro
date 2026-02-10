@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0D9488">
+    <title>My Profile | Refine Home Painting</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --p: #0D9488; --p-light: #14B8A6; --bg: #F0FDFA; --text: #134E4A; --white: #FFFFFF; --error: #ef4444; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 100px; }
+
+        .header { position: fixed; top: 0; width: 100%; height: 60px; background: var(--white); display: flex; align-items: center; justify-content: center; padding: 0 20px; z-index: 100; border-bottom: 1px solid #CCFBF1; }
+        .header-title { font-weight: 700; font-size: 1.1rem; }
+
+        .content { margin-top: 80px; padding: 0 20px; }
+
+        /* Profile Card */
+        .profile-card { 
+            background: linear-gradient(135deg, var(--p), var(--p-light)); 
+            color: white; padding: 30px 20px; border-radius: 20px; 
+            text-align: center; margin-bottom: 25px; position: relative;
+            box-shadow: 0 10px 25px rgba(13,148,136,0.2);
+        }
+        .profile-img-container { position: relative; display: inline-block; }
+        .profile-img { 
+            width: 100px; height: 100px; border-radius: 50%; 
+            border: 4px solid rgba(255,255,255,0.3); object-fit: cover; background: #fff;
+        }
+        .camera-btn {
+            position: absolute; bottom: 0; right: 0;
+            width: 36px; height: 36px; background: white;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; color: var(--p); cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Stats Row */
+        .stats-row { 
+            display: flex; justify-content: space-around; 
+            background: white; padding: 20px; border-radius: 16px;
+            margin-bottom: 25px; box-shadow: 0 4px 15px rgba(13,148,136,0.08);
+            border: 1px solid #CCFBF1;
+        }
+        .stat-box { text-align: center; }
+        .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--p); }
+        .stat-label { font-size: 0.75rem; color: #64748B; margin-top: 5px; font-weight: 600; }
+
+        /* Menu Section */
+        .section-title { font-size: 0.9rem; font-weight: 700; color: #64748B; margin-bottom: 10px; margin-left: 5px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .menu-card { 
+            background: white; border-radius: 16px; 
+            overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            margin-bottom: 25px; border: 1px solid #E2E8F0;
+        }
+        .menu-item { 
+            display: flex; align-items: center; gap: 15px; 
+            padding: 18px; border-bottom: 1px solid #F1F5F9;
+            cursor: pointer; transition: 0.2s;
+        }
+        .menu-item:active { background: #F0FDFA; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-icon { 
+            width: 38px; height: 38px; background: #F1F5F9; 
+            border-radius: 10px; display: flex; align-items: center;
+            justify-content: center; color: var(--p); font-size: 1.1rem;
+        }
+        .menu-text { flex: 1; font-weight: 600; color: #334155; font-size: 0.95rem; }
+        .menu-arrow { color: #CBD5E1; }
+
+        /* Logout Button */
+        .logout-btn-main {
+            width: 100%; padding: 15px; background: white; 
+            border: 2px solid #FEE2E2; color: var(--error);
+            border-radius: 12px; font-weight: 700; margin-top: 10px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+
+        /* MODERN POPUP SYSTEM */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 90vw;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: all;
+            border-left: 4px solid var(--p);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { border-left-color: #22C55E; }
+        .toast.error { border-left-color: #EF4444; }
+        .toast.warning { border-left-color: #F59E0B; }
+
+        .toast-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .toast.success .toast-icon { background: #DCFCE7; color: #22C55E; }
+        .toast.error .toast-icon { background: #FEE2E2; color: #EF4444; }
+        .toast.warning .toast-icon { background: #FEF3C7; color: #F59E0B; }
+        .toast.info .toast-icon { background: #F0FDFA; color: var(--p); }
+
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 700; color: #1E293B; font-size: 0.95rem; margin-bottom: 2px; }
+        .toast-message { color: #64748B; font-size: 0.85rem; }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #94A3B8;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1.1rem;
+            transition: 0.2s;
+        }
+        .toast-close:hover { color: #475569; transform: rotate(90deg); }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(19, 78, 74, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Bottom Sheet */
+        .bottom-sheet {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 24px 24px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+            max-height: 85vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-overlay.active .bottom-sheet {
+            transform: translateY(0);
+        }
+
+        .sheet-header {
+            background: linear-gradient(135deg, var(--p), var(--p-light));
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+
+        .sheet-header::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 2px;
+        }
+
+        .sheet-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sheet-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .sheet-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+
+        .sheet-body {
+            padding: 25px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Centered Modal */
+        .centered-modal {
+            background: white;
+            width: 90%;
+            max-width: 360px;
+            border-radius: 24px;
+            overflow: hidden;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            box-shadow: 0 10px 40px rgba(13, 148, 136, 0.15);
+            text-align: center;
+            margin: auto;
+        }
+
+        .modal-overlay.centered {
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.centered.active .centered-modal {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal-icon-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 30px auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .modal-icon-box.success { background: linear-gradient(135deg, #22C55E, #16A34A); }
+        .modal-icon-box.error { background: linear-gradient(135deg, #EF4444, #DC2626); }
+        .modal-icon-box.warning { background: linear-gradient(135deg, #F59E0B, #D97706); }
+
+        .modal-content { padding: 0 25px 25px; }
+        .modal-title { font-size: 1.3rem; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+        .modal-message { color: #64748B; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--p), var(--p-light));
+            color: white;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+        }
+        .btn-primary:hover { box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4); transform: translateY(-2px); }
+
+        .btn-secondary {
+            background: #F1F5F9;
+            color: #475569;
+            border: 2px solid #E2E8F0;
+        }
+        .btn-secondary:hover { background: #E2E8F0; }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Input Fields */
+        .input-group { margin-bottom: 20px; }
+        .input-label {
+            display: block;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #E2E8F0;
+            border-radius: 14px;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+            background: #F8FAFC;
+        }
+        .input-field:focus {
+            border-color: var(--p);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(13,148,136,0.1);
+        }
+
+        /* Page Loader */
+        .page-loader { position: fixed; inset: 0; background: white; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #CCFBF1; border-top-color: var(--p); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Nav */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 10px; }
+        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 12px; }
+        .nav-item.active { color: var(--p); background: #F0FDFA; }
+        .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="page-loader" id="pageLoader">
+        <div class="spinner"></div>
+        <p style="color: #64748B; font-weight: 500;">Loading Profile...</p>
+    </div>
+
+    <div class="header">
+        <div class="header-title">My Profile</div>
+    </div>
+
+    <div class="content">
+        <div class="profile-card">
+            <div class="profile-img-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" class="profile-img" id="profileImage">
+                <div class="camera-btn" onclick="document.getElementById('fileInput').click()">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="uploadPhoto(this)">
+            </div>
+            <div class="profile-name" id="profileName">...</div>
+            <div class="profile-phone" id="profilePhone">...</div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-value" id="statOrders">0</div>
+                <div class="stat-label">Orders</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statSpent">₹0</div>
+                <div class="stat-label">Spent</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statMember">2026</div>
+                <div class="stat-label">Member</div>
+            </div>
+        </div>
+
+        <div class="section-title">Account Settings</div>
+        <div class="menu-card">
+            <div class="menu-item" onclick="openModal('editModal')">
+                <div class="menu-icon"><i class="fa-solid fa-user-pen"></i></div>
+                <div class="menu-text">Personal Details</div>
+                <i class="fa-solid fa-chevron-right menu-arrow"></i>
+            </div>
+            <div class="menu-item" onclick="openModal('addressModal')">
+                <div class="menu-icon"><i class="fa-solid fa-location-dot"></i></div>
+                <div class="menu-text">Saved Addresses</div>
+                <i class="fa-solid fa-chevron-right menu-arrow"></i>
+            </div>
+            <div class="menu-item" onclick="window.location.href='bookings.html'">
+                <div class="menu-icon"><i class="fa-solid fa-box-open"></i></div>
+                <div class="menu-text">My Orders</div>
+                <i class="fa-solid fa-chevron-right menu-arrow"></i>
+            </div>
+        </div>
+
+        <div class="section-title">App & Support</div>
+        <div class="menu-card">
+            <div class="menu-item">
+                <div class="menu-icon"><i class="fa-solid fa-bell"></i></div>
+                <div class="menu-text">Notifications</div>
+                <div style="transform: scale(0.8);">
+                    <i class="fa-solid fa-toggle-on" style="color:var(--p); font-size:1.8rem;"></i>
+                </div>
+            </div>
+            <div class="menu-item" onclick="window.location.href='contact.html'">
+                <div class="menu-icon"><i class="fa-solid fa-headset"></i></div>
+                <div class="menu-text">Help & Support</div>
+                <i class="fa-solid fa-chevron-right menu-arrow"></i>
+            </div>
+            <div class="menu-item" onclick="window.location.href='legal.html'">
+                <div class="menu-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="menu-text">Privacy Policy</div>
+                <i class="fa-solid fa-chevron-right menu-arrow"></i>
+            </div>
+        </div>
+
+        <button class="logout-btn-main" onclick="showLogoutConfirm()">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out
+        </button>
+
+        <div style="text-align:center; color:#94A3B8; font-size:0.75rem; margin-top:20px;">
+            App Version 2.0.1
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <button class="sheet-close" onclick="closeModal('editModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="sheet-title">
+                    <i class="fa-solid fa-user-pen"></i>
+                    Edit Profile
+                </div>
+            </div>
+            <div class="sheet-body">
+                <div class="input-group">
+                    <label class="input-label">
+                        <i class="fa-solid fa-user" style="color: var(--p); margin-right: 8px;"></i>Full Name
+                    </label>
+                    <input type="text" id="editName" class="input-field" placeholder="Enter your name">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">
+                        <i class="fa-solid fa-phone" style="color: var(--p); margin-right: 8px;"></i>Phone Number
+                    </label>
+                    <input type="tel" id="editPhone" class="input-field" placeholder="+91 98765 43210">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">
+                        <i class="fa-solid fa-envelope" style="color: var(--p); margin-right: 8px;"></i>Email Address
+                    </label>
+                    <input type="email" id="editEmail" class="input-field" placeholder="email@example.com">
+                </div>
+                
+                <button class="btn btn-primary" onclick="saveProfile()" style="width: 100%; margin-top: 10px;">
+                    <i class="fa-solid fa-check"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Address Modal -->
+    <div class="modal-overlay" id="addressModal">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <button class="sheet-close" onclick="closeModal('addressModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="sheet-title">
+                    <i class="fa-solid fa-location-dot"></i>
+                    Manage Address
+                </div>
+            </div>
+            <div class="sheet-body">
+                <div class="input-group">
+                    <label class="input-label">House / Flat No.</label>
+                    <input type="text" id="addrHouse" class="input-field" placeholder="e.g. A-102">
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Area / Colony</label>
+                    <input type="text" id="addrArea" class="input-field" placeholder="e.g. Sector 4, Market">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="input-group">
+                        <label class="input-label">Pincode</label>
+                        <input type="tel" id="addrPin" class="input-field" placeholder="110001">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">City</label>
+                        <input type="text" id="addrCity" class="input-field" placeholder="New Delhi">
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="saveAddress()" style="width: 100%; margin-top: 10px;">
+                    <i class="fa-solid fa-check"></i> Save Address
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay centered" id="logoutModal">
+        <div class="centered-modal">
+            <div class="modal-icon-box warning">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </div>
+            <div class="modal-content">
+                <div class="modal-title" style="color: #F59E0B;">Logout?</div>
+                <div class="modal-message">Are you sure you want to logout from UrbanPaintPro?</div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="closeModal('logoutModal')">Cancel</button>
+                    <button class="btn btn-danger" onclick="confirmLogout()">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav">
+        <div class="nav-item" onclick="window.location.href='index.html'"><i class="fa-solid fa-house"></i>Home</div>
+        <div class="nav-item" onclick="window.location.href='services.html'"><i class="fa-solid fa-paint-roller"></i>Services</div>
+        <div class="nav-item" onclick="window.location.href='bookings.html'"><i class="fa-solid fa-box-open"></i>Orders</div>
+        <div class="nav-item active" onclick="window.location.href='about.html'"><i class="fa-solid fa-user"></i>Profile</div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+            authDomain: "urban-paint-pro.firebaseapp.com",
+            databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "urban-paint-pro",
+            storageBucket: "urban-paint-pro.firebasestorage.app",
+            messagingSenderId: "929763117480",
+            appId: "1:929763117480:web:560057baeb12672078b59d"
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const storage = firebase.storage();
+
+        let currentUser = null;
+
+        // AUTH CHECK
+        auth.onAuthStateChanged((user) => {
+            const loader = document.getElementById('pageLoader');
+            if (user) {
+                currentUser = user;
+                loadUserData(user.uid);
+                loadUserStats(user.uid);
+                if(loader) loader.style.display = 'none';
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // LOAD DATA
+        async function loadUserData(uid) {
+            try {
+                const snapshot = await db.ref(`users/${uid}/profile`).once('value');
+                const p = snapshot.val() || {};
+                
+                const name = p.name || currentUser.displayName || 'User';
+                const photo = p.photo || currentUser.photoURL || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                
+                document.getElementById('profileName').textContent = name;
+                document.getElementById('profilePhone').textContent = p.phone || currentUser.phoneNumber || p.email || currentUser.email || '';
+                document.getElementById('profileImage').src = photo;
+                
+                if(document.getElementById('editName')) document.getElementById('editName').value = name;
+                if(document.getElementById('editEmail')) document.getElementById('editEmail').value = p.email || currentUser.email || '';
+                if(document.getElementById('editPhone')) document.getElementById('editPhone').value = p.phone || currentUser.phoneNumber || '';
+
+                if(document.getElementById('addrHouse')) document.getElementById('addrHouse').value = p.address || '';
+                if(document.getElementById('addrArea')) document.getElementById('addrArea').value = p.area || '';
+                if(document.getElementById('addrPin')) document.getElementById('addrPin').value = p.pincode || '';
+                if(document.getElementById('addrCity')) document.getElementById('addrCity').value = p.city || '';
+                
+            } catch (error) { console.error(error); }
+        }
+
+        async function loadUserStats(uid) {
+            try {
+                const snap = await db.ref(`users/${uid}/orders`).once('value');
+                const orders = snap.val() || {};
+                document.getElementById('statOrders').textContent = Object.keys(orders).length;
+                
+                let spent = 0;
+                Object.values(orders).forEach(o => spent += (o.total || o.amount || 0));
+                document.getElementById('statSpent').textContent = '₹' + (spent > 1000 ? (spent/1000).toFixed(1)+'k' : spent);
+            } catch (e) {}
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close on backdrop click
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // ==================== TOAST SYSTEM ====================
+        function showToast(message, type = 'info', title = '') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-xmark',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-circle-info'
+            };
+            
+            const titles = {
+                success: 'Success!',
+                error: 'Error!',
+                warning: 'Warning!',
+                info: 'Information'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fa-solid ${icons[type]}"></i></div>
+                <div class="toast-content">
+                    <div class="toast-title">${title || titles[type]}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        // ==================== ACTIONS ====================
+        function showLogoutConfirm() {
+            openModal('logoutModal');
+        }
+
+        function confirmLogout() {
+            closeModal('logoutModal');
+            auth.signOut().then(() => {
+                showToast('Logged out successfully', 'info', 'Goodbye!');
+                setTimeout(() => window.location.href = 'index.html', 1000);
+            });
+        }
+
+        async function saveProfile() {
+            const name = document.getElementById('editName').value;
+            const email = document.getElementById('editEmail').value;
+            const phone = document.getElementById('editPhone').value;
+            
+            if(!name) {
+                showToast('Please enter your name', 'warning', 'Required');
+                return;
+            }
+
+            await db.ref(`users/${currentUser.uid}/profile`).update({ name, email, phone });
+            
+            document.getElementById('profileName').textContent = name;
+            document.getElementById('profilePhone').textContent = phone || email;
+            
+            closeModal('editModal');
+            showToast('Profile updated successfully!', 'success');
+        }
+
+        async function saveAddress() {
+            const address = document.getElementById('addrHouse').value;
+            const area = document.getElementById('addrArea').value;
+            const pincode = document.getElementById('addrPin').value;
+            const city = document.getElementById('addrCity').value;
+
+            if(!address || !pincode) {
+                showToast('Please fill required fields', 'warning', 'Required');
+                return;
+            }
+
+            await db.ref(`users/${currentUser.uid}/profile`).update({ address, area, pincode, city });
+            
+            closeModal('addressModal');
+            showToast('Address saved successfully!', 'success');
+        }
+
+        async function uploadPhoto(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const imgEl = document.getElementById('profileImage');
+            const originalSrc = imgEl.src;
+            imgEl.style.opacity = '0.5';
+
+            try {
+                const storageRef = storage.ref(`users/${currentUser.uid}/profile.jpg`);
+                await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+                
+                await db.ref(`users/${currentUser.uid}/profile/photo`).set(url);
+                imgEl.src = url;
+                showToast('Profile photo updated!', 'success');
+            } catch (error) {
+                console.error("Upload Error:", error);
+                showToast('Upload failed. Please try again.', 'error');
+                imgEl.src = originalSrc;
+            } finally {
+                imgEl.style.opacity = '1';
+            }
+        }
+    </script>
+</body>
+</html>

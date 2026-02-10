@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0D9488">
+    <title>Help & Support | Refine Home Painting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --p: #0D9488; --p-light: #14B8A6; --accent: #F59E0B; --bg: #F0FDFA; --text: #134E4A; --white: #FFFFFF; --success: #22c55e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 100px; }
+
+        .header { position: fixed; top: 0; width: 100%; height: 60px; background: var(--white); display: flex; align-items: center; padding: 0 20px; z-index: 100; border-bottom: 1px solid #CCFBF1; }
+        .back-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-right: 15px; color: var(--p); }
+        .header-title { font-weight: 700; font-size: 1.1rem; }
+
+        .content { margin-top: 80px; padding: 0 20px; }
+
+        /* Support Cards */
+        .support-grid { display: grid; gap: 15px; margin-bottom: 25px; }
+        .support-card { 
+            display: flex; align-items: center; gap: 15px; 
+            background: white; padding: 20px; border-radius: 16px; 
+            box-shadow: 0 4px 15px rgba(13,148,136,0.08);
+            text-decoration: none; color: inherit; transition: all 0.2s;
+            border: 1px solid #CCFBF1;
+        }
+        .support-card:active { transform: scale(0.98); }
+
+        .support-icon { 
+            width: 55px; height: 55px; border-radius: 14px; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 1.4rem; color: white; flex-shrink: 0;
+        }
+        .icon-whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); }
+        .icon-phone { background: linear-gradient(135deg, var(--p), var(--p-light)); }
+        .icon-email { background: linear-gradient(135deg, #EA4335, #FB8C00); }
+        .icon-ai { background: linear-gradient(135deg, #7C3AED, #A855F7); }
+
+        .support-info { flex: 1; }
+        .support-title { font-weight: 700; font-size: 1rem; margin-bottom: 3px; }
+        .support-subtitle { font-size: 0.85rem; color: #64748B; }
+        .support-arrow { color: #CCFBF1; font-size: 1.2rem; }
+
+        /* Quick Issues */
+        .section-title { font-weight: 700; margin: 30px 0 15px; color: var(--p-dark); }
+        
+        .issue-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .issue-btn { 
+            background: white; border: 2px solid #CCFBF1; padding: 20px 15px; 
+            border-radius: 16px; text-align: center; font-size: 0.85rem; 
+            font-weight: 600; color: #475569; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .issue-btn:hover { border-color: var(--p); color: var(--p); }
+        .issue-btn i { display: block; font-size: 1.5rem; margin-bottom: 10px; color: var(--p); }
+
+        /* FAQ Accordion */
+        .faq-card { 
+            background: white; border-radius: 16px; 
+            box-shadow: 0 4px 15px rgba(13,148,136,0.08);
+            margin-bottom: 15px; overflow: hidden;
+        }
+        .faq-item { border-bottom: 1px solid #F0FDFA; }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-question { 
+            padding: 18px 20px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; font-weight: 600;
+        }
+        .faq-answer { 
+            padding: 0 20px; max-height: 0; overflow: hidden;
+            transition: all 0.3s; color: #64748B; font-size: 0.9rem;
+        }
+        .faq-answer.active { padding: 0 20px 18px; max-height: 200px; }
+        .faq-icon { transition: transform 0.3s; color: var(--p); }
+        .faq-icon.active { transform: rotate(180deg); }
+
+        /* Office Info */
+        .office-card { 
+            background: linear-gradient(135deg, #134E4A, #0D9488); 
+            color: white; padding: 25px; border-radius: 20px; 
+            margin-top: 25px; position: relative; overflow: hidden;
+        }
+        .office-card::before {
+            content: ''; position: absolute; top: -30px; right: -30px;
+            width: 100px; height: 100px; background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        .office-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; }
+        .office-detail { display: flex; gap: 12px; margin-bottom: 12px; font-size: 0.9rem; opacity: 0.95; }
+        .office-detail i { width: 20px; color: #5EEAD4; }
+
+        /* Chat Widget */
+        .chat-widget { 
+            position: fixed; bottom: 90px; right: 20px; 
+            width: 60px; height: 60px; background: linear-gradient(135deg, var(--p), var(--p-light));
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.5rem; cursor: pointer;
+            box-shadow: 0 6px 20px rgba(13,148,136,0.4);
+            z-index: 99;
+        }
+
+        /* MODERN POPUP SYSTEM */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 90vw;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: all;
+            border-left: 4px solid var(--p);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { border-left-color: #22C55E; }
+        .toast.error { border-left-color: #EF4444; }
+        .toast.warning { border-left-color: #F59E0B; }
+
+        .toast-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .toast.success .toast-icon { background: #DCFCE7; color: #22C55E; }
+        .toast.error .toast-icon { background: #FEE2E2; color: #EF4444; }
+        .toast.warning .toast-icon { background: #FEF3C7; color: #F59E0B; }
+        .toast.info .toast-icon { background: #F0FDFA; color: var(--p); }
+
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 700; color: #1E293B; font-size: 0.95rem; margin-bottom: 2px; }
+        .toast-message { color: #64748B; font-size: 0.85rem; }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #94A3B8;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1.1rem;
+            transition: 0.2s;
+        }
+        .toast-close:hover { color: #475569; transform: rotate(90deg); }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(19, 78, 74, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Centered Modal */
+        .centered-modal {
+            background: white;
+            width: 100%;
+            max-width: 360px;
+            border-radius: 24px;
+            overflow: hidden;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            box-shadow: 0 10px 40px rgba(13, 148, 136, 0.15);
+            text-align: center;
+        }
+
+        .modal-overlay.active .centered-modal {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal-icon-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 30px auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .modal-icon-box.info { background: linear-gradient(135deg, var(--p), var(--p-light)); }
+        .modal-icon-box.success { background: linear-gradient(135deg, #22C55E, #16A34A); }
+
+        .modal-content { padding: 0 25px 25px; }
+        .modal-title { font-size: 1.3rem; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+        .modal-message { color: #64748B; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; white-space: pre-line; }
+
+        .btn {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--p), var(--p-light));
+            color: white;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+        }
+
+        /* AI Chat Modal Specific */
+        .chat-option {
+            padding: 15px;
+            margin: 10px 0;
+            background: #F0FDFA;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-option:hover { background: #CCFBF1; }
+        .chat-option i { color: var(--p); font-size: 1.2rem; }
+
+        /* Bottom Nav */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 10px; }
+        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 12px; }
+        .nav-item.active { color: var(--p); background: #F0FDFA; }
+        .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+
+        @media (min-width: 768px) {
+            body { max-width: 480px; margin: 0 auto; border-left: 1px solid #CCFBF1; border-right: 1px solid #CCFBF1; }
+            .nav, .header { max-width: 480px; left: 50%; transform: translateX(-50%); }
+            .chat-widget { right: 50%; transform: translateX(220px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="back-btn" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-arrow-left"></i>
+        </div>
+        <div class="header-title">Help & Support</div>
+    </div>
+
+    <div class="content">
+        <!-- Quick Contact -->
+        <div class="support-grid">
+            <a href="https://wa.me/919711904092" target="_blank" class="support-card">
+                <div class="support-icon icon-whatsapp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <div class="support-info">
+                    <div class="support-title">WhatsApp Us</div>
+                    <div class="support-subtitle">Fastest response time</div>
+                </div>
+                <i class="fa-solid fa-chevron-right support-arrow"></i>
+            </a>
+
+            <a href="tel:+919711904092" class="support-card">
+                <div class="support-icon icon-phone">
+                    <i class="fa-solid fa-phone"></i>
+                </div>
+                <div class="support-info">
+                    <div class="support-title">Call Support</div>
+                    <div class="support-subtitle">+91 97119 04092</div>
+                </div>
+                <i class="fa-solid fa-chevron-right support-arrow"></i>
+            </a>
+
+            <a href="mailto:homepainting.in@gmail.com" class="support-card">
+                <div class="support-icon icon-email">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div class="support-info">
+                    <div class="support-title">Email Us</div>
+                    <div class="support-subtitle">Mail: Refine Home Painting@mail.com</div>
+                </div>
+                <i class="fa-solid fa-chevron-right support-arrow"></i>
+            </a>
+
+            <div class="support-card" onclick="openChat()">
+                <div class="support-icon icon-ai">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="support-info">
+                    <div class="support-title">Refine Home Painting AI</div>
+                    <div class="support-subtitle">Instant answers 24/7</div>
+                </div>
+                <i class="fa-solid fa-chevron-right support-arrow"></i>
+            </div>
+        </div>
+
+        <!-- Quick Issues -->
+        <div class="section-title">Common Issues</div>
+        <div class="issue-grid">
+            <div class="issue-btn" onclick="handleIssue('reschedule')">
+                <i class="fa-solid fa-calendar-xmark"></i>
+                Reschedule Visit
+            </div>
+            <div class="issue-btn" onclick="handleIssue('refund')">
+                <i class="fa-solid fa-rotate-left"></i>
+                Request Refund
+            </div>
+            <div class="issue-btn" onclick="handleIssue('partner')">
+                <i class="fa-solid fa-user-slash"></i>
+                Change Partner
+            </div>
+            <div class="issue-btn" onclick="handleIssue('complaint')">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                File Complaint
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="section-title">Frequently Asked</div>
+        <div class="faq-card">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>How do I track my booking?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    Go to "My Bookings" section and click on "Track" button next to your active order.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>What is the warranty period?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    We offer 1 year warranty on painting and 5 years on waterproofing services.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>Can I reschedule after booking?</span>
+                    <i class="fa-solid fa-chevron-down faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    Yes, you can reschedule up to 24 hours before the scheduled visit.
+                </div>
+            </div>
+        </div>
+
+        <!-- Office Address -->
+        <div class="office-card">
+            <div class="office-title"><i class="fa-solid fa-building" style="margin-right: 8px;"></i>Head Office</div>
+            <div class="office-detail">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>New Delhi, India - 110001</span>
+            </div>
+            <div class="office-detail">
+                <i class="fa-solid fa-clock"></i>
+                <span>Mon - Sat: 9:00 AM - 8:00 PM</span>
+            </div>
+            <div class="office-detail">
+                <i class="fa-solid fa-globe"></i>
+                <span>refinehomepainting.in</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget" onclick="openChat()">
+        <i class="fa-solid fa-comments"></i>
+    </div>
+
+    <!-- AI Chat Modal -->
+    <div class="modal-overlay" id="chatModal">
+        <div class="centered-modal">
+            <div class="modal-icon-box info">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="modal-content">
+                <div class="modal-title">Refine Home Painting AI </div>
+                <div class="modal-message" style="text-align: left; margin-bottom: 15px;">How can I help you today?</div>
+                
+                <div class="chat-option" onclick="handleChatOption('track')">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <div>
+                        <div style="font-weight: 600;">Track my order</div>
+                        <div style="font-size: 0.8rem; color: #64748B;">Check real-time status</div>
+                    </div>
+                </div>
+                
+                <div class="chat-option" onclick="handleChatOption('quote')">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <div>
+                        <div style="font-weight: 600;">Get a quote</div>
+                        <div style="font-size: 0.8rem; color: #64748B;">Estimate for your project</div>
+                    </div>
+                </div>
+                
+                <div class="chat-option" onclick="handleChatOption('agent')">
+                    <i class="fa-solid fa-headset"></i>
+                    <div>
+                        <div style="font-weight: 600;">Talk to human agent</div>
+                        <div style="font-size: 0.8rem; color: #64748B;">Connect with support team</div>
+                    </div>
+                </div>
+                
+                <div class="chat-option" onclick="handleChatOption('faq')">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <div>
+                        <div style="font-weight: 600;">Common questions</div>
+                        <div style="font-size: 0.8rem; color: #64748B;">Browse help articles</div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="closeModal('chatModal')" style="margin-top: 15px;">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="nav">
+        <div class="nav-item" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-house"></i><span>Home</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='services.html'">
+            <i class="fa-solid fa-paint-roller"></i><span>Services</span>
+        </div>
+        <div class="nav-item" onclick="window.location.href='bookings.html'">
+            <i class="fa-solid fa-box-open"></i><span>Orders</span>
+        </div>
+        <div class="nav-item active" onclick="window.location.href='contact.html'">
+            <i class="fa-solid fa-headset"></i><span>Support</span>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ==================== TOAST SYSTEM ====================
+        function showToast(message, type = 'info', title = '') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-xmark',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-circle-info'
+            };
+            
+            const titles = {
+                success: 'Success!',
+                error: 'Error!',
+                warning: 'Warning!',
+                info: 'Information'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fa-solid ${icons[type]}"></i></div>
+                <div class="toast-content">
+                    <div class="toast-title">${title || titles[type]}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // ==================== HANDLERS ====================
+        function toggleFaq(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('.faq-icon');
+            
+            document.querySelectorAll('.faq-answer').forEach(a => {
+                if (a !== answer) {
+                    a.classList.remove('active');
+                    a.previousElementSibling.querySelector('.faq-icon').classList.remove('active');
+                }
+            });
+            
+            answer.classList.toggle('active');
+            icon.classList.toggle('active');
+        }
+
+        function handleIssue(type) {
+            const messages = {
+                'reschedule': {
+                    title: 'Reschedule Requested',
+                    msg: 'Our team will contact you within 30 minutes to confirm new timing.',
+                    icon: 'success'
+                },
+                'refund': {
+                    title: 'Refund Initiated',
+                    msg: 'Your refund request has been submitted. Amount will be credited in 5-7 business days.',
+                    icon: 'success'
+                },
+                'partner': {
+                    title: 'Partner Change',
+                    msg: 'New partner will be assigned within 2 hours. You will be notified.',
+                    icon: 'info'
+                },
+                'complaint': {
+                    title: 'Complaint Registered',
+                    msg: 'Ticket #COMP' + Date.now().toString().slice(-6) + ' created. We will resolve within 24 hours.',
+                    icon: 'warning'
+                }
+            };
+            
+            const data = messages[type];
+            showToast(data.msg, data.icon, data.title);
+            
+            const issues = JSON.parse(localStorage.getItem('supportIssues')) || [];
+            issues.push({
+                type: type,
+                time: new Date().toISOString(),
+                status: 'pending'
+            });
+            localStorage.setItem('supportIssues', JSON.stringify(issues));
+        }
+
+        function openChat() {
+            openModal('chatModal');
+        }
+
+        function handleChatOption(option) {
+            closeModal('chatModal');
+            
+            const responses = {
+                'track': 'Please go to "My Orders" section to track your booking in real-time.',
+                'quote': 'Visit our Services page and use the Paint Estimator for instant quotes!',
+                'agent': 'Connecting you to a human agent... Please wait.',
+                'faq': 'Browse our FAQ section above for common questions and answers.'
+            };
+            
+            setTimeout(() => {
+                showToast(responses[option], 'info', 'AI Assistant');
+            }, 300);
+        }
+    </script>
+</body>
+</html>
