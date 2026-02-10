@@ -89,33 +89,42 @@
             cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
-        /* Modals */
+        /* --- THEMED MODALS --- */
         .modal-overlay { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.5); 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6); 
             z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px);
         }
         .modal-overlay.active { display: flex; }
         .modal {
             background: white; border-radius: 24px; width: 100%; max-width: 400px;
-            padding: 25px; animation: popIn 0.3s;
+            overflow: hidden; animation: popIn 0.3s;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
         @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; color: var(--text); }
         
+        /* Themed Header for Popups */
+        .modal-header {
+            background: var(--p); color: white; padding: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-title { font-size: 1.1rem; font-weight: 700; }
+        .close-modal { font-size: 1.4rem; cursor: pointer; opacity: 0.8; }
+        
+        .modal-body { padding: 25px; }
+
         .input-group { margin-bottom: 15px; }
-        .input-label { font-weight: 600; font-size: 0.85rem; color: var(--p); margin-bottom: 5px; display: block; }
+        .input-label { font-weight: 600; font-size: 0.85rem; color: #64748B; margin-bottom: 6px; display: block; }
         .input-field { 
             width: 100%; padding: 14px; border: 2px solid #E2E8F0; 
-            border-radius: 12px; font-size: 0.95rem; outline: none; background: #F8FAFC;
+            border-radius: 12px; font-size: 0.95rem; outline: none; background: #F8FAFC; transition: 0.3s;
         }
-        .input-field:focus { border-color: var(--p); background: white; }
+        .input-field:focus { border-color: var(--p); background: white; box-shadow: 0 0 0 4px rgba(13,148,136,0.1); }
         
         .btn-save { 
             width: 100%; padding: 16px; background: var(--p); color: white;
             border: none; border-radius: 12px; font-weight: 700; cursor: pointer;
             box-shadow: 0 4px 15px rgba(13,148,136,0.3); margin-top: 10px;
         }
-        .close-modal { float: right; font-size: 1.5rem; color: #94A3B8; cursor: pointer; margin-top: -5px; }
 
         /* Loader */
         .page-loader { position: fixed; inset: 0; background: white; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -123,7 +132,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Nav */
-        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 10px; }
         .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 12px; }
         .nav-item.active { color: var(--p); background: #F0FDFA; }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
@@ -219,49 +228,53 @@
 
     <div class="modal-overlay" id="editModal">
         <div class="modal">
-            <i class="fa-solid fa-xmark close-modal" onclick="closeModal('editModal')"></i>
-            <div class="modal-title">Edit Personal Details</div>
-            
-            <div class="input-group">
-                <label class="input-label">Full Name</label>
-                <input type="text" class="input-field" id="editName" placeholder="Your name">
+            <div class="modal-header">
+                <div class="modal-title">Edit Personal Details</div>
+                <i class="fa-solid fa-xmark close-modal" onclick="closeModal('editModal')"></i>
             </div>
-            <div class="input-group">
-                <label class="input-label">Phone Number</label>
-                <input type="tel" class="input-field" id="editPhone" placeholder="+91 9876543210">
+            <div class="modal-body">
+                <div class="input-group">
+                    <label class="input-label">Full Name</label>
+                    <input type="text" class="input-field" id="editName" placeholder="Your name">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Phone Number</label>
+                    <input type="tel" class="input-field" id="editPhone" placeholder="+91 9876543210">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Email Address</label>
+                    <input type="email" class="input-field" id="editEmail" placeholder="email@example.com">
+                </div>
+                <button class="btn-save" onclick="saveProfile()">Save Changes</button>
             </div>
-            <div class="input-group">
-                <label class="input-label">Email Address</label>
-                <input type="email" class="input-field" id="editEmail" placeholder="email@example.com">
-            </div>
-            
-            <button class="btn-save" onclick="saveProfile()">Save Changes</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="addressModal">
         <div class="modal">
-            <i class="fa-solid fa-xmark close-modal" onclick="closeModal('addressModal')"></i>
-            <div class="modal-title">Manage Address</div>
-            
-            <div class="input-group">
-                <label class="input-label">House / Flat No.</label>
-                <input type="text" class="input-field" id="addrHouse" placeholder="e.g. A-102">
+            <div class="modal-header">
+                <div class="modal-title">Manage Address</div>
+                <i class="fa-solid fa-xmark close-modal" onclick="closeModal('addressModal')"></i>
             </div>
-            <div class="input-group">
-                <label class="input-label">Area / Colony</label>
-                <input type="text" class="input-field" id="addrArea" placeholder="e.g. Sector 4, Market">
+            <div class="modal-body">
+                <div class="input-group">
+                    <label class="input-label">House / Flat No.</label>
+                    <input type="text" class="input-field" id="addrHouse" placeholder="e.g. A-102">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Area / Colony</label>
+                    <input type="text" class="input-field" id="addrArea" placeholder="e.g. Sector 4, Market">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Pincode</label>
+                    <input type="tel" class="input-field" id="addrPin" placeholder="e.g. 110001">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">City</label>
+                    <input type="text" class="input-field" id="addrCity" placeholder="e.g. New Delhi">
+                </div>
+                <button class="btn-save" onclick="saveAddress()">Save Address</button>
             </div>
-            <div class="input-group">
-                <label class="input-label">Pincode</label>
-                <input type="tel" class="input-field" id="addrPin" placeholder="e.g. 110001">
-            </div>
-            <div class="input-group">
-                <label class="input-label">City</label>
-                <input type="text" class="input-field" id="addrCity" placeholder="e.g. New Delhi">
-            </div>
-            
-            <button class="btn-save" onclick="saveAddress()">Save Address</button>
         </div>
     </div>
 
@@ -304,23 +317,28 @@
             }
         });
 
-        // LOAD DATA
+        // LOAD DATA (FIXED PHOTO LOGIC)
         async function loadUserData(uid) {
             try {
                 const snapshot = await db.ref(`users/${uid}/profile`).once('value');
                 const p = snapshot.val() || {};
                 
-                // Display Data
-                document.getElementById('profileName').textContent = p.name || currentUser.displayName || 'User';
-                document.getElementById('profilePhone').textContent = p.phone || currentUser.phoneNumber || p.email || '';
-                document.getElementById('profileImage').src = p.photo || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                // Name Logic
+                const name = p.name || currentUser.displayName || 'User';
+                
+                // Photo Logic (Priority: DB > Google > Default)
+                const photo = p.photo || currentUser.photoURL || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                
+                document.getElementById('profileName').textContent = name;
+                document.getElementById('profilePhone').textContent = p.phone || currentUser.phoneNumber || p.email || currentUser.email || '';
+                document.getElementById('profileImage').src = photo;
                 
                 // Fill Edit Form
-                if(document.getElementById('editName')) document.getElementById('editName').value = p.name || '';
+                if(document.getElementById('editName')) document.getElementById('editName').value = name;
                 if(document.getElementById('editEmail')) document.getElementById('editEmail').value = p.email || currentUser.email || '';
                 if(document.getElementById('editPhone')) document.getElementById('editPhone').value = p.phone || currentUser.phoneNumber || '';
 
-                // Fill Address Form (Sync with Checkout)
+                // Fill Address Form
                 if(document.getElementById('addrHouse')) document.getElementById('addrHouse').value = p.address || '';
                 if(document.getElementById('addrArea')) document.getElementById('addrArea').value = p.area || '';
                 if(document.getElementById('addrPin')) document.getElementById('addrPin').value = p.pincode || '';
@@ -384,18 +402,28 @@
 
         async function uploadPhoto(input) {
             const file = input.files[0];
-            if (!file) return;
             
-            // Simple Loader for Image
-            document.getElementById('profileImage').style.opacity = '0.5';
-            
-            const storageRef = storage.ref(`users/${currentUser.uid}/profile.jpg`);
-            await storageRef.put(file);
-            const url = await storageRef.getDownloadURL();
-            
-            await db.ref(`users/${currentUser.uid}/profile/photo`).set(url);
-            document.getElementById('profileImage').src = url;
-            document.getElementById('profileImage').style.opacity = '1';
+        if (!file) return;
+
+            // Show temporary loading state
+            const imgEl = document.getElementById('profileImage');
+            const originalSrc = imgEl.src;
+            imgEl.style.opacity = '0.5';
+
+            try {
+                const storageRef = storage.ref(`users/${currentUser.uid}/profile.jpg`);
+                await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+                
+                await db.ref(`users/${currentUser.uid}/profile/photo`).set(url);
+                imgEl.src = url;
+            } catch (error) {
+                console.error("Upload Error:", error);
+                alert("Upload Failed. Please enable Storage permissions in Firebase console.");
+                imgEl.src = originalSrc; // Revert on error
+            } finally {
+                imgEl.style.opacity = '1';
+            }
         }
     </script>
 </body>
