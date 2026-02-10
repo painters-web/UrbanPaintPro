@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | UrbanPaintPro</title>
+    
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --p: #0D9488; --bg: #F8FAFC; --text: #1E293B; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 90px; }
+
+        .header { background: white; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #E2E8F0; position: sticky; top: 0; z-index: 100; }
+        .back-btn { font-size: 1.2rem; margin-right: 15px; cursor: pointer; }
+        .header-title { font-weight: 700; font-size: 1.1rem; }
+
+        /* Steps Indicator */
+        .progress-container { padding: 20px; background: white; margin-bottom: 10px; }
+        .steps { display: flex; justify-content: space-between; position: relative; }
+        .steps::before { content: ''; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: #E2E8F0; z-index: 0; }
+        .step { position: relative; z-index: 1; text-align: center; width: 33%; }
+        .step-circle { width: 30px; height: 30px; background: #E2E8F0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-weight: 700; color: #64748B; transition: 0.3s; }
+        .step.active .step-circle { background: var(--p); color: white; }
+        .step-label { font-size: 0.75rem; color: #64748B; font-weight: 600; }
+        .step.active .step-label { color: var(--p); }
+
+        .section { display: none; padding: 15px; animation: slideIn 0.3s; }
+        .section.active { display: block; }
+        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .card { background: white; padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #F1F5F9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .input-group { margin-bottom: 15px; }
+        .label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: #475569; }
+        .input { width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-size: 1rem; outline: none; transition: 0.2s; }
+        .input:focus { border-color: var(--p); background: #F0FDFA; }
+
+        /* Date Scroller */
+        .date-scroller { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; scrollbar-width: none; }
+        .date-card { 
+            min-width: 70px; padding: 15px 10px; background: #F1F5F9; border-radius: 12px; 
+            text-align: center; cursor: pointer; border: 2px solid transparent; transition: 0.2s;
+        }
+        .date-card.active { background: #F0FDFA; border-color: var(--p); color: var(--p); }
+        .date-day { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+        .date-num { font-size: 1.2rem; font-weight: 800; }
+
+        /* Time Grid */
+        .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .slot-btn { 
+            padding: 10px; border: 1px solid #CBD5E1; border-radius: 8px; 
+            text-align: center; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+            background: white; transition: 0.2s;
+        }
+        .slot-btn.selected { background: var(--p); color: white; border-color: var(--p); box-shadow: 0 4px 10px rgba(13,148,136,0.2); }
+
+        .bill-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
+        .bill-total { border-top: 1px dashed #CBD5E1; padding-top: 10px; margin-top: 10px; font-weight: 800; font-size: 1.1rem; color: var(--p); }
+
+        .pay-option { display: flex; align-items: center; padding: 15px; border: 2px solid #E2E8F0; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .pay-option.selected { border-color: var(--p); background: #F0FDFA; }
+        .pay-option.disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        .pay-icon { width: 40px; margin-right: 15px; }
+
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        .total-display { font-size: 1.2rem; font-weight: 800; color: var(--text); }
+        .action-btn { background: var(--p); color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; }
+        .action-btn:disabled { background: #CBD5E1; cursor: not-allowed; }
+
+        /* MODERN POPUP SYSTEM */
+        :root {
+            --p-light: #14B8A6;
+            --p-dark: #0F766E;
+            --error: #EF4444;
+            --success: #22C55E;
+            --warning: #F59E0B;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(19, 78, 74, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .centered-modal {
+            background: white;
+            width: 100%;
+            max-width: 360px;
+            border-radius: 24px;
+            overflow: hidden;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            box-shadow: 0 10px 40px rgba(13, 148, 136, 0.15);
+            text-align: center;
+        }
+
+        .modal-overlay.active .centered-modal {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal-icon-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 30px auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .modal-icon-box.success { background: linear-gradient(135deg, var(--success), #16A34A); }
+        .modal-icon-box.error { background: linear-gradient(135deg, var(--error), #DC2626); }
+
+        .modal-content { padding: 0 25px 25px; }
+        .modal-title { font-size: 1.3rem; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+        .modal-message { color: #64748B; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; }
+
+        .btn {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--p), var(--p-light));
+            color: white;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+        }
+        .btn-primary:hover { box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4); transform: translateY(-2px); }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--p);
+            animation: confetti-fall 3s ease-out forwards;
+            z-index: 99999;
+            pointer-events: none;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #CCFBF1;
+            border-top-color: var(--p);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <i class="fa-solid fa-arrow-left back-btn" onclick="window.history.back()"></i>
+        <div class="header-title">Checkout</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="steps">
+            <div class="step active" id="step1-ind"><div class="step-circle">1</div><div class="step-label">Address</div></div>
+            <div class="step" id="step2-ind"><div class="step-circle">2</div><div class="step-label">Slot</div></div>
+            <div class="step" id="step3-ind"><div class="step-circle">3</div><div class="step-label">Payment</div></div>
+        </div>
+    </div>
+
+    <div id="errorBox" style="display:none; text-align:center; padding:50px;">
+        <i class="fa-solid fa-circle-exclamation" style="font-size:3rem; color:#EF4444;"></i>
+        <h3>No Booking Found</h3>
+        <p>Please select a service first.</p>
+        <button onclick="window.location.href='services.html'" class="action-btn" style="margin-top:20px;">Go to Services</button>
+    </div>
+
+    <div id="checkoutForm">
+        <div id="step1" class="section active">
+            <div class="card">
+                <h3>Contact Details</h3>
+                <div class="input-group"><label class="label">Full Name</label><input type="text" id="userName" class="input" placeholder="Enter name"></div>
+                <div class="input-group"><label class="label">Phone Number</label><input type="tel" id="userPhone" class="input" placeholder="Enter mobile number"></div>
+            </div>
+            <div class="card">
+                <h3>Service Address</h3>
+                <div class="input-group"><label class="label">House No / Flat</label><input type="text" id="addr1" class="input" placeholder="e.g. A-102"></div>
+                <div class="input-group"><label class="label">Area / Sector</label><input type="text" id="addr2" class="input" placeholder="e.g. Sector 4, Market Area"></div>
+                <div class="input-group"><label class="label">Pincode</label><input type="tel" id="pincode" class="input" placeholder="e.g. 110001"></div>
+            </div>
+        </div>
+
+        <div id="step2" class="section">
+            <div class="card">
+                <h3 style="margin-bottom:15px;">Select Date</h3>
+                <div class="date-scroller" id="dateScroller"></div>
+
+                <h3 style="margin: 20px 0 10px;">Select Start Time</h3>
+                <div class="slot-grid" id="timeSlots"></div>
+            </div>
+        </div>
+
+        <div id="step3" class="section">
+            <div class="card">
+                <h3>Order Summary</h3>
+                <div id="billItems"></div>
+                <div class="bill-row bill-total"><span>To Pay</span><span id="finalTotal">₹0</span></div>
+            </div>
+            
+            <h3>Payment Method</h3>
+            <div class="pay-option selected" onclick="selectPayment('online')" id="payOnline">
+                <img src="https://cdn.iconscout.com/icon/free/png-256/razorpay-1649771-1399875.png" class="pay-icon">
+                <div class="pay-info"><div>Pay Online</div><small>UPI, Cards, Netbanking</small></div>
+                <i class="fa-solid fa-circle-check" style="margin-left:auto; color:var(--p);"></i>
+            </div>
+            
+            <div class="pay-option" onclick="selectPayment('cod')" id="payCOD">
+                <div class="pay-icon" style="font-size:1.5rem; color:#F59E0B;"><i class="fa-solid fa-money-bill-wave"></i></div>
+                <div class="pay-info"><div>Cash on Delivery</div><small id="codText">Pay after service</small></div>
+                <i class="fa-regular fa-circle" style="margin-left:auto; color:#CBD5E1;"></i>
+            </div>
+        </div>
+
+        <div class="bottom-bar">
+            <div class="total-display" id="footerTotal">₹0</div>
+            <button class="action-btn" id="mainBtn" onclick="nextStep()">Next Step</button>
+        </div>
+    </div>
+
+    <!-- Status Modal -->
+    <div id="statusOverlay" class="modal-overlay">
+        <div class="centered-modal" id="statusCard">
+            <div class="modal-icon-box" id="statusIconBox">
+                <i class="fa-solid fa-check" id="statusIcon"></i>
+            </div>
+            <div class="modal-content">
+                <div class="modal-title" id="statusTitle">Confirmed!</div>
+                <div class="modal-message" id="statusMsg">Your order has been placed successfully.</div>
+                <button class="btn btn-primary" id="statusBtn" onclick="window.location.href='bookings.html'">
+                    View My Orders <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioSuccess" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="audioError" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+            authDomain: "urban-paint-pro.firebaseapp.com",
+            databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "urban-paint-pro",
+            storageBucket: "urban-paint-pro.firebasestorage.app",
+            messagingSenderId: "929763117480",
+            appId: "1:929763117480:web:560057baeb12672078b59d"
+        };
+        try { firebase.initializeApp(firebaseConfig); } catch(e){}
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        let currentStep = 1;
+        let selectedDate = '';
+        let selectedTime = '';
+        let paymentMethod = 'online';
+        let orderData = null;
+
+        window.onload = () => {
+            try {
+                orderData = JSON.parse(localStorage.getItem('pendingOrder'));
+                if (!orderData) throw new Error();
+            } catch (e) {
+                document.getElementById('checkoutForm').style.display = 'none';
+                document.getElementById('errorBox').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('finalTotal').textContent = '₹' + (orderData.total||0).toLocaleString();
+            document.getElementById('footerTotal').textContent = '₹' + (orderData.total||0).toLocaleString();
+            renderBill();
+            
+            generateDates();
+            generateTimeSlots();
+
+            if (orderData.type === 'advance_payment') {
+                const codBtn = document.getElementById('payCOD');
+                codBtn.classList.add('disabled');
+                codBtn.onclick = null; 
+                document.getElementById('codText').innerText = "Not available for Advance";
+                selectPayment('online');
+            }
+
+            auth.onAuthStateChanged(user => {
+                if(user) {
+                    if(user.displayName) document.getElementById('userName').value = user.displayName;
+                    if(user.phoneNumber) document.getElementById('userPhone').value = user.phoneNumber;
+                    db.ref(`users/${user.uid}/profile`).once('value').then(snap => {
+                        const prof = snap.val();
+                        if(prof) {
+                            if(prof.address) document.getElementById('addr1').value = prof.address;
+                            if(prof.area) document.getElementById('addr2').value = prof.area;
+                            if(prof.pincode) document.getElementById('pincode').value = prof.pincode;
+                        }
+                    });
+                }
+            });
+        };
+
+        function generateDates() {
+            const container = document.getElementById('dateScroller');
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            let html = '';
+            
+            for(let i=0; i<14; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() + i);
+                const dayName = i===0 ? 'Today' : (i===1 ? 'Tmrw' : days[d.getDay()]);
+                const dateNum = d.getDate();
+                const fullDate = d.toLocaleDateString('en-GB');
+                
+                if(i===1) selectedDate = fullDate;
+
+                html += `
+                    <div class="date-card ${i===1 ? 'active' : ''}" onclick="selectDate(this, '${fullDate}')">
+                        <div class="date-day">${dayName}</div>
+                        <div class="date-num">${dateNum}</div>
+                    </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function selectDate(el, date) {
+            document.querySelectorAll('.date-card').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            selectedDate = date;
+        }
+
+        function generateTimeSlots() {
+            const container = document.getElementById('timeSlots');
+            let html = '';
+            
+            for(let h=9; h<=19; h++) {
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const hour12 = h > 12 ? h - 12 : h;
+                const timeStr = `${hour12}:00 ${ampm}`;
+                
+                html += `<div class="slot-btn" onclick="selectTime(this, '${timeStr}')">${timeStr}</div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function selectTime(el, time) {
+            document.querySelectorAll('.slot-btn').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedTime = time;
+        }
+
+        function renderBill() {
+            const container = document.getElementById('billItems');
+            if(orderData.details && Array.isArray(orderData.details)) {
+                container.innerHTML = orderData.details.map(i => `<div class="bill-row"><span>${i.name}</span><span>₹${i.price}</span></div>`).join('');
+            } else {
+                container.innerHTML = `<div class="bill-row"><span>${orderData.service}</span><span>₹${orderData.total}</span></div>`;
+            }
+        }
+
+        function nextStep() {
+            if(currentStep === 1) {
+                if(!document.getElementById('userName').value || !document.getElementById('userPhone').value || !document.getElementById('addr1').value) {
+                    showToast('Please fill all required fields', 'warning', 'Required');
+                    return;
+                }
+                currentStep = 2;
+            } else if(currentStep === 2) {
+                if(!selectedDate || !selectedTime) {
+                    showToast('Please select date and time', 'warning', 'Required');
+                    return;
+                }
+                currentStep = 3;
+                document.getElementById('mainBtn').textContent = paymentMethod === 'online' ? `Pay ₹${orderData.total}` : 'Place Order';
+            } else if(currentStep === 3) {
+                processOrder(); return;
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            document.querySelectorAll('.section').forEach(e => e.classList.remove('active'));
+            document.getElementById('step'+currentStep).classList.add('active');
+            document.querySelectorAll('.step').forEach((e,i) => e.classList.toggle('active', i+1<=currentStep));
+        }
+
+        function selectPayment(method) {
+            if (orderData.type === 'advance_payment' && method === 'cod') return;
+            paymentMethod = method;
+            document.getElementById('payOnline').classList.toggle('selected', method === 'online');
+            document.getElementById('payCOD').classList.toggle('selected', method === 'cod');
+            
+            if(method === 'online') {
+                document.querySelector('#payOnline .fa-circle-check').className = 'fa-solid fa-circle-check';
+                document.querySelector('#payOnline .fa-circle-check').style.color = 'var(--p)';
+                document.querySelector('#payCOD .fa-circle').className = 'fa-regular fa-circle';
+                document.querySelector('#payCOD .fa-circle').style.color = '#CBD5E1';
+                document.getElementById('mainBtn').textContent = `Pay ₹${orderData.total}`;
+            } else {
+                document.querySelector('#payCOD .fa-circle').className = 'fa-solid fa-circle-check';
+                document.querySelector('#payCOD .fa-circle').style.color = 'var(--p)';
+                document.querySelector('#payOnline .fa-circle-check').className = 'fa-regular fa-circle';
+                document.querySelector('#payOnline .fa-circle-check').style.color = '#CBD5E1';
+                document.getElementById('mainBtn').textContent = 'Place Order (COD)';
+            }
+        }
+
+        async function processOrder() {
+            const user = auth.currentUser;
+            if(!user) {
+                showToast('Please login first', 'error', 'Error');
+                return;
+            }
+
+            document.getElementById('mainBtn').disabled = true;
+            document.getElementById('mainBtn').textContent = 'Processing...';
+
+            const fullOrder = {
+                orderId: orderData.orderId || '',
+                service: orderData.service || 'Custom Service', 
+                type: orderData.type || 'service',
+                userId: user.uid,
+                customer: {
+                    name: document.getElementById('userName').value,
+                    phone: document.getElementById('userPhone').value,
+                    address: document.getElementById('addr1').value,
+                    area: document.getElementById('addr2').value,
+                    pincode: document.getElementById('pincode').value || ''
+                },
+                slot: {
+                    date: selectedDate,
+                    time: selectedTime
+                },
+                amount: orderData.total || 0,
+                total: orderData.total || 0,
+                details: orderData.details || [],
+                paymentMethod: paymentMethod,
+                paymentStatus: paymentMethod === 'cod' ? 'pending_cod' : 'pending',
+                status: 'pending',
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            if(paymentMethod === 'cod') saveOrder(fullOrder);
+            else openRazorpay(fullOrder);
+        }
+
+        async function saveOrder(order) {
+            try {
+                if(order.customer.address) {
+                    db.ref(`users/${order.userId}/profile`).update({
+                        address: order.customer.address,
+                        area: order.customer.area,
+                        pincode: order.customer.pincode
+                    });
+                }
+
+                if(order.type === 'advance_payment') {
+                    await db.ref(`orders/${order.orderId}`).update({
+                        advancePaid: true, status: 'work_scheduled', paymentStatus: 'advance_received',
+                        startOtp: Math.floor(1000 + Math.random()*9000)
+                    });
+                    showSuccess("Advance Paid!", "Work Scheduled");
+                } else {
+                    const ref = db.ref('orders').push();
+                    await ref.set(order);
+                    await db.ref(`users/${order.userId}/orders/${ref.key}`).set(order);
+                    showSuccess("Order Placed!", "Booking Confirmed");
+                }
+            } catch(e) {
+                console.error(e);
+                if(order.paymentMethod === 'cod') showSuccess("Order Placed!", "Booking Confirmed");
+                else { showError("Error", "Try Again"); document.getElementById('mainBtn').disabled = false; }
+            }
+        }
+
+        function openRazorpay(order) {
+            var options = {
+                "key": "rzp_live_SDPY6guf8rfUr4",
+                "amount": (order.total || 1) * 100,
+                "currency": "INR",
+                "name": "UrbanPaintPro",
+                "handler": function (res){
+                    order.paymentStatus = 'paid';
+                    order.paymentId = res.razorpay_payment_id;
+                    saveOrder(order);
+                },
+                "modal": {
+                    "ondismiss": function(){
+                        document.getElementById('mainBtn').disabled = false;
+                        showError("Cancelled", "Payment cancelled");
+                    }
+                }
+            };
+            var rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (res){ showError("Failed", res.error.description); });
+            rzp.open();
+        }
+
+        function showSuccess(t, m) {
+            try{document.getElementById('audioSuccess').play()}catch(e){}
+            const card = document.getElementById('statusCard');
+            const iconBox = document.getElementById('statusIconBox');
+            const icon = document.getElementById('statusIcon');
+            
+            iconBox.className = 'modal-icon-box success';
+            icon.className = 'fa-solid fa-check';
+            
+            document.getElementById('statusTitle').innerText = t;
+            document.getElementById('statusMsg').innerText = m;
+            document.getElementById('statusBtn').innerHTML = 'View My Orders <i class="fa-solid fa-arrow-right"></i>';
+            document.getElementById('statusBtn').onclick = () => window.location.href = 'bookings.html';
+            
+            openModal('statusOverlay');
+            showConfetti();
+            
+            setTimeout(() => window.location.href = 'bookings.html', 3000);
+        }
+
+        function showError(t, m) {
+            try{document.getElementById('audioError').play()}catch(e){}
+            
+            const iconBox = document.getElementById('statusIconBox');
+            const icon = document.getElementById('statusIcon');
+            
+            iconBox.className = 'modal-icon-box error';
+            icon.className = 'fa-solid fa-xmark';
+            
+            document.getElementById('statusTitle').innerText = t;
+            document.getElementById('statusMsg').innerText = m;
+            document.getElementById('statusBtn').innerHTML = 'Try Again <i class="fa-solid fa-rotate-right"></i>';
+            document.getElementById('statusBtn').onclick = () => {
+                closeModal('statusOverlay');
+                document.getElementById('mainBtn').disabled = false;
+            };
+            
+            openModal('statusOverlay');
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function showConfetti() {
+            const colors = ['#0D9488', '#14B8A6', '#F59E0B', '#22C55E', '#3B82F6'];
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        function showToast(message, type = 'info', title = '') {
+            // Create toast container if not exists
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'toast-container';
+                container.id = 'toastContainer';
+                document.body.appendChild(container);
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.style.cssText = `
+                background: white;
+                padding: 16px 20px;
+                border-radius: 16px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                min-width: 300px;
+                max-width: 90vw;
+                transform: translateY(-100px);
+                opacity: 0;
+                transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+                pointer-events: all;
+                border-left: 4px solid ${type === 'success' ? '#22C55E' : type === 'error' ? '#EF4444' : type === 'warning' ? '#F59E0B' : '#0D9488'};
+                margin-bottom: 10px;
+            `;
+            
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-xmark',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-circle-info'
+            };
+            
+            const titles = {
+                success: 'Success!',
+                error: 'Error!',
+                warning: 'Warning!',
+                info: 'Information'
+            };
+            
+            toast.innerHTML = `
+                <div style="width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; background: ${type === 'success' ? '#DCFCE7' : type === 'error' ? '#FEE2E2' : type === 'warning' ? '#FEF3C7' : '#F0FDFA'}; color: ${type === 'success' ? '#22C55E' : type === 'error' ? '#EF4444' : type === 'warning' ? '#F59E0B' : '#0D9488'};">
+                    <i class="fa-solid ${icons[type]}"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; color: #1E293B; font-size: 0.95rem; margin-bottom: 2px;">${title || titles[type]}</div>
+                    <div style="color: #64748B; font-size: 0.85rem;">${message}</div>
+                </div>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; color: #94A3B8; cursor: pointer; padding: 5px; font-size: 1.1rem;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.transform = 'translateY(0)';
+                toast.style.opacity = '1';
+            }, 10);
+            setTimeout(() => {
+                toast.style.transform = 'translateY(-100px)';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
