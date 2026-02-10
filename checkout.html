@@ -1,4 +1,4 @@
-            <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,6 @@
     <title>Checkout | UrbanPaintPro</title>
     
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -17,12 +16,13 @@
     <style>
         :root { --p: #0D9488; --bg: #F8FAFC; --text: #1E293B; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); padding-bottom: 80px; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 90px; }
 
         .header { background: white; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #E2E8F0; position: sticky; top: 0; z-index: 100; }
         .back-btn { font-size: 1.2rem; margin-right: 15px; cursor: pointer; }
         .header-title { font-weight: 700; font-size: 1.1rem; }
 
+        /* Steps Indicator */
         .progress-container { padding: 20px; background: white; margin-bottom: 10px; }
         .steps { display: flex; justify-content: space-between; position: relative; }
         .steps::before { content: ''; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: #E2E8F0; z-index: 0; }
@@ -36,40 +36,56 @@
         .section.active { display: block; }
         @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        .card { background: white; padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #F1F5F9; }
+        .card { background: white; padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #F1F5F9; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .input-group { margin-bottom: 15px; }
         .label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: #475569; }
-        .input { width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-size: 1rem; outline: none; }
-        
-        .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .slot-btn { padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 600; }
-        .slot-btn.selected { border-color: var(--p); background: #F0FDFA; color: var(--p); }
+        .input { width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 10px; font-size: 1rem; outline: none; transition: 0.2s; }
+        .input:focus { border-color: var(--p); background: #F0FDFA; }
+
+        /* --- NEW DATE SCROLLER --- */
+        .date-scroller { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; scrollbar-width: none; }
+        .date-card { 
+            min-width: 70px; padding: 15px 10px; background: #F1F5F9; border-radius: 12px; 
+            text-align: center; cursor: pointer; border: 2px solid transparent; transition: 0.2s;
+        }
+        .date-card.active { background: #F0FDFA; border-color: var(--p); color: var(--p); }
+        .date-day { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+        .date-num { font-size: 1.2rem; font-weight: 800; }
+
+        /* --- NEW TIME GRID (Hourly) --- */
+        .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .slot-btn { 
+            padding: 10px; border: 1px solid #CBD5E1; border-radius: 8px; 
+            text-align: center; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+            background: white; transition: 0.2s;
+        }
+        .slot-btn.selected { background: var(--p); color: white; border-color: var(--p); box-shadow: 0 4px 10px rgba(13,148,136,0.2); }
 
         .bill-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
         .bill-total { border-top: 1px dashed #CBD5E1; padding-top: 10px; margin-top: 10px; font-weight: 800; font-size: 1.1rem; color: var(--p); }
 
         .pay-option { display: flex; align-items: center; padding: 15px; border: 2px solid #E2E8F0; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
         .pay-option.selected { border-color: var(--p); background: #F0FDFA; }
+        .pay-option.disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
         .pay-icon { width: 40px; margin-right: 15px; }
-        
-        /* Disabled State for COD */
-        .pay-option.disabled { opacity: 0.5; cursor: not-allowed; background: #F1F5F9; border-color: #E2E8F0; }
-        
+
         .bottom-bar { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
         .total-display { font-size: 1.2rem; font-weight: 800; color: var(--text); }
         .action-btn { background: var(--p); color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; }
         .action-btn:disabled { background: #CBD5E1; cursor: not-allowed; }
 
-        /* Status Popup */
+        /* STATUS POPUP */
         .status-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .status-overlay.active { display: flex; animation: fadeIn 0.3s; }
         .status-card { background: white; width: 90%; max-width: 350px; border-radius: 24px; padding: 30px; text-align: center; transform: scale(0.9); transition: 0.3s; }
         .status-overlay.active .status-card { transform: scale(1); }
         .status-icon-box { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white; }
-        .status-card.success .status-icon-box { background: var(--p); }
+        
+        .status-card.success .status-icon-box { background: var(--p); box-shadow: 0 10px 20px rgba(13,148,136,0.3); }
         .status-card.success h2 { color: var(--p); }
         .status-card.success .status-btn { background: var(--p); }
-        .status-card.error .status-icon-box { background: #EF4444; }
+        
+        .status-card.error .status-icon-box { background: #EF4444; box-shadow: 0 10px 20px rgba(239,68,68,0.3); }
         .status-card.error h2 { color: #EF4444; }
         .status-card.error .status-btn { background: #EF4444; }
         .status-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; color: white; font-weight: 700; margin-top: 20px; cursor: pointer; }
@@ -101,28 +117,26 @@
         <div id="step1" class="section active">
             <div class="card">
                 <h3>Contact Details</h3>
-                <div class="input-group"><label class="label">Name</label><input type="text" id="userName" class="input" placeholder="Your Name"></div>
-                <div class="input-group"><label class="label">Phone</label><input type="tel" id="userPhone" class="input" placeholder="Mobile Number"></div>
+                <div class="input-group"><label class="label">Full Name</label><input type="text" id="userName" class="input" placeholder="Enter name"></div>
+                <div class="input-group"><label class="label">Phone Number</label><input type="tel" id="userPhone" class="input" placeholder="Enter mobile number"></div>
             </div>
             <div class="card">
-                <h3>Address</h3>
-                <div class="input-group"><label class="label">House No / Flat</label><input type="text" id="addr1" class="input" placeholder="e.g. A-101"></div>
-                <div class="input-group"><label class="label">Area / Landmark</label><input type="text" id="addr2" class="input" placeholder="e.g. Sector 4"></div>
+                <h3>Service Address</h3>
+                <div class="input-group"><label class="label">House No / Flat</label><input type="text" id="addr1" class="input" placeholder="e.g. A-102"></div>
+                <div class="input-group"><label class="label">Area / Sector</label><input type="text" id="addr2" class="input" placeholder="e.g. Sector 4, Market Area"></div>
                 <div class="input-group"><label class="label">Pincode</label><input type="tel" id="pincode" class="input" placeholder="e.g. 110001"></div>
             </div>
         </div>
 
         <div id="step2" class="section">
             <div class="card">
-                <h3>Select Date</h3>
-                <input type="date" id="serviceDate" class="input" style="margin-bottom:15px;">
-                <h3>Select Time</h3>
-                <div class="slot-grid">
-                    <div class="slot-btn" onclick="selectSlot(this, '09 AM - 11 AM')">09 AM - 11 AM</div>
-                    <div class="slot-btn" onclick="selectSlot(this, '11 AM - 01 PM')">11 AM - 01 PM</div>
-                    <div class="slot-btn" onclick="selectSlot(this, '02 PM - 04 PM')">02 PM - 04 PM</div>
-                    <div class="slot-btn" onclick="selectSlot(this, '04 PM - 06 PM')">04 PM - 06 PM</div>
-                </div>
+                <h3 style="margin-bottom:15px;">Select Date</h3>
+                <div class="date-scroller" id="dateScroller">
+                    </div>
+
+                <h3 style="margin: 20px 0 10px;">Select Start Time</h3>
+                <div class="slot-grid" id="timeSlots">
+                    </div>
             </div>
         </div>
 
@@ -132,8 +146,8 @@
                 <div id="billItems"></div>
                 <div class="bill-row bill-total"><span>To Pay</span><span id="finalTotal">₹0</span></div>
             </div>
-            <h3>Payment Method</h3>
             
+            <h3>Payment Method</h3>
             <div class="pay-option selected" onclick="selectPayment('online')" id="payOnline">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/razorpay-1649771-1399875.png" class="pay-icon">
                 <div class="pay-info"><div>Pay Online</div><small>UPI, Cards, Netbanking</small></div>
@@ -180,7 +194,8 @@
         const auth = firebase.auth();
 
         let currentStep = 1;
-        let selectedSlotTime = '';
+        let selectedDate = '';
+        let selectedTime = '';
         let paymentMethod = 'online';
         let orderData = null;
 
@@ -197,19 +212,17 @@
             document.getElementById('finalTotal').textContent = '₹' + (orderData.total||0).toLocaleString();
             document.getElementById('footerTotal').textContent = '₹' + (orderData.total||0).toLocaleString();
             renderBill();
+            
+            // GENERATE UI
+            generateDates();
+            generateTimeSlots();
 
-            const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
-            document.getElementById('serviceDate').valueAsDate = tmr;
-
-            // --- 🔥 COD LOGIC HERE ---
-            // Agar "Advance Payment" hai, to COD ko Disable/Hide kar do
+            // Advance Payment Logic
             if (orderData.type === 'advance_payment') {
                 const codBtn = document.getElementById('payCOD');
                 codBtn.classList.add('disabled');
-                codBtn.onclick = null; // Click disable
-                codBtn.style.opacity = '0.5';
+                codBtn.onclick = null; 
                 document.getElementById('codText').innerText = "Not available for Advance";
-                // Force Online Selection
                 selectPayment('online');
             }
 
@@ -217,10 +230,73 @@
                 if(user) {
                     if(user.displayName) document.getElementById('userName').value = user.displayName;
                     if(user.phoneNumber) document.getElementById('userPhone').value = user.phoneNumber;
+                    // Try to fetch saved address
+                    db.ref(`users/${user.uid}/profile`).once('value').then(snap => {
+                        const prof = snap.val();
+                        if(prof) {
+                            if(prof.address) document.getElementById('addr1').value = prof.address;
+                            if(prof.area) document.getElementById('addr2').value = prof.area;
+                            if(prof.pincode) document.getElementById('pincode').value = prof.pincode;
+                        }
+                    });
                 }
             });
         };
 
+        // --- NEW: CALENDAR GENERATOR ---
+        function generateDates() {
+            const container = document.getElementById('dateScroller');
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            let html = '';
+            
+            for(let i=0; i<14; i++) { // Next 14 days
+                const d = new Date();
+                d.setDate(d.getDate() + i);
+                const dayName = i===0 ? 'Today' : (i===1 ? 'Tmrw' : days[d.getDay()]);
+                const dateNum = d.getDate();
+                const fullDate = d.toLocaleDateString('en-GB'); // DD/MM/YYYY
+                
+                // Select Tomorrow by default
+                if(i===1) selectedDate = fullDate;
+
+                html += `
+                    <div class="date-card ${i===1 ? 'active' : ''}" onclick="selectDate(this, '${fullDate}')">
+                        <div class="date-day">${dayName}</div>
+                        <div class="date-num">${dateNum}</div>
+                    </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function selectDate(el, date) {
+            document.querySelectorAll('.date-card').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            selectedDate = date;
+        }
+
+        // --- NEW: HOURLY TIME SLOTS (9 AM - 7 PM) ---
+        function generateTimeSlots() {
+            const container = document.getElementById('timeSlots');
+            let html = '';
+            
+            // 9 AM (9) to 7 PM (19)
+            for(let h=9; h<=19; h++) {
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const hour12 = h > 12 ? h - 12 : h;
+                const timeStr = `${hour12}:00 ${ampm}`;
+                
+                html += `<div class="slot-btn" onclick="selectTime(this, '${timeStr}')">${timeStr}</div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function selectTime(el, time) {
+            document.querySelectorAll('.slot-btn').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedTime = time;
+        }
+
+        // --- EXISTING LOGIC ---
         function renderBill() {
             const container = document.getElementById('billItems');
             if(orderData.details && Array.isArray(orderData.details)) {
@@ -232,10 +308,10 @@
 
         function nextStep() {
             if(currentStep === 1) {
-                if(!document.getElementById('userName').value || !document.getElementById('userPhone').value) return alert("Fill details");
+                if(!document.getElementById('userName').value || !document.getElementById('userPhone').value || !document.getElementById('addr1').value) return alert("Fill details");
                 currentStep = 2;
             } else if(currentStep === 2) {
-                if(!selectedSlotTime) return alert("Select Slot");
+                if(!selectedDate || !selectedTime) return alert("Select Date and Time");
                 currentStep = 3;
                 document.getElementById('mainBtn').textContent = paymentMethod === 'online' ? `Pay ₹${orderData.total}` : 'Place Order';
             } else if(currentStep === 3) {
@@ -250,22 +326,13 @@
             document.querySelectorAll('.step').forEach((e,i) => e.classList.toggle('active', i+1<=currentStep));
         }
 
-        function selectSlot(el, time) {
-            document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedSlotTime = time;
-        }
-
         function selectPayment(method) {
-            // Agar Advance hai aur COD click kiya, to mana karo
             if (orderData.type === 'advance_payment' && method === 'cod') return;
-
             paymentMethod = method;
             document.getElementById('payOnline').classList.toggle('selected', method === 'online');
             document.getElementById('payCOD').classList.toggle('selected', method === 'cod');
             
             // Icon Toggles
-            const circle = method === 'online' ? document.querySelector('#payOnline .fa-circle-check') : document.querySelector('#payCOD .fa-circle');
             if(method === 'online') {
                 document.querySelector('#payOnline .fa-circle-check').className = 'fa-solid fa-circle-check';
                 document.querySelector('#payOnline .fa-circle-check').style.color = 'var(--p)';
@@ -290,17 +357,19 @@
 
             const fullOrder = {
                 orderId: orderData.orderId || '',
+                service: orderData.service || 'Custom Service', 
                 type: orderData.type || 'service',
                 userId: user.uid,
                 customer: {
                     name: document.getElementById('userName').value,
                     phone: document.getElementById('userPhone').value,
-                    address: document.getElementById('addr1').value + ", " + document.getElementById('addr2').value,
+                    address: document.getElementById('addr1').value,
+                    area: document.getElementById('addr2').value,
                     pincode: document.getElementById('pincode').value || ''
                 },
                 slot: {
-                    date: document.getElementById('serviceDate').value,
-                    time: selectedSlotTime
+                    date: selectedDate, // Using New Calendar Data
+                    time: selectedTime  // Using New Time Data
                 },
                 amount: orderData.total || 0,
                 total: orderData.total || 0,
@@ -317,6 +386,15 @@
 
         async function saveOrder(order) {
             try {
+                // Save Address to Profile for next time
+                if(order.customer.address) {
+                    db.ref(`users/${order.userId}/profile`).update({
+                        address: order.customer.address,
+                        area: order.customer.area,
+                        pincode: order.customer.pincode
+                    });
+                }
+
                 if(order.type === 'advance_payment') {
                     await db.ref(`orders/${order.orderId}`).update({
                         advancePaid: true, status: 'work_scheduled', paymentStatus: 'advance_received',
@@ -359,43 +437,25 @@
             rzp.open();
         }
 
-                // --- UI HELPERS (FIXED) ---
         function showSuccess(t, m) {
-            try { document.getElementById('audioSuccess').play(); } catch(e){}
-            
+            try{document.getElementById('audioSuccess').play()}catch(e){}
             const card = document.querySelector('.status-card');
-            // 🔥 Ye line add ki hai taaki Green Color aur Tick wapas aaye
-            card.classList.remove('error');
-            card.classList.add('success');
-            
-            document.getElementById('statusIcon').className = 'fa-solid fa-check';
+            card.classList.remove('error'); card.classList.add('success');
             document.getElementById('statusTitle').innerText = t;
             document.getElementById('statusMsg').innerText = m;
-            
             document.getElementById('statusOverlay').classList.add('active');
-            
-            // 3 second baad redirect
             setTimeout(() => window.location.href = 'bookings.html', 3000);
         }
-
         function showError(t, m) {
-            try { document.getElementById('audioError').play(); } catch(e){}
-            
+            try{document.getElementById('audioError').play()}catch(e){}
             const card = document.querySelector('.status-card');
-            // 🔥 Error ke liye Red Color set karein
-            card.classList.remove('success');
-            card.classList.add('error');
-            
-            document.getElementById('statusIcon').className = 'fa-solid fa-xmark';
+            card.classList.remove('success'); card.classList.add('error');
             document.getElementById('statusTitle').innerText = t;
             document.getElementById('statusMsg').innerText = m;
-            
+            document.getElementById('statusIcon').className = 'fa-solid fa-xmark';
             document.getElementById('statusOverlay').classList.add('active');
-            
-            // Button click par close ho
             document.getElementById('statusBtn').onclick = () => document.getElementById('statusOverlay').classList.remove('active');
         }
-
     </script>
 </body>
 </html>
