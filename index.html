@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0D9488">
+    <title>Refine Home Painting | Home</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --p: #0D9488; --p-light: #14B8A6; --bg: #F0FDFA; --text: #134E4A; --white: #FFFFFF; --error: #ef4444; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; padding-bottom: 80px; }
+
+        /* --- 1. LOADING SCREEN --- */
+        #initial-loader {
+            position: fixed; inset: 0; background: white; z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid #CCFBF1;
+            border-top-color: var(--p); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- 2. LOGIN SCREEN --- */
+        #login-layer {
+            position: fixed; inset: 0; background: white; z-index: 9999;
+            display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; overflow-y: auto;
+        }
+
+        /* --- 3. MAIN APP --- */
+        #main-app { display: none; }
+
+        /* Styles */
+        .header { position: fixed; top: 0; width: 100%; height: 60px; background: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #CCFBF1; z-index: 100; }
+        .hero { margin-top: 60px; padding: 40px 20px 60px; background: linear-gradient(135deg, #0D9488, #14B8A6); color: white; text-align: center; border-radius: 0 0 30px 30px; margin-bottom: 20px; }
+        
+        /* Login Styles */
+        .auth-card { width: 100%; max-width: 380px; }
+        .input-group { margin-bottom: 15px; width: 100%; position: relative; }
+        .input-field { width: 100%; padding: 14px 14px 14px 45px; border: 2px solid #CCFBF1; border-radius: 12px; outline: none; }
+        .input-icon { position: absolute; left: 15px; top: 16px; color: var(--p); }
+        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--p); color: white; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; }
+        .btn-google { background: white; border: 2px solid #E2E8F0; color: #1E293B; }
+        .btn-outline { background: transparent; border: 2px solid var(--p); color: var(--p); }
+        .divider { text-align: center; margin: 20px 0; color: #94A3B8; font-size: 0.8rem; position: relative; }
+        .divider::before, .divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: #E2E8F0; }
+        .divider::before { left: 0; } .divider::after { right: 0; }
+        .form-view { display: none; }
+        .form-view.active { display: block; }
+
+        /* Home Content Styles */
+        .promo-banner {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            border-radius: 16px; padding: 20px; display: flex;
+            align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            margin: -40px 20px 25px; position: relative; z-index: 10;
+        }
+
+        .mini-card { 
+            text-align: center; cursor: pointer; transition: 0.2s; 
+            background: white; padding: 10px; border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #F0FDFA;
+        }
+        .mini-card:active { transform: scale(0.95); }
+        .mini-icon {
+            width: 45px; height: 45px; border-radius: 12px; margin: 0 auto 8px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+        }
+        .mini-name { font-size: 0.75rem; font-weight: 600; color: #475569; }
+
+        /* Icon Colors */
+        .p-bg { background: #F0FDFA; color: #0D9488; } 
+        .c-bg { background: #FEF3C7; color: #D97706; }
+        .a-bg { background: #DBEAFE; color: #2563EB; }
+        .cl-bg { background: #DCFCE7; color: #16A34A; }
+        .pl-bg { background: #E0E7FF; color: #4F46E5; }
+        .el-bg { background: #FEF9C3; color: #CA8A04; }
+        .wa-bg { background: #CFFAFE; color: #0891B2; }
+        .pe-bg { background: #FEE2E2; color: #DC2626; }
+
+        /* Nav */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; }
+        .nav-item.active { color: var(--p); background: #F0FDFA; padding: 8px; border-radius: 12px; }
+        .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+        
+        /* MODERN POPUP SYSTEM - Unified */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 90vw;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: all;
+            border-left: 4px solid var(--p);
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-left-color: #22C55E; }
+        .toast.error { border-left-color: #EF4444; }
+        .toast.warning { border-left-color: #F59E0B; }
+
+        .toast-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+        }
+        .toast.success .toast-icon { background: #DCFCE7; color: #22C55E; }
+        .toast.error .toast-icon { background: #FEE2E2; color: #EF4444; }
+        .toast.warning .toast-icon { background: #FEF3C7; color: #F59E0B; }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(19, 78, 74, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+
+        /* Google Login Modal - Compact */
+        .login-modal {
+            background: white;
+            width: 90%;
+            max-width: 340px;
+            border-radius: 24px;
+            overflow: hidden;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            box-shadow: 0 10px 40px rgba(13, 148, 136, 0.15);
+            text-align: center;
+        }
+        .modal-overlay.active .login-modal { transform: scale(1); opacity: 1; }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--p), var(--p-light));
+            color: white;
+            padding: 30px 20px;
+        }
+        .login-header img {
+            width: 60px; height: 60px; background: white;
+            border-radius: 16px; padding: 10px; margin-bottom: 15px;
+        }
+        .login-header h2 { font-size: 1.3rem; margin-bottom: 5px; }
+        .login-header p { opacity: 0.9; font-size: 0.9rem; }
+
+        .login-body { padding: 25px; }
+        .login-btn {
+            width: 100%; padding: 14px; border-radius: 12px;
+            border: 2px solid #E2E8F0; background: white;
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; font-weight: 700; color: #1E293B;
+            cursor: pointer; margin-bottom: 12px; transition: 0.2s;
+        }
+        .login-btn:hover { background: #F8FAFC; border-color: var(--p); }
+        .login-btn img { width: 20px; }
+
+        .phone-input-group {
+            display: flex; gap: 10px; margin-bottom: 12px;
+        }
+        .phone-input-group input {
+            flex: 1; padding: 14px; border: 2px solid #E2E8F0;
+            border-radius: 12px; outline: none;
+        }
+        .phone-input-group button {
+            padding: 14px 20px; background: var(--p); color: white;
+            border: none; border-radius: 12px; font-weight: 700; cursor: pointer;
+        }
+
+        .close-login {
+            position: absolute; top: 15px; right: 15px;
+            width: 32px; height: 32px; background: rgba(255,255,255,0.2);
+            border: none; border-radius: 50%; color: white;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="initial-loader">
+        <div class="spinner"></div>
+        <h3 style="color: var(--p);">Refine Home Painting</h3>
+    </div>
+
+    <div id="login-layer">
+        <div class="auth-card">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--p), var(--p-light)); border-radius: 20px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                    <i class="fa-solid fa-paint-roller"></i>
+                </div>
+                <h2 style="color: var(--p); margin-bottom: 5px;">Refine Home Painting</h2>
+                <p style="color: #64748B;">Professional Home Services</p>
+            </div>
+
+            <button class="btn btn-google" onclick="showLoginPopup()">
+                <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" width="20"> Continue with Google
+            </button>
+            
+            <div class="divider">OR</div>
+            
+            <button class="btn" onclick="showPhoneLogin()"><i class="fa-solid fa-phone"></i> Continue with Phone</button>
+        </div>
+    </div>
+
+    <!-- Google Login Popup Modal -->
+    <div class="modal-overlay" id="googleLoginModal">
+        <div class="login-modal">
+            <div class="login-header" style="position: relative;">
+                <button class="close-login" onclick="closeModal('googleLoginModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google">
+                <h2>Sign in with Google</h2>
+                <p>to continue to Refine Home Painting</p>
+            </div>
+            <div class="login-body">
+                <button class="login-btn" onclick="handleGoogleLogin()">
+                    <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google">
+                    Continue as Guest
+                </button>
+                <button class="login-btn" onclick="handleGoogleLogin()" style="border-color: var(--p); color: var(--p);">
+                    <i class="fa-solid fa-user"></i>
+                    Choose another account
+                </button>
+                <p style="font-size: 0.8rem; color: #64748B; margin-top: 15px;">
+                    By signing in, you agree to our Terms & Privacy Policy
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phone Login Modal -->
+    <div class="modal-overlay" id="phoneLoginModal">
+        <div class="login-modal">
+            <div class="login-header" style="position: relative; background: linear-gradient(135deg, #F59E0B, #D97706);">
+                <button class="close-login" onclick="closeModal('phoneLoginModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <i class="fa-solid fa-phone" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
+                <h2>Phone Login</h2>
+                <p>Enter your mobile number</p>
+            </div>
+            <div class="login-body">
+                <div class="phone-input-group">
+                    <span style="padding: 14px; background: #F1F5F9; border-radius: 12px; font-weight: 700;">+91</span>
+                    <input type="tel" id="phoneInputModal" placeholder="98765 43210" maxlength="10">
+                </div>
+                <div id="recaptcha-container-modal"></div>
+                <div id="otp-section-modal" style="display: none;">
+                    <input type="number" id="otpInputModal" placeholder="Enter OTP" style="width: 100%; padding: 14px; border: 2px solid #E2E8F0; border-radius: 12px; margin-bottom: 12px;">
+                </div>
+                <button class="btn" id="sendOtpBtn" onclick="sendOTPFromModal()" style="margin-bottom: 0;">Send OTP</button>
+                <button class="btn" id="verifyOtpBtn" onclick="verifyOTPFromModal()" style="display: none; background: #22c55e;">Verify OTP</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <div class="header">
+            <div style="font-weight: 800; font-size: 1.2rem; color: var(--p);">Refine Home Painting</div>
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width: 35px; height: 35px; border-radius: 50%;" onclick="window.location.href='about.html'" id="headerProfileImg">
+        </div>
+
+        <div class="hero">
+            <h1 id="greeting">Hello! 🙏</h1>
+            <p>What help do you need?</p>
+        </div>
+
+        <div class="promo-banner">
+            <div style="flex: 1;">
+                <h3 style="color: white; margin-bottom: 5px;">Flat 20% OFF</h3>
+                <p style="color: #E0F2FE; font-size: 0.8rem;">On your first service</p>
+                <button style="background: white; color: #0D9488; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; margin-top: 8px; font-size: 0.75rem;" onclick="goToService('painting')">Book Now</button>
+            </div>
+            <i class="fa-solid fa-percent" style="font-size: 3rem; color: rgba(255,255,255,0.2);"></i>
+        </div>
+
+        <div style="padding: 0 20px;">
+            <h3 style="margin-bottom: 15px; color: #334155; font-size: 1rem;">All Services</h3>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                <div class="mini-card" onclick="goToService('painting')">
+                    <div class="mini-icon p-bg"><i class="fa-solid fa-paint-roller"></i></div>
+                    <div class="mini-name">Painting</div>
+                </div>
+                <div class="mini-card" onclick="goToService('carpenter')">
+                    <div class="mini-icon c-bg"><i class="fa-solid fa-hammer"></i></div>
+                    <div class="mini-name">Carpenter</div>
+                </div>
+                <div class="mini-card" onclick="goToService('ac')">
+                    <div class="mini-icon a-bg"><i class="fa-solid fa-snowflake"></i></div>
+                    <div class="mini-name">AC Repair</div>
+                </div>
+                <div class="mini-card" onclick="goToService('cleaning')">
+                    <div class="mini-icon cl-bg"><i class="fa-solid fa-broom"></i></div>
+                    <div class="mini-name">Cleaning</div>
+                </div>
+                <div class="mini-card" onclick="goToService('plumber')">
+                    <div class="mini-icon pl-bg"><i class="fa-solid fa-faucet-drip"></i></div>
+                    <div class="mini-name">Plumber</div>
+                </div>
+                <div class="mini-card" onclick="goToService('electrician')">
+                    <div class="mini-icon el-bg"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="mini-name">Electrician</div>
+                </div>
+                <div class="mini-card" onclick="goToService('waterproofing')">
+                    <div class="mini-icon wa-bg"><i class="fa-solid fa-cloud-showers-heavy"></i></div>
+                    <div class="mini-name">Water proofing</div>
+                </div>
+                <div class="mini-card" onclick="goToService('pest')">
+                    <div class="mini-icon pe-bg"><i class="fa-solid fa-bug"></i></div>
+                    <div class="mini-name">Pest Control</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding: 25px 20px; margin-top: 10px;">
+            <div style="background: white; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; text-align: center; border: 1px solid #F0FDFA;">
+                <div style="width: 30%;">
+                    <i class="fa-solid fa-shield-halved" style="font-size: 1.2rem; color: #0D9488; margin-bottom: 5px;"></i>
+                    <div style="font-size: 0.7rem; font-weight: 700;">Safe</div>
+                </div>
+                <div style="width: 30%;">
+                    <i class="fa-solid fa-clock" style="font-size: 1.2rem; color: #0D9488; margin-bottom: 5px;"></i>
+                    <div style="font-size: 0.7rem; font-weight: 700;">On Time</div>
+                </div>
+                <div style="width: 30%;">
+                    <i class="fa-solid fa-tag" style="font-size: 1.2rem; color: #0D9488; margin-bottom: 5px;"></i>
+                    <div style="font-size: 0.7rem; font-weight: 700;">Best Price</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-item active" onclick="window.location.href='index.html'"><i class="fa-solid fa-house"></i>Home</div>
+            <div class="nav-item" onclick="window.location.href='services.html'"><i class="fa-solid fa-paint-roller"></i>Services</div>
+            <div class="nav-item" onclick="window.location.href='bookings.html'"><i class="fa-solid fa-box-open"></i>Orders</div>
+            <div class="nav-item" onclick="window.location.href='about.html'"><i class="fa-solid fa-user"></i>Profile</div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // --- FIREBASE CONFIG ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+            authDomain: "urban-paint-pro.firebaseapp.com",
+            databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "urban-paint-pro",
+            storageBucket: "urban-paint-pro.firebasestorage.app",
+            messagingSenderId: "929763117480",
+            appId: "1:929763117480:web:560057baeb12672078b59d"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+        // --- NAVIGATION ---
+        function goToService(type) {
+            window.location.href = `services.html?category=${type}`;
+        }
+
+        // --- MODAL FUNCTIONS ---
+        function showLoginPopup() {
+            openModal('googleLoginModal');
+        }
+
+        function showPhoneLogin() {
+            openModal('phoneLoginModal');
+            // Initialize recaptcha when modal opens
+            setTimeout(() => {
+                if(!window.recaptchaVerifier) {
+                    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container-modal', {
+                        'size': 'invisible'
+                    });
+                }
+            }, 300);
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close on backdrop click
+        document.addEventListener('click', (e) => {
+            if(e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // --- AUTH FUNCTIONS ---
+        auth.onAuthStateChanged((user) => {
+            const loader = document.getElementById('initial-loader');
+            const loginLayer = document.getElementById('login-layer');
+            const mainApp = document.getElementById('main-app');
+
+            if(user) {
+                mainApp.style.display = 'block';
+                loginLayer.style.display = 'none';
+                closeModal('googleLoginModal');
+                closeModal('phoneLoginModal');
+
+                // Update greeting and profile
+                const profileRef = db.ref('users/' + user.uid + '/profile');
+                profileRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    const realName = data?.name || user.displayName || 'User';
+                    const firstName = realName.split(' ')[0];
+                    document.getElementById('greeting').textContent = `Hello, ${firstName}! 👋`;
+                    
+                    // Update header profile image
+                    const photo = data?.photoURL || user.photoURL || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                    document.getElementById('headerProfileImg').src = photo;
+                });
+
+                saveFullCustomerData(user);
+            } else {
+                loginLayer.style.display = 'flex';
+                mainApp.style.display = 'none';
+            }
+            
+            if(loader) loader.style.display = 'none';
+        });
+
+        function handleGoogleLogin() {
+            auth.signInWithPopup(googleProvider)
+                .then(() => showToast('Login successful!', 'success'))
+                .catch(e => showToast(e.message, 'error'));
+        }
+
+        // Phone Auth from Modal
+        let confirmationResult;
+        function sendOTPFromModal() {
+            const phone = document.getElementById('phoneInputModal').value;
+            if(!phone || phone.length < 10) {
+                showToast('Enter valid phone number', 'warning');
+                return;
+            }
+            
+            const fullPhone = '+91' + phone;
+            auth.signInWithPhoneNumber(fullPhone, window.recaptchaVerifier)
+                .then((result) => {
+                    confirmationResult = result;
+                    document.getElementById('otp-section-modal').style.display = 'block';
+                    document.getElementById('sendOtpBtn').style.display = 'none';
+                    document.getElementById('verifyOtpBtn').style.display = 'block';
+                    showToast('OTP sent!', 'success');
+                }).catch(e => showToast(e.message, 'error'));
+        }
+
+        function verifyOTPFromModal() {
+            const code = document.getElementById('otpInputModal').value;
+            confirmationResult.confirm(code)
+                .then(() => showToast('Login successful!', 'success'))
+                .catch(e => showToast('Invalid OTP', 'error'));
+        }
+
+        function saveFullCustomerData(user) {
+            const uid = user.uid;
+            const userData = {
+                name: user.displayName || 'Unknown User',
+                email: user.email || '',
+                phone: user.phoneNumber || '',
+                lastLogin: firebase.database.ServerValue.TIMESTAMP,
+                deviceType: /Mobi/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'
+            };
+
+            db.ref('users/' + uid + '/profile').update(userData);
+
+            if("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        db.ref('users/' + uid + '/location').set({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    },
+                    (error) => console.log("Location Denied")
+                );
+            }
+        }
+
+        // --- TOAST SYSTEM ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-xmark',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-circle-info'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fa-solid ${icons[type]}"></i></div>
+                <div>
+                    <div style="font-weight: 700; color: #1E293B; font-size: 0.95rem;">${type === 'success' ? 'Success!' : type === 'error' ? 'Error!' : 'Info'}</div>
+                    <div style="color: #64748B; font-size: 0.85rem;">${message}</div>
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
