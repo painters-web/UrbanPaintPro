@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings | Refine Home Painting</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --p: #0D9488; --p-light: #14B8A6; --bg: #F0FDFA; --text: #134E4A; --warning: #F59E0B; --success: #22c55e; --error: #EF4444; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 100px; }
+
+        .header { position: fixed; top: 0; width: 100%; height: 60px; background: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; border-bottom: 1px solid #CCFBF1; }
+        .header-title { font-weight: 700; font-size: 1.1rem; }
+        .content { margin-top: 80px; padding: 0 20px; }
+
+        /* Order Card */
+        .order-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; border-left: 4px solid var(--p); box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: relative; }
+        
+        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; float: right; }
+        .status-pill.searching { background: #E0F2FE; color: #0284C7; }
+        .status-pill.visiting { background: #DCFCE7; color: #166534; }
+        .status-pill.action { background: #FEE2E2; color: #DC2626; animation: pulse 1.5s infinite; }
+        .status-pill.completed { background: #DCFCE7; color: #166534; }
+        
+        .action-btn { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.85rem; }
+        .btn-primary { background: var(--p); color: white; }
+        .btn-danger { background: #FEE2E2; color: #DC2626; border: 1px solid #FECACA; }
+        .btn-warning { background: #FFFBEB; color: #92400E; border: 1px solid #FCD34D; }
+        
+        .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-row .action-btn { flex: 1; margin-top: 0; }
+
+        /* MODERN POPUP SYSTEM - UNIFIED */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 90vw;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: all;
+            border-left: 4px solid var(--p);
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--error); }
+        .toast.warning { border-left-color: var(--warning); }
+
+        .toast-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+        }
+        .toast.success .toast-icon { background: #DCFCE7; color: var(--success); }
+        .toast.error .toast-icon { background: #FEE2E2; color: var(--error); }
+        .toast.warning .toast-icon { background: #FEF3C7; color: var(--warning); }
+        .toast.info .toast-icon { background: #F0FDFA; color: var(--p); }
+
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 700; color: #1E293B; font-size: 0.95rem; margin-bottom: 2px; }
+        .toast-message { color: #64748B; font-size: 0.85rem; }
+
+        /* Modal Overlay - Unified */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(19, 78, 74, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.centered { align-items: center; padding: 20px; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+
+        /* Bottom Sheet */
+        .bottom-sheet {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 24px 24px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+            max-height: 85vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+        }
+        .modal-overlay.active .bottom-sheet { transform: translateY(0); }
+
+        /* Centered Modal (for alerts) */
+        .centered-modal {
+            background: white;
+            width: 90%;
+            max-width: 360px;
+            border-radius: 24px;
+            overflow: hidden;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+            box-shadow: 0 10px 40px rgba(13, 148, 136, 0.15);
+            text-align: center;
+        }
+        .modal-overlay.centered.active .centered-modal { transform: scale(1); opacity: 1; }
+
+        .sheet-header {
+            background: linear-gradient(135deg, var(--p), var(--p-light));
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+        .sheet-header::before {
+            content: ''; position: absolute; top: 8px; left: 50%;
+            transform: translateX(-50%); width: 40px; height: 4px;
+            background: rgba(255,255,255,0.4); border-radius: 2px;
+        }
+        .sheet-title { font-size: 1.2rem; font-weight: 700; margin-top: 10px; display: flex; align-items: center; gap: 10px; }
+        .sheet-close {
+            position: absolute; top: 15px; right: 15px;
+            width: 32px; height: 32px; background: rgba(255,255,255,0.2);
+            border: none; border-radius: 50%; color: white;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .sheet-body { padding: 25px; overflow-y: auto; flex: 1; }
+
+        .modal-icon-box {
+            width: 80px; height: 80px; border-radius: 50%;
+            margin: 30px auto 20px; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 2.5rem; color: white;
+        }
+        .modal-icon-box.success { background: linear-gradient(135deg, var(--success), #16A34A); }
+        .modal-icon-box.error { background: linear-gradient(135deg, var(--error), #DC2626); }
+        .modal-icon-box.warning { background: linear-gradient(135deg, var(--warning), #D97706); }
+
+        .modal-content { padding: 0 25px 25px; }
+        .modal-title { font-size: 1.3rem; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+        .modal-message { color: #64748B; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; }
+
+        .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+        .btn {
+            flex: 1; padding: 14px 20px; border: none; border-radius: 12px;
+            font-weight: 700; font-size: 0.95rem; cursor: pointer;
+            transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--p), var(--p-light));
+            color: white; box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+        }
+        .btn-secondary { background: #F1F5F9; color: #475569; border: 2px solid #E2E8F0; }
+        .btn-danger { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; }
+
+        /* Date & Time Picker */
+        .date-scroller { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; scrollbar-width: none; }
+        .date-card { 
+            min-width: 70px; padding: 15px 10px; background: #F1F5F9; 
+            border-radius: 12px; text-align: center; cursor: pointer;
+            border: 2px solid transparent; transition: 0.2s;
+        }
+        .date-card.active { background: #F0FDFA; border-color: var(--p); color: var(--p); }
+        .date-day { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+        .date-num { font-size: 1.2rem; font-weight: 800; }
+
+        .slot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
+        .slot-btn { 
+            padding: 12px; border: 2px solid #E2E8F0; border-radius: 12px;
+            text-align: center; cursor: pointer; font-weight: 600; transition: 0.2s;
+        }
+        .slot-btn.selected { background: var(--p); color: white; border-color: var(--p); }
+
+        /* Permission Cards */
+        .perm-card {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px; background: #F8FAFC; border-radius: 12px;
+            margin-bottom: 12px; border: 2px solid #E2E8F0;
+        }
+        .perm-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+        .perm-icon.notif { background: #FEF3C7; color: #D97706; }
+        .perm-icon.location { background: #DCFCE7; color: #16A34A; }
+        .perm-icon.camera { background: #E0E7FF; color: #4F46E5; }
+        .perm-icon.mic { background: #FEE2E2; color: #DC2626; }
+        
+        .perm-toggle {
+            margin-left: auto; width: 50px; height: 28px;
+            background: #CBD5E1; border-radius: 14px; position: relative;
+            cursor: pointer; transition: 0.3s;
+        }
+        .perm-toggle.active { background: var(--p); }
+        .perm-toggle::after {
+            content: ''; position: absolute; width: 24px; height: 24px;
+            background: white; border-radius: 50%; top: 2px; left: 2px;
+            transition: 0.3s;
+        }
+        .perm-toggle.active::after { left: 24px; }
+
+        /* AI Chat Full Sheet */
+        .chat-container { display: flex; flex-direction: column; height: 60vh; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; background: #F8FAFC; }
+        .chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 16px; margin-bottom: 10px; font-size: 0.9rem; line-height: 1.4; }
+        .chat-bubble.user { background: var(--p); color: white; margin-left: auto; border-bottom-right-radius: 4px; }
+        .chat-bubble.ai { background: white; color: #334155; border: 1px solid #E2E8F0; border-bottom-left-radius: 4px; }
+        .chat-input-area { padding: 15px; background: white; border-top: 1px solid #E2E8F0; display: flex; gap: 10px; }
+        .chat-input { flex: 1; padding: 12px 16px; border: 2px solid #E2E8F0; border-radius: 12px; outline: none; font-size: 0.95rem; }
+        .chat-input:focus { border-color: var(--p); }
+        .chat-send { width: 45px; height: 45px; background: var(--p); color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 1.1rem; }
+
+        .quick-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 15px; background: white; }
+        .quick-chip { 
+            padding: 8px 14px; background: #F0FDFA; color: var(--p);
+            border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; border: 1px solid #CCFBF1;
+        }
+
+        /* Nav */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; border-top: 1px solid #CCFBF1; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 12px; }
+        .nav-item.active { color: var(--p); background: #F0FDFA; }
+        .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-title">My Bookings</div>
+        <div style="width: 40px; height: 40px; background: var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer;" onclick="openAIChat()">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+    </div>
+
+    <div class="content" id="ordersList">
+        <div style="text-align: center; margin-top: 50px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>
+    </div>
+
+    <!-- Reschedule Modal -->
+    <div class="modal-overlay" id="rescheduleModal">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <button class="sheet-close" onclick="closeModal('rescheduleModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="sheet-title">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    Reschedule Booking
+                </div>
+            </div>
+            <div class="sheet-body">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; color: #475569; margin-bottom: 10px;">
+                        <i class="fa-regular fa-calendar" style="color: var(--p); margin-right: 8px;"></i>Select New Date
+                    </label>
+                    <div class="date-scroller" id="rescheduleDates"></div>
+                </div>
+                
+                <label style="display: block; font-weight: 600; color: #475569; margin-bottom: 15px;">
+                    <i class="fa-regular fa-clock" style="color: var(--p); margin-right: 8px;"></i>Select New Time
+                </label>
+                <div class="slot-grid" id="rescheduleSlots"></div>
+                
+                <button class="btn btn-primary" onclick="confirmReschedule()" style="width: 100%; margin-top: 25px;">
+                    Confirm Reschedule <i class="fa-solid fa-check"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Confirmation Modal -->
+    <div class="modal-overlay centered" id="cancelModal">
+        <div class="centered-modal">
+            <div class="modal-icon-box error">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <div class="modal-content">
+                <div class="modal-title" style="color: #EF4444;">Cancel Booking?</div>
+                <div class="modal-message">Are you sure you want to cancel this booking? This action cannot be undone.</div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="closeModal('cancelModal')">Keep Booking</button>
+                    <button class="btn btn-danger" onclick="confirmCancel()">
+                        Yes, Cancel <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permissions Modal -->
+    <div class="modal-overlay" id="permissionsModal">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <div class="sheet-title">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    App Permissions
+                </div>
+            </div>
+            <div class="sheet-body">
+                <p style="color: #64748B; margin-bottom: 20px; font-size: 0.9rem;">Please enable these permissions for the best experience:</p>
+                
+                <div class="perm-card">
+                    <div class="perm-icon notif"><i class="fa-solid fa-bell"></i></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #334155;">Notifications</div>
+                        <div style="font-size: 0.8rem; color: #64748B;">Get booking updates & offers</div>
+                    </div>
+                    <div class="perm-toggle active" onclick="togglePerm(this, 'notification')" id="perm-notif"></div>
+                </div>
+                
+                <div class="perm-card">
+                    <div class="perm-icon location"><i class="fa-solid fa-location-dot"></i></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #334155;">Location</div>
+                        <div style="font-size: 0.8rem; color: #64748B;">Auto-detect your address</div>
+                    </div>
+                    <div class="perm-toggle" onclick="togglePerm(this, 'location')" id="perm-loc"></div>
+                </div>
+                
+                <div class="perm-card">
+                    <div class="perm-icon camera"><i class="fa-solid fa-camera"></i></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #334155;">Camera</div>
+                        <div style="font-size: 0.8rem; color: #64748B;">Upload photos for service</div>
+                    </div>
+                    <div class="perm-toggle" onclick="togglePerm(this, 'camera')" id="perm-cam"></div>
+                </div>
+                
+                <div class="perm-card">
+                    <div class="perm-icon mic"><i class="fa-solid fa-microphone"></i></div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #334155;">Microphone</div>
+                        <div style="font-size: 0.8rem; color: #64748B;">Voice commands & calls</div>
+                    </div>
+                    <div class="perm-toggle" onclick="togglePerm(this, 'microphone')" id="perm-mic"></div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="savePermissions()" style="width: 100%; margin-top: 15px;">
+                    Save Preferences <i class="fa-solid fa-check"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chat Full Sheet -->
+    <div class="modal-overlay" id="aiChatModal">
+        <div class="bottom-sheet" style="max-height: 90vh;">
+            <div class="sheet-header">
+                <button class="sheet-close" onclick="closeModal('aiChatModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="sheet-title">
+                    <i class="fa-solid fa-robot"></i>
+                    Refine Home Painting AI
+                </div>
+            </div>
+            <div class="quick-chips">
+                <div class="quick-chip" onclick="sendQuickMsg('Track my order')">Track Order</div>
+                <div class="quick-chip" onclick="sendQuickMsg('Reschedule booking')">Reschedule</div>
+                <div class="quick-chip" onclick="sendQuickMsg('Cancel booking')">Cancel</div>
+                <div class="quick-chip" onclick="sendQuickMsg('Get quote')">Get Quote</div>
+                <div class="quick-chip" onclick="sendQuickMsg('Talk to human')">Human Agent</div>
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-bubble ai">👋 Hi! I'm your AI assistant. How can I help you today?</div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter')sendMessage()">
+                    <button class="chat-send" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav">
+        <div class="nav-item" onclick="window.location.href='index.html'"><i class="fa-solid fa-house"></i>Home</div>
+        <div class="nav-item" onclick="window.location.href='services.html'"><i class="fa-solid fa-paint-roller"></i>Services</div>
+        <div class="nav-item active" onclick="window.location.href='bookings.html'"><i class="fa-solid fa-box-open"></i>Orders</div>
+        <div class="nav-item" onclick="window.location.href='about.html'"><i class="fa-solid fa-user"></i>Profile</div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // FIREBASE CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+            authDomain: "urban-paint-pro.firebaseapp.com",
+            databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "urban-paint-pro",
+            storageBucket: "urban-paint-pro.firebasestorage.app",
+            messagingSenderId: "929763117480",
+            appId: "1:929763117480:web:560057baeb12672078b59d"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        let currentUser = null;
+        let currentOrderId = null;
+        let selectedRescheduleDate = '';
+        let selectedRescheduleTime = '';
+
+        // Check permissions on load
+        auth.onAuthStateChanged(user => {
+            if(user) { 
+                currentUser = user; 
+                loadOrders(user.uid);
+                checkAndRequestPermissions();
+            }
+            else window.location.href = 'index.html';
+        });
+
+        function loadOrders(uid) {
+            db.ref(`users/${uid}/orders`).on('value', snap => {
+                const data = snap.val() || {};
+                const list = document.getElementById('ordersList');
+                list.innerHTML = '';
+
+                if(Object.keys(data).length === 0) {
+                    list.innerHTML = '<div style="text-align:center; margin-top:50px; color:#64748B;">No Bookings Found</div>';
+                    return;
+                }
+
+                Object.entries(data).sort((a,b) => b[1].createdAt - a[1].createdAt).forEach(([key, order]) => {
+                    renderOrderCard(key, order, list);
+                });
+            });
+        }
+
+        function renderOrderCard(id, order, container) {
+            const date = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN') : 'Recent';
+            const price = (order.amount || order.total || 0).toLocaleString();
+            
+            let statusClass = 'searching';
+            let statusText = 'Pending';
+            let actions = '';
+
+            // Dynamic status and actions
+            if(order.status === 'pending') {
+                statusClass = 'searching';
+                statusText = 'Finding Partner';
+                actions = `
+                    <div class="btn-row">
+                        <button class="action-btn btn-warning" onclick="openReschedule('${id}')">
+                            <i class="fa-solid fa-calendar-xmark"></i> Reschedule
+                        </button>
+                        <button class="action-btn btn-danger" onclick="openCancel('${id}')">
+                            <i class="fa-solid fa-trash"></i> Cancel
+                        </button>
+                    </div>`;
+            }
+            else if(order.status === 'ongoing' || order.status === 'accepted') {
+                statusClass = 'visiting';
+                statusText = 'Partner Assigned';
+                actions = `
+                    <button class="action-btn btn-warning" onclick="openReschedule('${id}')">
+                        <i class="fa-solid fa-calendar-xmark"></i> Reschedule
+                    </button>`;
+            }
+            else if(order.status === 'completed') {
+                statusClass = 'completed';
+                statusText = 'Completed';
+            }
+
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <div>
+                        <div style="font-weight:700; font-size:1rem;">${order.service}</div>
+                        <div style="font-size:0.8rem; color:#94A3B8;">#${id.slice(-6).toUpperCase()} • ${date}</div>
+                    </div>
+                    <span class="status-pill ${statusClass}">${statusText}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0;">
+                    <div style="font-size:0.9rem; color:#64748B;">${order.slot?.date || 'Date TBD'} • ${order.slot?.time || 'Time TBD'}</div>
+                    <div style="font-weight:800; color:var(--p); font-size:1.1rem;">₹${price}</div>
+                </div>
+                ${actions}
+            `;
+            container.appendChild(card);
+        }
+
+        // ==================== RESCHEDULE ====================
+        function openReschedule(orderId) {
+            currentOrderId = orderId;
+            generateRescheduleDates();
+            generateRescheduleSlots();
+            openModal('rescheduleModal');
+        }
+
+        function generateRescheduleDates() {
+            const container = document.getElementById('rescheduleDates');
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            let html = '';
+            
+            for(let i=0; i<7; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() + i);
+                const dayName = i===0 ? 'Today' : days[d.getDay()];
+                const dateNum = d.getDate();
+                const fullDate = d.toLocaleDateString('en-GB');
+                
+                if(i===0) selectedRescheduleDate = fullDate;
+
+                html += `
+                    <div class="date-card ${i===0 ? 'active' : ''}" onclick="selectRescheduleDate(this, '${fullDate}')">
+                        <div class="date-day">${dayName}</div>
+                        <div class="date-num">${dateNum}</div>
+                    </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function generateRescheduleSlots() {
+            const container = document.getElementById('rescheduleSlots');
+            const slots = ['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM', '5:00 PM', '7:00 PM'];
+            
+            container.innerHTML = slots.map((time, i) => `
+                <div class="slot-btn ${i===0 ? 'selected' : ''}" onclick="selectRescheduleTime(this, '${time}')">${time}</div>
+            `).join('');
+            
+            selectedRescheduleTime = slots[0];
+        }
+
+        function selectRescheduleDate(el, date) {
+            document.querySelectorAll('#rescheduleDates .date-card').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            selectedRescheduleDate = date;
+        }
+
+        function selectRescheduleTime(el, time) {
+            document.querySelectorAll('#rescheduleSlots .slot-btn').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedRescheduleTime = time;
+        }
+
+        function confirmReschedule() {
+            if(!currentOrderId) return;
+            
+            db.ref(`orders/${currentOrderId}`).update({
+                slot: { date: selectedRescheduleDate, time: selectedRescheduleTime },
+                rescheduledAt: firebase.database.ServerValue.TIMESTAMP,
+                status: 'rescheduled'
+            });
+            
+            db.ref(`users/${currentUser.uid}/orders/${currentOrderId}`).update({
+                slot: { date: selectedRescheduleDate, time: selectedRescheduleTime },
+                rescheduledAt: firebase.database.ServerValue.TIMESTAMP,
+                status: 'rescheduled'
+            });
+
+            closeModal('rescheduleModal');
+            showToast('Booking rescheduled successfully!', 'success', 'Rescheduled');
+        }
+
+        // ==================== CANCEL ====================
+        function openCancel(orderId) {
+            currentOrderId = orderId;
+            openModal('cancelModal');
+        }
+
+        function confirmCancel() {
+            if(!currentOrderId) return;
+            
+            db.ref(`orders/${currentOrderId}`).update({
+                status: 'cancelled',
+                cancelledAt: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            db.ref(`users/${currentUser.uid}/orders/${currentOrderId}`).update({
+                status: 'cancelled',
+                cancelledAt: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            closeModal('cancelModal');
+            showToast('Booking cancelled successfully', 'success', 'Cancelled');
+        }
+
+        // ==================== PERMISSIONS ====================
+        function checkAndRequestPermissions() {
+            // Check if already requested
+            const perms = localStorage.getItem('appPermissions');
+            if(!perms) {
+                setTimeout(() => openModal('permissionsModal'), 1000);
+            }
+        }
+
+        function togglePerm(el, type) {
+            el.classList.toggle('active');
+        }
+
+        function savePermissions() {
+            const perms = {
+                notification: document.getElementById('perm-notif').classList.contains('active'),
+                location: document.getElementById('perm-loc').classList.contains('active'),
+                camera: document.getElementById('perm-cam').classList.contains('active'),
+                microphone: document.getElementById('perm-mic').classList.contains('active'),
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('appPermissions', JSON.stringify(perms));
+            
+            // Request actual browser permissions
+            if(perms.location) requestLocation();
+            if(perms.notification) requestNotification();
+            
+            closeModal('permissionsModal');
+            showToast('Permissions saved!', 'success', 'Settings Saved');
+        }
+
+        function requestLocation() {
+            if("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => console.log("Location granted"),
+                    err => console.log("Location denied")
+                );
+            }
+        }
+
+        function requestNotification() {
+            if("Notification" in window) {
+                Notification.requestPermission();
+            }
+        }
+
+        // ==================== AI CHAT ====================
+        function openAIChat() {
+            openModal('aiChatModal');
+        }
+
+        function sendQuickMsg(text) {
+            addChatMessage(text, 'user');
+            processAIResponse(text);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if(!text) return;
+            
+            addChatMessage(text, 'user');
+            input.value = '';
+            processAIResponse(text);
+        }
+
+        function addChatMessage(text, sender) {
+            const container = document.getElementById('chatMessages');
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${sender}`;
+            bubble.textContent = text;
+            container.appendChild(bubble);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function processAIResponse(userMsg) {
+            setTimeout(() => {
+                let response = "I'm here to help! Could you please provide more details?";
+                const msg = userMsg.toLowerCase();
+                
+                if(msg.includes('track')) {
+                    response = "📦 You can track your order in the 'My Orders' section. Would you like me to open it?";
+                } else if(msg.includes('reschedule')) {
+                    response = "📅 To reschedule, please go to your booking and click 'Reschedule'. Which booking would you like to reschedule?";
+                } else if(msg.includes('cancel')) {
+                    response = "❌ You can cancel bookings that are not yet assigned to a partner. Go to 'My Orders' and select the booking to cancel.";
+                } else if(msg.includes('quote') || msg.includes('price')) {
+                    response = "💰 Visit our Services page to get an instant quote using our Paint Calculator!";
+                } else if(msg.includes('human') || msg.includes('agent')) {
+                    response = "👨‍💼 Connecting you to a human agent... Please wait. Our support number is +91 97119 04092";
+                } else if(msg.includes('hello') || msg.includes('hi')) {
+                    response = "👋 Hello! How can I assist you with your home painting needs today?";
+                }
+                
+                addChatMessage(response, 'ai');
+            }, 800);
+        }
+
+        // ==================== UNIFIED MODAL SYSTEM ====================
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close on backdrop click
+        document.addEventListener('click', (e) => {
+            if(e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // ==================== UNIFIED TOAST SYSTEM ====================
+        function showToast(message, type = 'info', title = '') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-xmark',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-circle-info'
+            };
+            
+            const titles = {
+                success: 'Success!',
+                error: 'Error!',
+                warning: 'Warning!',
+                info: 'Information'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fa-solid ${icons[type]}"></i></div>
+                <div class="toast-content">
+                    <div class="toast-title">${title || titles[type]}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>0%' : '0';
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        // ==================== QUOTE FLOW ====================
+        async function openQuoteReview(id) {
+            const snap = await db.ref(`orders/${id}`).once('value');
+            currentOrder = { id, ...snap.val() };
+            const amt = currentOrder.amount || currentOrder.total || 15000;
+            document.getElementById('qAmount').innerText = '₹' + amt.toLocaleString();
+            
+            // Reset stars
+            selectedRating = 0;
+            document.querySelectorAll('#quoteStars i').forEach(s => {
+                s.classList.remove('active');
+                s.style.color = '#CBD5E1';
+            });
+            
+            openModal('quoteModal');
+        }
+
+        function rate(n) {
+            selectedRating = n;
+            document.querySelectorAll('#quoteStars i').forEach((s, i) => {
+                if (i < n) {
+                    s.classList.add('active');
+                    s.style.color = '#F59E0B';
+                } else {
+                    s.classList.remove('active');
+                    s.style.color = '#CBD5E1';
+                }
+            });
+        }
+
+        function submitQuoteReview() {
+            if(selectedRating === 0) {
+                showToast('Please rate the quote experience', 'warning', 'Rating Required');
+                return;
+            }
+            db.ref(`orders/${currentOrder.id}`).update({ quoteRating: selectedRating, status: 'slot_selection_pending' });
+            closeModal('quoteModal');
+            setTimeout(() => openModal('slotModal'), 300);
+        }
+
+        function selectTime(el, time) {
+            document.querySelectorAll('.slot-item').forEach(e => {
+                e.style.borderColor = '#E2E8F0';
+                e.style.background = 'white';
+            });
+            el.style.borderColor = 'var(--p)';
+            el.style.background = '#F0FDFA';
+            selectedTime = time;
+        }
+
+        function proceedToPayment(id) {
+            if(id) currentOrder = { id };
+            const date = document.getElementById('slotDate').value;
+            if(!date && !currentOrder.slotDate) {
+                showToast('Please select a date', 'warning', 'Required');
+                return;
+            }
+
+            if(date) db.ref(`orders/${currentOrder.id}`).update({ slotDate: date, slotTime: selectedTime || 'Morning' });
+
+            db.ref(`orders/${currentOrder.id}`).once('value').then(snap => {
+                const order = snap.val();
+                const total = order.amount || order.total || 0;
+                const advanceAmount = Math.round(total * 0.15); 
+
+                const checkoutData = {
+                    service: `Advance: ${order.service}`,
+                    total: advanceAmount,
+                    type: 'advance_payment',
+                    orderId: currentOrder.id,
+                    details: [{ name: "15% Booking Advance", price: advanceAmount, qty: 1 }]
+                };
+                localStorage.setItem('pendingOrder', JSON.stringify(checkoutData));
+                window.location.href = 'checkout.html';
+            });
+        }
+
+        function openFinalReview(id) {
+            currentOrder = { id };
+            // Reset stars
+            selectedRating = 0;
+            document.querySelectorAll('#finalStars i').forEach(s => {
+                s.classList.remove('active');
+                s.style.color = '#CBD5E1';
+            });
+            openModal('finalModal');
+        }
+
+        function rateFinal(n) {
+            selectedRating = n;
+            document.querySelectorAll('#finalStars i').forEach((s, i) => {
+                if (i < n) {
+                    s.classList.add('active');
+                    s.style.color = '#F59E0B';
+                } else {
+                    s.classList.remove('active');
+                    s.style.color = '#CBD5E1';
+                }
+            });
+        }
+
+        function submitFinalReview() {
+            if(selectedRating === 0) {
+                showToast('Please rate the service', 'warning', 'Rating Required');
+                return;
+            }
+            db.ref(`orders/${currentOrder.id}`).update({ finalRating: selectedRating, status: 'completed' });
+            db.ref(`users/${auth.currentUser.uid}/orders/${currentOrder.id}`).update({ finalRating: selectedRating, status: 'completed' });
+            closeModal('finalModal');
+            showConfetti();
+            showToast('Thank you for your review!', 'success', 'Review Submitted');
+            setTimeout(() => window.location.reload(), 2000);
+        }
+    </script>
+</body>
+</html>
