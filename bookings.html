@@ -16,13 +16,12 @@
         :root { 
             --p: #0D9488; --p-light: #E0F2F1; --bg: #F8FAFC; 
             --text: #0F172A; --card-bg: #FFFFFF; 
-            --shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
             --danger: #EF4444; --warning: #F59E0B; --success: #10B981;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); padding-bottom: 100px; overflow-x: hidden; }
 
-        /* HEADER */
+        /* --- HEADER --- */
         .header { 
             position: fixed; top: 0; width: 100%; height: 65px; 
             background: white; border-bottom: 1px solid #E2E8F0;
@@ -30,8 +29,9 @@
             padding: 0 20px; z-index: 100;
         }
         .header-title { font-weight: 800; font-size: 1.25rem; color: var(--text); }
-        
-        /* CLICKABLE TABS */
+        .ai-btn { width: 40px; height: 40px; background: #F0FDFA; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--p); cursor: pointer; }
+
+        /* --- TABS --- */
         .tabs-scroll {
             position: fixed; top: 65px; width: 100%; background: white;
             padding: 10px 20px; display: flex; gap: 10px; overflow-x: auto;
@@ -39,43 +39,36 @@
         }
         .tab-pill {
             padding: 8px 18px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
-            background: #F1F5F9; color: #64748B; white-space: nowrap; transition: 0.2s; cursor: pointer;
-            border: 1px solid transparent;
+            background: #F1F5F9; color: #64748B; white-space: nowrap; cursor: pointer;
+            transition: 0.2s; border: 1px solid transparent;
         }
-        .tab-pill.active { 
-            background: var(--p); color: white; 
-            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.2); 
-        }
+        .tab-pill.active { background: var(--p); color: white; box-shadow: 0 4px 10px rgba(13, 148, 136, 0.2); }
 
-        /* LIST CONTENT */
+        /* --- LIST CONTENT --- */
         .content { margin-top: 130px; padding: 0 20px; }
 
         .booking-card {
             background: white; border-radius: 20px; padding: 20px;
             margin-bottom: 15px; border: 1px solid #F1F5F9;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            position: relative; transition: transform 0.2s; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03); cursor: pointer;
+            transition: transform 0.2s; position: relative;
         }
         .booking-card:active { transform: scale(0.98); }
         
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
         .order-id { font-size: 0.75rem; color: #94A3B8; font-weight: 600; letter-spacing: 0.5px; }
         
-        .status-badge { 
-            padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; 
-            font-weight: 700; text-transform: uppercase;
-        }
-        .st-pending { background: #E0F2FE; color: #0284C7; } /* Blue */
-        .st-assigned { background: #F0FDF4; color: #16A34A; } /* Green */
-        .st-quote { background: #FFF7ED; color: #EA580C; } /* Orange */
-        .st-completed { background: #F1F5F9; color: #64748B; } /* Grey */
-        .st-cancelled { background: #FEF2F2; color: #DC2626; } /* Red */
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .st-pending { background: #E0F2FE; color: #0284C7; }
+        .st-assigned { background: #F0FDF4; color: #16A34A; }
+        .st-action { background: #FFF7ED; color: #EA580C; }
+        .st-cancelled { background: #FEF2F2; color: #DC2626; }
 
         .service-name { font-size: 1.1rem; font-weight: 800; color: #1E293B; margin-bottom: 5px; }
-        .service-meta { display: flex; align-items: center; gap: 15px; color: #64748B; font-size: 0.9rem; }
-        .price-tag { font-weight: 700; color: var(--p); margin-left: auto; font-size: 1.1rem; }
+        .service-date { color: #64748B; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+        .card-price { font-weight: 800; color: var(--p); font-size: 1.1rem; position: absolute; bottom: 20px; right: 20px; }
 
-        /* FULL SHEET VIEW (PREMIUM) */
+        /* --- FULL SHEET (Uber Style) --- */
         .full-sheet {
             position: fixed; inset: 0; background: #F8FAFC; z-index: 2000;
             transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
@@ -84,8 +77,8 @@
         .full-sheet.active { transform: translateY(0); }
 
         .sheet-header {
-            padding: 20px; background: white; border-bottom: 1px solid #E2E8F0;
-            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; background: white; border-bottom: 1px solid #E2E8F0;
+            display: flex; align-items: center; justify-content: space-between; height: 65px;
         }
         .back-circle {
             width: 40px; height: 40px; border-radius: 50%; background: #F1F5F9;
@@ -94,71 +87,48 @@
 
         .sheet-body { flex: 1; overflow-y: auto; padding: 20px; }
 
-        /* UBER STYLE RADAR ANIMATION */
-        .radar-container {
-            height: 250px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; text-align: center;
-        }
+        /* --- SHEET COMPONENTS --- */
+        .radar-box { text-align: center; padding: 40px 0; }
         .radar-circle {
             width: 80px; height: 80px; background: #E0F2FE; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            position: relative; color: #0284C7; font-size: 2rem;
+            margin: 0 auto 20px; position: relative; color: #0284C7; font-size: 2rem;
         }
-        .radar-circle::before, .radar-circle::after {
-            content: ''; position: absolute; inset: -20px; border-radius: 50%;
-            border: 2px solid #0EA5E9; opacity: 0; animation: pulse 2s infinite;
+        .radar-circle::after {
+            content: ''; position: absolute; inset: -15px; border: 2px solid #0EA5E9;
+            border-radius: 50%; opacity: 0; animation: pulse 2s infinite;
         }
-        .radar-circle::after { animation-delay: 1s; }
         @keyframes pulse { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
 
-        /* PARTNER PROFILE CARD */
-        .partner-profile {
-            background: white; border-radius: 20px; padding: 25px;
-            text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        .partner-card {
+            background: white; padding: 20px; border-radius: 20px; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #F1F5F9;
         }
-        .pp-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 4px solid #F0FDFA; margin-bottom: 10px; }
-        .pp-rating { 
-            display: inline-block; padding: 4px 12px; background: #FFFBEB; 
-            color: #B45309; border-radius: 20px; font-weight: 700; font-size: 0.85rem;
+        .p-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 4px solid #F0FDFA; margin-bottom: 10px; }
+        
+        .otp-box {
+            background: #DCFCE7; border: 1px dashed #16A34A; border-radius: 12px;
+            padding: 15px; text-align: center; margin-bottom: 20px;
         }
+        .otp-code { font-size: 2rem; font-weight: 800; color: #15803D; letter-spacing: 5px; }
 
-        /* OTP BOX */
-        .otp-display {
-            background: #F0FDF4; border: 1px dashed #16A34A; border-radius: 16px;
-            padding: 20px; text-align: center; margin-bottom: 20px;
-        }
-        .otp-code { font-size: 2.5rem; font-weight: 800; color: #15803D; letter-spacing: 8px; margin-top: 5px; }
+        .quote-box { background: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #E2E8F0; }
+        .quote-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.9rem; border-bottom: 1px solid #F1F5F9; }
+        .quote-row.total { font-weight: 800; font-size: 1.1rem; color: var(--p); border-bottom: none; padding-top: 15px; }
 
-        /* QUOTE BOX */
-        .quote-box {
-            background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px;
-            border: 1px solid #E2E8F0;
-        }
-        .quote-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 0.9rem; }
-        .quote-item:last-child { border-bottom: none; font-weight: 700; font-size: 1.1rem; color: var(--p); }
+        /* --- BOTTOM ACTIONS --- */
+        .sheet-footer { padding: 20px; background: white; border-top: 1px solid #E2E8F0; }
+        .btn-full { width: 100%; padding: 16px; border-radius: 14px; font-weight: 700; border: none; cursor: pointer; font-size: 1rem; }
+        .btn-p { background: var(--p); color: white; }
+        .btn-d { background: #FEF2F2; color: #DC2626; }
 
-        /* RATING STARS */
-        .star-rating { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-        .star-rating i { font-size: 2rem; color: #CBD5E1; cursor: pointer; transition: 0.2s; }
-        .star-rating i.active { color: #F59E0B; }
-
-        /* BOTTOM ACTIONS */
-        .bottom-actions {
-            padding: 20px; background: white; border-top: 1px solid #E2E8F0;
-        }
-        .action-btn {
-            width: 100%; padding: 16px; border-radius: 14px; font-weight: 700;
-            border: none; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        .btn-primary { background: var(--p); color: white; }
-        .btn-danger { background: #FEF2F2; color: #DC2626; }
-
-        /* NAV */
+        /* --- NAV --- */
         .nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: white; border-top: 1px solid #F1F5F9; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 10px; }
-        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 16px; transition: 0.2s; }
+        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 16px; }
         .nav-item.active { color: var(--p); background: #F0FDFA; transform: translateY(-5px); }
         .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
-        
+
+        /* TOAST */
         #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; }
         .toast { background: #1E293B; color: white; padding: 12px 20px; border-radius: 30px; margin-bottom: 10px; font-size: 0.9rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
     </style>
@@ -167,26 +137,26 @@
 
     <div class="header">
         <div class="header-title">My Bookings</div>
-        <div style="width: 35px; height: 35px; background: #F0FDFA; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--p);">
+        <div class="ai-btn" onclick="window.location.href='contact.html'">
             <i class="fa-solid fa-robot"></i>
         </div>
     </div>
 
     <div class="tabs-scroll">
-        <div class="tab-pill active" onclick="filterOrders('all', this)">All</div>
-        <div class="tab-pill" onclick="filterOrders('pending', this)">Pending</div>
-        <div class="tab-pill" onclick="filterOrders('assigned', this)">Assigned</div>
-        <div class="tab-pill" onclick="filterOrders('completed', this)">Completed</div>
+        <div class="tab-pill active" onclick="filterList('all', this)">All</div>
+        <div class="tab-pill" onclick="filterList('pending', this)">Pending</div>
+        <div class="tab-pill" onclick="filterList('assigned', this)">Assigned</div>
+        <div class="tab-pill" onclick="filterList('completed', this)">Completed</div>
     </div>
 
     <div class="content" id="ordersList">
         <div style="text-align: center; margin-top: 100px; color: #94A3B8;">
-            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--p);"></i>
-            <p style="margin-top: 15px;">Loading...</p>
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem;"></i>
+            <p style="margin-top: 10px;">Loading bookings...</p>
         </div>
     </div>
 
-    <div class="full-sheet" id="fullSheet">
+    <div class="full-sheet" id="detailSheet">
         <div class="sheet-header">
             <div class="back-circle" onclick="closeSheet()">
                 <i class="fa-solid fa-arrow-left"></i>
@@ -198,7 +168,7 @@
         <div class="sheet-body" id="sheetContent">
             </div>
 
-        <div class="bottom-actions" id="sheetActions">
+        <div class="sheet-footer" id="sheetActions">
             </div>
     </div>
 
@@ -212,6 +182,7 @@
     <div id="toast-container"></div>
 
     <script>
+        // --- 1. FIREBASE CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
             authDomain: "urban-paint-pro.firebaseapp.com",
@@ -221,32 +192,55 @@
             messagingSenderId: "929763117480",
             appId: "1:929763117480:web:560057baeb12672078b59d"
         };
-        firebase.initializeApp(firebaseConfig);
+        
+        // Initialize Firebase safely
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.database();
         const auth = firebase.auth();
 
         let allOrders = {};
         let currentFilter = 'all';
         let activeOrder = null;
-        let activeOrderId = null;
+        let activeId = null;
 
+        // --- 2. AUTH CHECK & LOAD DATA ---
         auth.onAuthStateChanged(user => {
-            if(user) loadOrders(user.uid);
-            else window.location.href = 'index.html';
+            if(user) {
+                console.log("User logged in:", user.uid);
+                loadOrders(user.uid);
+            } else {
+                window.location.href = 'index.html';
+            }
         });
 
         function loadOrders(uid) {
-            db.ref(`users/${uid}/orders`).on('value', snap => {
-                allOrders = snap.val() || {};
-                renderList();
+            db.ref(`users/${uid}/orders`).on('value', (snap) => {
+                const data = snap.val();
+                if(data) {
+                    allOrders = data;
+                    renderList();
+                } else {
+                    document.getElementById('ordersList').innerHTML = `
+                        <div style="text-align:center; margin-top:100px; opacity:0.6;">
+                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="100">
+                            <h3>No bookings yet</h3>
+                            <p>Your orders will show here</p>
+                        </div>
+                    `;
+                }
+            }, (error) => {
+                console.error("Error loading orders:", error);
+                showToast("Error loading data");
             });
         }
 
-        // --- 1. FILTER TABS LOGIC ---
-        function filterOrders(status, element) {
-            currentFilter = status;
-            document.querySelectorAll('.tab-pill').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
+        // --- 3. RENDER LIST ---
+        function filterList(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab-pill').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
             renderList();
         }
 
@@ -254,234 +248,188 @@
             const list = document.getElementById('ordersList');
             list.innerHTML = '';
             
-            const orders = Object.entries(allOrders).reverse();
-            let hasData = false;
+            const orders = Object.entries(allOrders).reverse(); // Newest first
+            let hasItems = false;
 
             orders.forEach(([id, order]) => {
                 // Filter Logic
-                if(currentFilter !== 'all') {
-                    if(currentFilter === 'pending' && order.status !== 'pending' && order.status !== 'quote_received') return;
-                    if(currentFilter === 'assigned' && order.status !== 'assigned' && order.status !== 'work_scheduled') return;
-                    if(currentFilter === 'completed' && order.status !== 'completed') return;
-                }
+                let show = true;
+                if(currentFilter === 'pending' && !['pending', 'quote_received'].includes(order.status)) show = false;
+                if(currentFilter === 'assigned' && !['assigned', 'work_scheduled'].includes(order.status)) show = false;
+                if(currentFilter === 'completed' && order.status !== 'completed') show = false;
 
-                hasData = true;
-                const statusInfo = getStatusInfo(order.status);
-                
-                const card = document.createElement('div');
-                card.className = 'booking-card';
-                card.onclick = () => openSheet(id, order);
-                card.innerHTML = `
-                    <div class="card-header">
-                        <span class="order-id">#${id.slice(-6).toUpperCase()}</span>
-                        <span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>
-                    </div>
-                    <div class="service-name">${order.service}</div>
-                    <div class="service-meta">
-                        <span><i class="fa-regular fa-calendar"></i> ${order.slot?.date || 'Date TBD'}</span>
-                        <span class="price-tag">₹${(order.total || 0).toLocaleString()}</span>
-                    </div>
-                `;
-                list.appendChild(card);
+                if(show) {
+                    hasItems = true;
+                    const statusInfo = getStatusInfo(order.status);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'booking-card';
+                    card.onclick = () => openSheet(id, order);
+                    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <span class="order-id">#${id.slice(-6).toUpperCase()}</span>
+                            <span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>
+                        </div>
+                        <div class="service-name">${order.service || 'Home Service'}</div>
+                        <div class="service-date">
+                            <i class="fa-regular fa-calendar"></i> 
+                            ${order.slot?.date || 'Date Pending'}
+                        </div>
+                        <div class="card-price">₹${(order.total || 0).toLocaleString()}</div>
+                    `;
+                    list.appendChild(card);
+                }
             });
 
-            if(!hasData) list.innerHTML = `<div style="text-align:center; margin-top:100px; color:#94A3B8;">No orders found in this category.</div>`;
+            if(!hasItems) {
+                list.innerHTML = `<div style="text-align:center; margin-top:50px; color:#94A3B8;">No ${currentFilter} orders found.</div>`;
+            }
         }
 
-        // --- 2. FULL SHEET LOGIC ---
+        // --- 4. OPEN DETAIL SHEET (THE MAIN UI) ---
         function openSheet(id, order) {
-            activeOrder = order;
-            activeOrderId = id;
-            const sheet = document.getElementById('fullSheet');
-            const content = document.getElementById('sheetContent');
-            const actions = document.getElementById('sheetActions');
-            
-            sheet.classList.add('active');
-            content.innerHTML = '';
-            actions.innerHTML = '';
-
-            // --- STATE 1: PENDING (Searching Animation) ---
-            if(order.status === 'pending') {
-                content.innerHTML = `
-                    <div class="radar-container">
-                        <div class="radar-circle"><i class="fa-solid fa-magnifying-glass"></i></div>
-                        <h2 style="color:#1E293B; margin-top:20px;">Finding Best Partner</h2>
-                        <p style="color:#64748B;">Connecting with nearby professionals...</p>
-                    </div>
-                    <div class="detail-group" style="background:white; padding:20px; border-radius:16px; margin-top:20px;">
-                        <h4 style="margin-bottom:10px;">Service Address</h4>
-                        <div style="color:#475569;">${order.customer?.address}, ${order.customer?.area}</div>
-                    </div>
-                `;
-                actions.innerHTML = `<button class="action-btn btn-danger" onclick="cancelOrder()">Cancel Request</button>`;
-            }
-
-            // --- STATE 2: ASSIGNED / WORK SCHEDULED (Partner Profile + OTP) ---
-            else if(order.status === 'assigned' || order.status === 'work_scheduled') {
-                const isWork = order.status === 'work_scheduled';
-                content.innerHTML = `
-                    <div class="partner-profile">
-                        <img src="https://randomuser.me/api/portraits/men/${Math.floor(Math.random()*90)}.jpg" class="pp-img">
-                        <h2 style="font-size:1.4rem; color:#1E293B; margin-bottom:5px;">Amit Kumar</h2>
-                        <div class="pp-rating"><i class="fa-solid fa-star"></i> 4.8 Rating</div>
-                        <div style="margin-top:15px; color:#0D9488; font-weight:600;">
-                            ${isWork ? 'Work Scheduled' : 'Inspection Scheduled'}
-                        </div>
-                    </div>
-
-                    ${order.startOtp ? `
-                    <div class="otp-display">
-                        <div style="font-size:0.8rem; text-transform:uppercase; font-weight:700; letter-spacing:1px;">Share Start OTP</div>
-                        <div class="otp-code">${order.startOtp}</div>
-                        <div style="font-size:0.7rem; margin-top:5px; opacity:0.8;">Share this only when partner arrives</div>
-                    </div>` : ''}
-
-                    <div style="padding:15px; background:white; border-radius:16px;">
-                        <div style="color:#64748B; font-size:0.9rem; margin-bottom:5px;">Scheduled For</div>
-                        <div style="font-weight:700; font-size:1.1rem;">${order.slot?.date} at ${order.slot?.time}</div>
-                    </div>
-                `;
+            try {
+                activeOrder = order;
+                activeId = id;
+                const sheet = document.getElementById('detailSheet');
+                const content = document.getElementById('sheetContent');
+                const actions = document.getElementById('sheetActions');
                 
-                // 1 Hour Cancellation Check
-                if(checkTimeLock(order.slot?.date, order.slot?.time)) {
-                    actions.innerHTML = `<div style="text-align:center; color:#EF4444; width:100%; font-size:0.9rem; padding:10px;"><i class="fa-solid fa-lock"></i> Cancellation locked (Less than 1 hr left)</div>`;
-                } else {
-                    actions.innerHTML = `<button class="action-btn btn-danger" onclick="cancelOrder()">Cancel Booking</button>`;
-                }
-            }
+                sheet.classList.add('active');
+                
+                // --- GENERATE CONTENT BASED ON STATUS ---
+                let html = '';
+                let btns = '';
 
-            // --- STATE 3: QUOTE RECEIVED (Approve Quote Flow) ---
-            else if(order.status === 'quote_received') {
-                content.innerHTML = `
-                    <h2 style="margin-bottom:20px;">Review Quote</h2>
-                    <div class="quote-box">
-                        <div class="quote-item"><span>Wall Painting (2 Walls)</span><span>₹8,000</span></div>
-                        <div class="quote-item"><span>Premium Paint Upgrade</span><span>₹2,000</span></div>
-                        <div class="quote-item"><span>Surface Preparation</span><span>₹1,500</span></div>
-                        <div class="quote-item" style="margin-top:10px;"><span>Total Estimate</span><span>₹11,500</span></div>
-                    </div>
-                    
-                    <h4 style="margin-bottom:10px;">Select Start Date</h4>
-                    <input type="date" id="workDate" style="width:100%; padding:15px; border:1px solid #E2E8F0; border-radius:12px; margin-bottom:15px;">
-                    <select id="workTime" style="width:100%; padding:15px; border:1px solid #E2E8F0; border-radius:12px; background:white;">
-                        <option>Morning (9AM - 12PM)</option>
-                        <option>Afternoon (12PM - 4PM)</option>
-                    </select>
-                `;
-                actions.innerHTML = `<button class="action-btn btn-primary" onclick="acceptQuote()">Pay & Book Service <i class="fa-solid fa-arrow-right"></i></button>`;
-            }
-
-            // --- STATE 4: COMPLETED (Rating) ---
-            else if(order.status === 'completed') {
-                content.innerHTML = `
-                    <div style="text-align:center; padding:30px 0;">
-                        <div style="width:60px; height:60px; background:#DCFCE7; color:#15803D; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; margin:0 auto 20px;">
-                            <i class="fa-solid fa-check"></i>
+                // A. PENDING (Searching Animation)
+                if(order.status === 'pending') {
+                    html = `
+                        <div class="radar-box">
+                            <div class="radar-circle"><i class="fa-solid fa-magnifying-glass"></i></div>
+                            <h2 style="color:#1E293B; font-size:1.4rem;">Finding Partner</h2>
+                            <p style="color:#64748B;">Searching for nearby professionals...</p>
                         </div>
-                        <h2>Service Completed</h2>
-                        <p style="color:#64748B;">How was your experience with Amit?</p>
-                        
-                        <div class="star-rating" id="ratingStars">
-                            <i class="fa-solid fa-star" onclick="rate(1)"></i>
-                            <i class="fa-solid fa-star" onclick="rate(2)"></i>
-                            <i class="fa-solid fa-star" onclick="rate(3)"></i>
-                            <i class="fa-solid fa-star" onclick="rate(4)"></i>
-                            <i class="fa-solid fa-star" onclick="rate(5)"></i>
+                        <div style="background:white; padding:15px; border-radius:12px; border:1px solid #E2E8F0;">
+                            <div style="font-size:0.8rem; color:#64748B;">ADDRESS</div>
+                            <div style="font-weight:600;">${order.customer?.address || 'Address Saved'}</div>
                         </div>
-                        <textarea id="reviewText" placeholder="Write a review..." style="width:100%; padding:15px; border:1px solid #E2E8F0; border-radius:12px; margin-top:20px;"></textarea>
-                    </div>
-                `;
-                if(!order.rated) {
-                    actions.innerHTML = `<button class="action-btn btn-primary" onclick="submitRating()">Submit Review</button>`;
-                } else {
-                    actions.innerHTML = `<div style="text-align:center; color:#10B981; font-weight:700;">Thanks for your feedback!</div>`;
+                    `;
+                    btns = `<button class="btn-full btn-d" onclick="cancelOrder()">Cancel Request</button>`;
                 }
+
+                // B. ASSIGNED (Partner Profile + OTP)
+                else if(order.status === 'assigned' || order.status === 'work_scheduled') {
+                    html = `
+                        <div class="partner-card">
+                            <img src="https://randomuser.me/api/portraits/men/${Math.floor(Math.random()*50)}.jpg" class="p-img">
+                            <h2 style="font-size:1.3rem; margin-bottom:5px;">Amit Kumar</h2>
+                            <div style="color:#F59E0B; font-weight:700;"><i class="fa-solid fa-star"></i> 4.8 Rating</div>
+                            <div style="margin-top:10px; color:#0D9488; font-weight:600;">Partner Assigned</div>
+                        </div>
+
+                        ${order.startOtp ? `
+                        <div class="otp-box">
+                            <div style="font-size:0.8rem; text-transform:uppercase; font-weight:700; margin-bottom:5px;">Start OTP</div>
+                            <div class="otp-code">${order.startOtp}</div>
+                            <div style="font-size:0.7rem; color:#166534;">Share with partner on arrival</div>
+                        </div>` : ''}
+
+                        <div style="margin-top:20px;">
+                            <div style="font-size:0.9rem; color:#64748B; margin-bottom:5px;">SCHEDULED FOR</div>
+                            <div style="font-weight:700; font-size:1.1rem;">${order.slot?.date} at ${order.slot?.time}</div>
+                        </div>
+                    `;
+                    btns = `<button class="btn-full btn-d" onclick="cancelOrder()">Cancel Booking</button>`;
+                }
+
+                // C. QUOTE RECEIVED (Pay & Book)
+                else if(order.status === 'quote_received') {
+                    html = `
+                        <h2 style="margin-bottom:15px;">Quote Received</h2>
+                        <div class="quote-box">
+                            <div class="quote-row"><span>Painting Charges</span><span>₹8,500</span></div>
+                            <div class="quote-row"><span>Material Cost</span><span>₹3,000</span></div>
+                            <div class="quote-row total"><span>Total Estimate</span><span>₹11,500</span></div>
+                        </div>
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Select Start Date</label>
+                        <input type="date" id="workDate" style="width:100%; padding:12px; border:1px solid #E2E8F0; border-radius:10px; margin-bottom:15px;">
+                    `;
+                    btns = `<button class="btn-full btn-p" onclick="acceptQuote()">Accept & Pay Advance</button>`;
+                }
+
+                // D. DEFAULT (Completed / Cancelled)
+                else {
+                    html = `
+                        <div style="text-align:center; padding:30px;">
+                            <div style="font-size:3rem; color:${order.status==='completed'?'#10B981':'#EF4444'}; margin-bottom:15px;">
+                                <i class="fa-solid ${order.status==='completed'?'fa-circle-check':'fa-circle-xmark'}"></i>
+                            </div>
+                            <h2>Order ${order.status}</h2>
+                            <p style="color:#64748B;">Order #${id.slice(-6).toUpperCase()}</p>
+                        </div>
+                    `;
+                    btns = `<button class="btn-full" style="background:#F1F5F9; color:#475569;">Close</button>`;
+                }
+
+                content.innerHTML = html;
+                actions.innerHTML = btns;
+
+            } catch (e) {
+                console.error(e);
+                showToast("Error opening details");
             }
         }
 
         function closeSheet() {
-            document.getElementById('fullSheet').classList.remove('active');
+            document.getElementById('detailSheet').classList.remove('active');
         }
 
-        // --- ACTIONS ---
-
-        // 1. ACCEPT QUOTE -> CREATE NEW BOOKING
-        function acceptQuote() {
-            const date = document.getElementById('workDate').value;
-            const time = document.getElementById('workTime').value;
-            
-            if(!date) return showToast("Please select a date");
-
-            // Create New Booking Object (Work Order)
-            const newOrder = {
-                ...activeOrder,
-                service: "Painting Service (Work)",
-                total: 11500, // From quote
-                status: "work_scheduled",
-                slot: { date: date, time: time },
-                startOtp: Math.floor(1000 + Math.random() * 9000), // New OTP
-                createdAt: firebase.database.ServerValue.TIMESTAMP
-            };
-
-            // Save new booking & update old one
-            const newRef = db.ref(`users/${auth.currentUser.uid}/orders`).push();
-            newRef.set(newOrder);
-            
-            // Mark old "Inspection" as completed
-            db.ref(`users/${auth.currentUser.uid}/orders/${activeOrderId}`).update({ status: 'completed' });
-
-            closeSheet();
-            showToast("Booking Confirmed! View in Assigned tab.");
-        }
-
-        // 2. RATING
-        let currentRating = 0;
-        function rate(n) {
-            currentRating = n;
-            const stars = document.querySelectorAll('#ratingStars i');
-            stars.forEach((s, i) => {
-                s.className = i < n ? "fa-solid fa-star active" : "fa-solid fa-star";
-            });
-        }
-
-        function submitRating() {
-            if(currentRating === 0) return showToast("Please select stars");
-            db.ref(`users/${auth.currentUser.uid}/orders/${activeOrderId}`).update({
-                rated: true,
-                rating: currentRating,
-                review: document.getElementById('reviewText').value
-            });
-            // Here you would also update Partner's DB profile with this rating
-            closeSheet();
-            showToast("Review Submitted Successfully");
-        }
-
+        // --- 5. ACTIONS ---
+        
         function cancelOrder() {
             if(confirm("Are you sure you want to cancel?")) {
-                db.ref(`users/${auth.currentUser.uid}/orders/${activeOrderId}`).update({ status: 'cancelled' });
+                db.ref(`orders/${activeId}`).update({ status: 'cancelled' });
+                db.ref(`users/${auth.currentUser.uid}/orders/${activeId}`).update({ status: 'cancelled' });
                 closeSheet();
                 showToast("Booking Cancelled");
             }
         }
 
-        // UTILS
-        function getStatusInfo(status) {
-            switch(status) {
-                case 'assigned': return { class: 'st-assigned', text: 'Assigned' };
-                case 'work_scheduled': return { class: 'st-assigned', text: 'Scheduled' };
-                case 'quote_received': return { class: 'st-quote', text: 'Action Needed' };
-                case 'completed': return { class: 'st-completed', text: 'Completed' };
-                case 'cancelled': return { class: 'st-cancelled', text: 'Cancelled' };
-                default: return { class: 'st-pending', text: 'Searching' };
-            }
+        function acceptQuote() {
+       const date = document.getElementById('workDate').value;
+            if(!date) return showToast("Select a start date");
+
+            // Convert Inspection to Work Order
+            const newOrder = {
+                ...activeOrder,
+                status: 'work_scheduled',
+                total: 11500, // From quote
+                slot: { date: date, time: "09:00 AM" },
+                startOtp: Math.floor(1000 + Math.random() * 9000),
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            const ref = db.ref(`users/${auth.currentUser.uid}/orders`).push();
+            ref.set(newOrder);
+            
+            // Mark old as completed
+            db.ref(`users/${auth.currentUser.uid}/orders/${activeId}`).update({ status: 'completed' });
+
+            closeSheet();
+            showToast("Work Scheduled Successfully!");
         }
 
-        function checkTimeLock(dateStr, timeStr) {
-            if(!dateStr) return false;
-            const orderDate = new Date(`${dateStr} ${timeStr?.split('-')[0] || '09:00'}`);
-            const now = new Date();
-            const diffHours = (orderDate - now) / (1000 * 60 * 60);
-            return diffHours < 1 && diffHours > 0;
+        function getStatusInfo(status) {
+            switch(status) {
+                case 'pending': return { class:'st-pending', text:'Finding Partner' };
+                case 'assigned': return { class:'st-assigned', text:'Partner Assigned' };
+                case 'quote_received': return { class:'st-action', text:'Review Quote' };
+                case 'work_scheduled': return { class:'st-assigned', text:'Work Scheduled' };
+                case 'completed': return { class:'st-assigned', text:'Completed' }; // Reusing green for success
+                case 'cancelled': return { class:'st-cancelled', text:'Cancelled' };
+                default: return { class:'st-pending', text: status };
+            }
         }
 
         function showToast(msg) {
@@ -494,4 +442,3 @@
     </script>
 </body>
 </html>
-            
