@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings | Refine Home Painting</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { 
+            --p: #0D9488; --p-light: #E0F2F1; --bg: #F8FAFC; 
+            --text: #0F172A; --card-bg: #FFFFFF; 
+            --shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+            --danger: #EF4444; --warning: #F59E0B; --success: #10B981;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 100px; overflow-x: hidden; }
+
+        /* HEADER */
+        .header { 
+            position: fixed; top: 0; width: 100%; height: 65px; 
+            background: white; border-bottom: 1px solid #E2E8F0;
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 20px; z-index: 100;
+        }
+        .header-title { font-weight: 800; font-size: 1.25rem; color: var(--text); }
+        
+        /* CLICKABLE TABS */
+        .tabs-scroll {
+            position: fixed; top: 65px; width: 100%; background: white;
+            padding: 10px 20px; display: flex; gap: 10px; overflow-x: auto;
+            border-bottom: 1px solid #E2E8F0; z-index: 99; scrollbar-width: none;
+        }
+        .tab-pill {
+            padding: 8px 18px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+            background: #F1F5F9; color: #64748B; white-space: nowrap; transition: 0.2s; cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .tab-pill.active { 
+            background: var(--p); color: white; 
+            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.2); 
+        }
+
+        /* LIST CONTENT */
+        .content { margin-top: 130px; padding: 0 20px; }
+
+        .booking-card {
+            background: white; border-radius: 20px; padding: 20px;
+            margin-bottom: 15px; border: 1px solid #F1F5F9;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            position: relative; transition: transform 0.2s; cursor: pointer;
+        }
+        .booking-card:active { transform: scale(0.98); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .order-id { font-size: 0.75rem; color: #94A3B8; font-weight: 600; letter-spacing: 0.5px; }
+        
+        .status-badge { 
+            padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; 
+            font-weight: 700; text-transform: uppercase;
+        }
+        .st-pending { background: #E0F2FE; color: #0284C7; } /* Blue */
+        .st-assigned { background: #F0FDF4; color: #16A34A; } /* Green */
+        .st-quote { background: #FFF7ED; color: #EA580C; } /* Orange */
+        .st-completed { background: #F1F5F9; color: #64748B; } /* Grey */
+        .st-cancelled { background: #FEF2F2; color: #DC2626; } /* Red */
+
+        .service-name { font-size: 1.1rem; font-weight: 800; color: #1E293B; margin-bottom: 5px; }
+        .service-meta { display: flex; align-items: center; gap: 15px; color: #64748B; font-size: 0.9rem; }
+        .price-tag { font-weight: 700; color: var(--p); margin-left: auto; font-size: 1.1rem; }
+
+        /* FULL SHEET VIEW (PREMIUM) */
+        .full-sheet {
+            position: fixed; inset: 0; background: #F8FAFC; z-index: 2000;
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+            display: flex; flex-direction: column;
+        }
+        .full-sheet.active { transform: translateY(0); }
+
+        .sheet-header {
+            padding: 20px; background: white; border-bottom: 1px solid #E2E8F0;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .back-circle {
+            width: 40px; height: 40px; border-radius: 50%; background: #F1F5F9;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; color: #334155;
+        }
+
+        .sheet-body { flex: 1; overflow-y: auto; padding: 20px; }
+
+        /* UBER STYLE RADAR ANIMATION */
+        .radar-container {
+            height: 250px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+        }
+        .radar-circle {
+            width: 80px; height: 80px; background: #E0F2FE; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; color: #0284C7; font-size: 2rem;
+        }
+        .radar-circle::before, .radar-circle::after {
+            content: ''; position: absolute; inset: -20px; border-radius: 50%;
+            border: 2px solid #0EA5E9; opacity: 0; animation: pulse 2s infinite;
+        }
+        .radar-circle::after { animation-delay: 1s; }
+        @keyframes pulse { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+
+        /* PARTNER PROFILE CARD */
+        .partner-profile {
+            background: white; border-radius: 20px; padding: 25px;
+            text-align: center; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .pp-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 4px solid #F0FDFA; margin-bottom: 10px; }
+        .pp-rating { 
+            display: inline-block; padding: 4px 12px; background: #FFFBEB; 
+            color: #B45309; border-radius: 20px; font-weight: 700; font-size: 0.85rem;
+        }
+
+        /* OTP BOX */
+        .otp-display {
+            background: #F0FDF4; border: 1px dashed #16A34A; border-radius: 16px;
+            padding: 20px; text-align: center; margin-bottom: 20px;
+        }
+        .otp-code { font-size: 2.5rem; font-weight: 800; color: #15803D; letter-spacing: 8px; margin-top: 5px; }
+
+        /* QUOTE BOX */
+        .quote-box {
+            background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px;
+            border: 1px solid #E2E8F0;
+        }
+        .quote-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #F1F5F9; font-size: 0.9rem; }
+        .quote-item:last-child { border-bottom: none; font-weight: 700; font-size: 1.1rem; color: var(--p); }
+
+        /* RATING STARS */
+        .star-rating { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+        .star-rating i { font-size: 2rem; color: #CBD5E1; cursor: pointer; transition: 0.2s; }
+        .star-rating i.active { color: #F59E0B; }
+
+        /* BOTTOM ACTIONS */
+        .bottom-actions {
+            padding: 20px; background: white; border-top: 1px solid #E2E8F0;
+        }
+        .action-btn {
+            width: 100%; padding: 16px; border-radius: 14px; font-weight: 700;
+            border: none; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-primary { background: var(--p); color: white; }
+        .btn-danger { background: #FEF2F2; color: #DC2626; }
+
+        /* NAV */
+        .nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: white; border-top: 1px solid #F1F5F9; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 10px; }
+        .nav-item { text-align: center; color: #94A3B8; font-size: 0.75rem; font-weight: 700; width: 60px; cursor: pointer; padding: 8px; border-radius: 16px; transition: 0.2s; }
+        .nav-item.active { color: var(--p); background: #F0FDFA; transform: translateY(-5px); }
+        .nav-item i { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+        
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; }
+        .toast { background: #1E293B; color: white; padding: 12px 20px; border-radius: 30px; margin-bottom: 10px; font-size: 0.9rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-title">My Bookings</div>
+        <div style="width: 35px; height: 35px; background: #F0FDFA; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--p);">
+            <i class="fa-solid fa-robot"></i>
+        </div>
+    </div>
+
+    <div class="tabs-scroll">
+        <div class="tab-pill active" onclick="filterOrders('all', this)">All</div>
+        <div class="tab-pill" onclick="filterOrders('pending', this)">Pending</div>
+        <div class="tab-pill" onclick="filterOrders('assigned', this)">Assigned</div>
+        <div class="tab-pill" onclick="filterOrders('completed', this)">Completed</div>
+    </div>
+
+    <div class="content" id="ordersList">
+        <div style="text-align: center; margin-top: 100px; color: #94A3B8;">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--p);"></i>
+            <p style="margin-top: 15px;">Loading...</p>
+        </div>
+    </div>
+
+    <div class="full-sheet" id="fullSheet">
+        <div class="sheet-header">
+            <div class="back-circle" onclick="closeSheet()">
+                <i class="fa-solid fa-arrow-left"></i>
+            </div>
+            <div style="font-weight: 700;">Booking Details</div>
+            <div style="width: 40px;"></div>
+        </div>
+        
+        <div class="sheet-body" id="sheetContent">
+            </div>
+
+        <div class="bottom-actions" id="sheetActions">
+            </div>
+    </div>
+
+    <div class="nav">
+        <div class="nav-item" onclick="window.location.href='index.html'"><i class="fa-solid fa-house"></i>Home</div>
+        <div class="nav-item" onclick="window.location.href='services.html'"><i class="fa-solid fa-paint-roller"></i>Services</div>
+        <div class="nav-item active"><i class="fa-solid fa-box-open"></i>Orders</div>
+        <div class="nav-item" onclick="window.location.href='about.html'"><i class="fa-solid fa-user"></i>Profile</div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmqBL6a0muExq2qBsSR6M3C_8AyXcJ2k8",
+            authDomain: "urban-paint-pro.firebaseapp.com",
+            databaseURL: "https://urban-paint-pro-default-rtdb.asia-southeast1.firebasedatabase.app/",
+            projectId: "urban-paint-pro",
+            storageBucket: "urban-paint-pro.firebasestorage.app",
+            messagingSenderId: "929763117480",
+            appId: "1:929763117480:web:560057baeb12672078b59d"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        let allOrders = {};
+        let currentFilter = 'all';
+        let activeOrder = null;
+        let activeOrderId = null;
+
+        auth.onAuthStateChanged(user => {
+            if(user) loadOrders(user.uid);
+            else window.location.href = 'index.html';
+        });
+
+        function loadOrders(uid) {
+            db.ref(`users/${uid}/orders`).on('value', snap => {
+                allOrders = snap.val() || {};
+                renderList();
+            });
+        }
+
+        // --- 1. FILTER TABS LOGIC ---
+        function filterOrders(status, element) {
+            currentFilter = status;
+            document.querySelectorAll('.tab-pill').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            renderList();
+        }
+
+        function renderList() {
+            const list = document.getElementById('ordersList');
+            list.innerHTML = '';
+            
+            const orders = Object.entries(allOrders).reverse();
+            let hasData = false;
+
+            orders.forEach(([id, order]) => {
+                // Filter Logic
+                if(currentFilter !== 'all') {
+                    if(currentFilter === 'pending' && order.status !== 'pending' && order.status !== 'quote_received') return;
+                    if(currentFilter === 'assigned' && order.status !== 'assigned' && order.status !== 'work_scheduled') return;
+                    if(currentFilter === 'completed' && order.status !== 'completed') return;
+                }
+
+                hasData = true;
+                const statusInfo = getStatusInfo(order.status);
+                
+                const card = document.createElement('div');
+                card.className = 'booking-card';
+                card.onclick = () => openSheet(id, order);
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="order-id">#${id.slice(-6).toUpperCase()}</span>
+                        <span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>
+                    </div>
+                    <div class="service-name">${order.service}</div>
+                    <div class="service-meta">
+                        <span><i class="fa-regular fa-calendar"></i> ${order.slot?.date || 'Date TBD'}</span>
+                        <span class="price-tag">₹${(order.total || 0).toLocaleString()}</span>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+
+            if(!hasData) list.innerHTML = `<div style="text-align:center; margin-top:100px; color:#94A3B8;">No orders found in this category.</div>`;
+        }
+
+        // --- 2. FULL SHEET LOGIC ---
+        function openSheet(id, order) {
+            activeOrder = order;
+            activeOrderId = id;
+            const sheet = document.getElementById('fullSheet');
+            const content = document.getElementById('sheetContent');
+            const actions = document.getElementById('sheetActions');
+            
+            sheet.classList.add('active');
+            content.innerHTML = '';
+            actions.innerHTML = '';
+
+            // --- STATE 1: PENDING (Searching Animation) ---
+            if(order.status === 'pending') {
+                content.innerHTML = `
+                    <div class="radar-container">
+                        <div class="radar-circle"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        <h2 style="color:#1E293B; margin-top:20px;">Finding Best Partner</h2>
+                        <p style="color:#64748B;">Connecting with nearby professionals...</p>
+                    </div>
+                    <div class="detail-group" style="background:white; padding:20px; border-radius:16px; margin-top:20px;">
+                        <h4 style="margin-bottom:10px;">Service Address</h4>
+                        <div style="color:#475569;">${order.customer?.address}, ${order.customer?.area}</div>
+                    </div>
+                `;
+                actions.innerHTML = `<button class="action-btn btn-danger" onclick="cancelOrder()">Cancel Request</button>`;
+            }
+
+            // --- STATE 2: ASSIGNED / WORK SCHEDULED (Partner Profile + OTP) ---
+            else if(order.status === 'assigned' || order.status === 'work_scheduled') {
+                const isWork = order.status === 'work_scheduled';
+                content.innerHTML = `
+                    <div class="partner-profile">
+                        <img src="https://randomuser.me/api/portraits/men/${Math.floor(Math.random()*90)}.jpg" class="pp-img">
+                        <h2 style="font-size:1.4rem; color:#1E293B; margin-bottom:5px;">Amit Kumar</h2>
+                        <div class="pp-rating"><i class="fa-solid fa-star"></i> 4.8 Rating</div>
+                        <div style="margin-top:15px; color:#0D9488; font-weight:600;">
+                            ${isWork ? 'Work Scheduled' : 'Inspection Scheduled'}
+                        </div>
+                    </div>
+
+                    ${order.startOtp ? `
+                    <div class="otp-display">
+                        <div style="font-size:0.8rem; text-transform:uppercase; font-weight:700; letter-spacing:1px;">Share Start OTP</div>
+                        <div class="otp-code">${order.startOtp}</div>
+                        <div style="font-size:0.7rem; margin-top:5px; opacity:0.8;">Share this only when partner arrives</div>
+                    </div>` : ''}
+
+                    <div style="padding:15px; background:white; border-radius:16px;">
+                        <div style="color:#64748B; font-size:0.9rem; margin-bottom:5px;">Scheduled For</div>
+                        <div style="font-weight:700; font-size:1.1rem;">${order.slot?.date} at ${order.slot?.time}</div>
+                    </div>
+                `;
+                
+                // 1 Hour Cancellation Check
+                if(checkTimeLock(order.slot?.date, order.slot?.time)) {
+                    actions.innerHTML = `<div style="text-align:center; color:#EF4444; width:100%; font-size:0.9rem; padding:10px;"><i class="fa-solid fa-lock"></i> Cancellation locked (Less than 1 hr left)</div>`;
+                } else {
+                    actions.innerHTML = `<button class="action-btn btn-danger" onclick="cancelOrder()">Cancel Booking</button>`;
+                }
+            }
+
+            // --- STATE 3: QUOTE RECEIVED (Approve Quote Flow) ---
+            else if(order.status === 'quote_received') {
+                content.innerHTML = `
+                    <h2 style="margin-bottom:20px;">Review Quote</h2>
+                    <div class="quote-box">
+                        <div class="quote-item"><span>Wall Painting (2 Walls)</span><span>₹8,000</span></div>
+                        <div class="quote-item"><span>Premium Paint Upgrade</span><span>₹2,000</span></div>
+                        <div class="quote-item"><span>Surface Preparation</span><span>₹1,500</span></div>
+                        <div class="quote-item" style="margin-top:10px;"><span>Total Estimate</span><span>₹11,500</span></div>
+                    </div>
+                    
+                    <h4 style="margin-bottom:10px;">Select Start Date</h4>
+                    <input type="date" id="workDate" style="width:100%; padding:15px; border:1px solid #E2E8F0; border-radius:12px; margin-bottom:15px;">
+                    <select id="workTime" style="width:100%; padding:15px; border:1px solid #E2E8F0; border-radius:12px; background:white;">
+                        <option>Morning (9AM - 12PM)</option>
+                        <option>Afternoon (12PM - 4PM)</option>
+                    </select>
+                `;
+                actions.innerHTML = `<button class="action-btn btn-primary" onclick="acceptQuote()">Pay & Book Service <i class="fa-solid fa-arrow-right"></i></button>`;
+            }
+
+            // --- STATE 4: COMPLETED (Rating) ---
+            else if(order.status === 'completed') {
+                content.innerHTML = `
+                    <div style="text-align:center; padding:30px 0;">
+                        <div style="width:60px; height:60px; background:#DCFCE7; color:#15803D; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; margin:0 auto 20px;">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <h2>Service Completed</h2>
+                        <p style="color:#64748B;">How was your experience with Amit?</p>
+                        
+                        <div class="star-rating" id="ratingStars">
+                            <i class="fa-solid fa-star" onclick="rate(1)"></i>
+                            <i class="fa-solid fa-star" onclick="rate(2)"></i>
+                            <i class="fa-solid fa-star" onclick="rate(3)"></i>
+                            <i class="fa-solid fa-star" onclick="rate(4)"></i>
+                            <i class="fa-solid fa-star" onclick="rate(5)"></i>
+                        </div>
+                        <textarea id="reviewText" placeholder="Write a review..." style="width:100%; padding:15px; border:1px solid #E2E8F0; border-radius:12px; margin-top:20px;"></textarea>
+                    </div>
+                `;
+                if(!order.rated) {
+                    actions.innerHTML = `<button class="action-btn btn-primary" onclick="submitRating()">Submit Review</button>`;
+                } else {
+                    actions.innerHTML = `<div style="text-align:center; color:#10B981; font-weight:700;">Thanks for your feedback!</div>`;
+                }
+            }
+        }
+
+        function closeSheet() {
+            document.getElementById('fullSheet').classList.remove('active');
+        }
+
+        // --- ACTIONS ---
+
+        // 1. ACCEPT QUOTE -> CREATE NEW BOOKING
+        function acceptQuote() {
+            const date = document.getElementById('workDate').value;
+            const time = document.getElementById('workTime').value;
+            
+            if(!date) return showToast("Please select a date");
+
+            // Create New Booking Object (Work Order)
+            const newOrder = {
+                ...activeOrder,
+                service: "Painting Service (Work)",
+                total: 11500, // From quote
+                status: "work_scheduled",
+                slot: { date: date, time: time },
+                startOtp: Math.floor(1000 + Math.random() * 9000), // New OTP
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            // Save new booking & update old one
+            const newRef = db.ref(`users/${auth.currentUser.uid}/orders`).push();
+            newRef.set(newOrder);
+            
+            // Mark old "Inspection" as completed
+            db.ref(`users/${auth.currentUser.uid}/orders/${activeOrderId}`).update({ status: 'completed' });
+
+            closeSheet();
+            showToast("Booking Confirmed! View in Assigned tab.");
+        }
+
+        // 2. RATING
+        let currentRating = 0;
+        function rate(n) {
+            currentRating = n;
+            const stars = document.querySelectorAll('#ratingStars i');
+            stars.forEach((s, i) => {
+                s.className = i < n ? "fa-solid fa-star active" : "fa-solid fa-star";
+            });
+        }
+
+        function submitRating() {
+            if(currentRating === 0) return showToast("Please select stars");
+            db.ref(`users/${auth.currentUser.uid}/orders/${activeOrderId}`).update({
+                rated: true,
+                rating: currentRating,
+                review: document.getElementById('reviewText').value
+            });
+            // Here you would also update Partner's DB profile with this rating
+            closeSheet();
+            showToast("Review Submitted Successfully");
+        }
+
+        function cancelOrder() {
+            if(confirm("Are you sure you want to cancel?")) {
+                db.ref(`users/${auth.currentUser.uid}/orders/${activeOrderId}`).update({ status: 'cancelled' });
+                closeSheet();
+                showToast("Booking Cancelled");
+            }
+        }
+
+        // UTILS
+        function getStatusInfo(status) {
+            switch(status) {
+                case 'assigned': return { class: 'st-assigned', text: 'Assigned' };
+                case 'work_scheduled': return { class: 'st-assigned', text: 'Scheduled' };
+                case 'quote_received': return { class: 'st-quote', text: 'Action Needed' };
+                case 'completed': return { class: 'st-completed', text: 'Completed' };
+                case 'cancelled': return { class: 'st-cancelled', text: 'Cancelled' };
+                default: return { class: 'st-pending', text: 'Searching' };
+            }
+        }
+
+        function checkTimeLock(dateStr, timeStr) {
+            if(!dateStr) return false;
+            const orderDate = new Date(`${dateStr} ${timeStr?.split('-')[0] || '09:00'}`);
+            const now = new Date();
+            const diffHours = (orderDate - now) / (1000 * 60 * 60);
+            return diffHours < 1 && diffHours > 0;
+        }
+
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML = msg;
+            document.getElementById('toast-container').appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
+:700; font-size:1rem;">${order.service}</div>
+                        <div style="font-size:0.8rem; color:#94A3B8;">#${id.slice(-6).toUpperCase()} • ${date}</div>
+                    </div>
+                    <span class="status-pill ${statusClass}">${statusText}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0;">
+                    <div style="font-size:0.9rem; color:#64748B;">${order.slot?.date || 'Date TBD'} • ${order.slot?.time || 'Time TBD'}</div>
+                    <div style="font-weight:800; color:var(--p); font-size:1.1rem;">₹${price}</div>
+                </div>
+                ${actions}
+            `;
+            container.appendChild(card);
+        }
+
+        // ==================== RESCHEDULE ====================
+        function openReschedule(orderId) {
+            currentOrderId = orderId;
+            generateRescheduleDates();
+            generateRescheduleSlots();
+            openModal('rescheduleModal');
+        }
+
+        function generateRescheduleDates() {
+            const container = document.getElementById('rescheduleDates');
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            let html = '';
+            
+            for(let i=0; i<7; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() + i);
+                const dayName = i===0 ? 'Today' : days[d.getDay()];
+                const dateNum = d.getDate();
+                const fullDate = d.toLocaleDateString('en-GB');
+                
+                if(i===0) selectedRescheduleDate = fullDate;
+
+                html += `
+                    <div class="date-card ${i===0 ? 'active' : ''}" onclick="selectRescheduleDate(this, '${fullDate}')">
+                        <div class="date-day">${dayName}</div>
+                        <div class="date-num">${dateNum}</div>
+                    </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function generateRescheduleSlots() {
+            const container = document.getElementById('rescheduleSlots');
+            const slots = ['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM', '5:00 PM', '7:00 PM'];
+            
+            container.innerHTML = slots.map((time, i) => `
+                <div class="slot-btn ${i===0 ? 'selected' : ''}" onclick="selectRescheduleTime(this, '${time}')">${time}</div>
+            `).join('');
+            
+            selectedRescheduleTime = slots[0];
+        }
+
+        function selectRescheduleDate(el, date) {
+            document.querySelectorAll('#rescheduleDates .date-card').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            selectedRescheduleDate = date;
+        }
+
+        function selectRescheduleTime(el, time) {
+            document.querySelectorAll('#rescheduleSlots .slot-btn').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedRescheduleTime = time;
+        }
+
+        function confirmReschedule() {
+            if(!currentOrderId) return;
+            
+            db.ref(`orders/${currentOrderId}`).update({
+                slot: { date: selectedRescheduleDate, time: selectedRescheduleTime },
+                rescheduledAt: firebase.database.ServerValue.TIMESTAMP,
+                status: 'rescheduled'
+            });
+            
+            db.ref(`users/${currentUser.uid}/orders/${currentOrderId}`).update({
+                slot: { date: selectedRescheduleDate, time: selectedRescheduleTime },
+                rescheduledAt: firebase.database.ServerValue.TIMESTAMP,
+                status: 'rescheduled'
+            });
+
+            closeModal('rescheduleModal');
+            showToast('Booking rescheduled successfully!', 'success', 'Rescheduled');
+        }
+
+        // ==================== CANCEL ====================
+        function openCancel(orderId) {
+            currentOrderId = orderId;
+            openModal('cancelModal');
+        }
+
+        function confirmCancel() {
+            if(!currentOrderId) return;
+            
+            db.ref(`orders/${currentOrderId}`).update({
+                status: 'cancelled',
+                cancelledAt: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            db.ref(`users/${currentUser.uid}/orders/${currentOrderId}`).update({
+                status: 'cancelled',
+                cancelledAt: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            closeModal('cancelModal');
+            showToast('Booking cancelled successfully', 'success', 'Cancelled');
+        }
+
+        // ==================== PERMISSIONS ====================
+        function checkAndRequestPermissions() {
+            // Check if already requested
+            const perms = localStorage.getItem('appPermissions');
+            if(!perms) {
+                setTimeout(() => openModal('permissionsModal'), 1000);
+            }
+        }
+
+        function togglePerm(el, type) {
+            el.classList.toggle('active');
+        }
+
+        function savePermissions() {
+            const perms = {
+                notification: document.getElementById('perm-notif').classList.contains('active'),
+                location: document.getElementById('perm-loc').classList.contains('active'),
+                camera: document.getElementById('perm-cam').classList.contains('active'),
+                microphone: document.getElementById('perm-mic').classList.contains('active'),
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('appPermissions', JSON.stringify(perms));
+            
+            // Request actual browser permissions
+            if(perms.location) requestLocation();
+            if(perms.notification) requestNotification();
+            
+            closeModal('permissionsModal');
+            showToast('Permissions saved!', 'success', 'Settings Saved');
+        }
+
+        function requestLocation() {
+            if("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => console.log("Location granted"),
+                    err => console.log("Location denied")
+                );
+            }
+        }
+
+        function requestNotification() {
+            if("Notification" in window) {
+                Notification.requestPermission();
+            }
+        }
+
+        // ==================== AI CHAT ====================
+        function openAIChat() {
+            openModal('aiChatModal');
+        }
+
+        function sendQuickMsg(text) {
+            addChatMessage(text, 'user');
+            processAIResponse(text);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if(!text) return;
+            
+            addChatMessage(text, 'user');
+            input.value = '';
+            processAIResponse(text);
+        }
+
+        function addChatMessage(text, sender) {
+            const container = document.getElementById('chatMessages');
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${sender}`;
+            bubble.textContent = text;
+            container.appendChild(bubble);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function processAIResponse(userMsg) {
+            setTimeout(() => {
+                let response = "I'm here to help! Could you please provide more details?";
+                const msg = userMsg.toLowerCase();
+                
+                if(msg.includes('track')) {
+                    response = "📦 You can track your order in the 'My Orders' section. Would you like me to open it?";
+                } else if(msg.includes('reschedule')) {
+                    response = "📅 To reschedule, please go to your booking and click 'Reschedule'. Which booking would you like to reschedule?";
+                } else if(msg.includes('cancel')) {
+                    response = "❌ You can cancel bookings that are not yet assigned to a partner. Go to 'My Orders' and select the booking to cancel.";
+                } else if(msg.includes('quote') || msg.includes('price')) {
+                    response = "💰 Visit our Services page to get an instant quote using our Paint Calculator!";
+                } else if(msg.includes('human') || msg.includes('agent')) {
+                    response = "👨‍💼 Connecting you to a human agent... Please wait. Our support number is +91 97119 04092";
+                } else if(msg.includes('hello') || msg.includes('hi')) {
+                    response = "👋 Hello! How can I assist you with your home painting needs today?";
+                }
+                
+                addChatMessage(response, 'ai');
+            }, 800);
+        }
+
+        // ==================== UNIFIED MODAL SYSTEM ====================
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close on backdrop click
+        document.addEventListener('click', (e) => {
+            if(e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // ==================== UNIFIED TOAST SYSTEM ====================
+        function showToast(message, type = 'info', title = '') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-xmark',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-circle-info'
+            };
+            
+            const titles = {
+                success: 'Success!',
+                error: 'Error!',
+                warning: 'Warning!',
+                info: 'Information'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fa-solid ${icons[type]}"></i></div>
+                <div class="toast-content">
+                    <div class="toast-title">${title || titles[type]}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+    function showConfetti() {
+        const colors = ['#0D9488', '#14B8A6', '#F59E0B', '#22C55E', '#3B82F6'];
+        for (let i = 0; i < 30; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 2 + 's';
+            confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 3000);
+        }
+    }
+    
+        // ==================== QUOTE FLOW ====================
+        async function openQuoteReview(id) {
+            const snap = await db.ref(`orders/${id}`).once('value');
+            currentOrder = { id, ...snap.val() };
+            const amt = currentOrder.amount || currentOrder.total || 15000;
+            document.getElementById('qAmount').innerText = '₹' + amt.toLocaleString();
+            
+            // Reset stars
+            selectedRating = 0;
+            document.querySelectorAll('#quoteStars i').forEach(s => {
+                s.classList.remove('active');
+                s.style.color = '#CBD5E1';
+            });
+            
+            openModal('quoteModal');
+        }
+
+        function rate(n) {
+            selectedRating = n;
+            document.querySelectorAll('#quoteStars i').forEach((s, i) => {
+                if (i < n) {
+                    s.classList.add('active');
+                    s.style.color = '#F59E0B';
+                } else {
+                    s.classList.remove('active');
+                    s.style.color = '#CBD5E1';
+                }
+            });
+        }
+
+        function submitQuoteReview() {
+            if(selectedRating === 0) {
+                showToast('Please rate the quote experience', 'warning', 'Rating Required');
+                return;
+            }
+            db.ref(`orders/${currentOrder.id}`).update({ quoteRating: selectedRating, status: 'slot_selection_pending' });
+            closeModal('quoteModal');
+            setTimeout(() => openModal('slotModal'), 300);
+        }
+
+        function selectTime(el, time) {
+            document.querySelectorAll('.slot-item').forEach(e => {
+                e.style.borderColor = '#E2E8F0';
+                e.style.background = 'white';
+            });
+            el.style.borderColor = 'var(--p)';
+            el.style.background = '#F0FDFA';
+            selectedTime = time;
+        }
+
+        function proceedToPayment(id) {
+            if(id) currentOrder = { id };
+            const date = document.getElementById('slotDate').value;
+            if(!date && !currentOrder.slotDate) {
+                showToast('Please select a date', 'warning', 'Required');
+                return;
+            }
+
+            if(date) db.ref(`orders/${currentOrder.id}`).update({ slotDate: date, slotTime: selectedTime || 'Morning' });
+
+            db.ref(`orders/${currentOrder.id}`).once('value').then(snap => {
+                const order = snap.val();
+                const total = order.amount || order.total || 0;
+                const advanceAmount = Math.round(total * 0.15); 
+
+                const checkoutData = {
+                    service: `Advance: ${order.service}`,
+                    total: advanceAmount,
+                    type: 'advance_payment',
+                    orderId: currentOrder.id,
+                    details: [{ name: "15% Booking Advance", price: advanceAmount, qty: 1 }]
+                };
+                localStorage.setItem('pendingOrder', JSON.stringify(checkoutData));
+                window.location.href = 'checkout.html';
+            });
+        }
+
+        function openFinalReview(id) {
+            currentOrder = { id };
+            // Reset stars
+            selectedRating = 0;
+            document.querySelectorAll('#finalStars i').forEach(s => {
+                s.classList.remove('active');
+                s.style.color = '#CBD5E1';
+            });
+            openModal('finalModal');
+        }
+
+        function rateFinal(n) {
+            selectedRating = n;
+            document.querySelectorAll('#finalStars i').forEach((s, i) => {
+                if (i < n) {
+                    s.classList.add('active');
+                    s.style.color = '#F59E0B';
+                } else {
+                    s.classList.remove('active');
+                    s.style.color = '#CBD5E1';
+                }
+            });
+        }
+
+        function submitFinalReview() {
+            if(selectedRating === 0) {
+                showToast('Please rate the service', 'warning', 'Rating Required');
+                return;
+            }
+            db.ref(`orders/${currentOrder.id}`).update({ finalRating: selectedRating, status: 'completed' });
+            db.ref(`users/${auth.currentUser.uid}/orders/${currentOrder.id}`).update({ finalRating: selectedRating, status: 'completed' });
+            closeModal('finalModal');
+            showConfetti();
+            showToast('Thank you for your review!', 'success', 'Review Submitted');
+            setTimeout(() => window.location.reload(), 2000);
+        }
+    </script>
+</body>
+</html>
