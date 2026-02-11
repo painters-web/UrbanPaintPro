@@ -1070,18 +1070,66 @@
         }
 
         function acceptQuote() {
-            const date = document.getElementById('workDate').value;
-            if(!date) {
-                showModal({
-                    type: 'warning',
-                    icon: '<i class="fa-solid fa-circle-exclamation"></i>',
-                    title: 'Select Date',
-                    text: 'Please select a start date to proceed with the booking.',
-                    confirmText: 'Got it',
-                    cancelText: null
-                });
-                return;
+    const date = document.getElementById('workDate').value;
+    if(!date) {
+        showModal({
+            type: 'warning',
+            icon: '<i class="fa-solid fa-circle-exclamation"></i>',
+            title: 'Select Date',
+            text: 'Please select a start date.',
+            confirmText: 'Got it',
+            cancelText: null
+        });
+        return;
+    }
+
+    showModal({
+        type: 'info',
+        icon: '<i class="fa-solid fa-credit-card"></i>',
+        title: 'Confirm Payment',
+        text: 'Proceed to pay advance amount.',
+        confirmText: 'Proceed',
+        cancelText: 'Cancel',
+        onConfirm: () => {
+            // 1. Order Data Taiyaar Karo
+            const newOrder = {
+                ...activeOrder,
+                status: 'pending', // Partner ke liye status 'pending' ya 'new' rakhein
+                total: 13570,
+                slot: { date: date, time: "09:00 AM" },
+                startOtp: Math.floor(1000 + Math.random() * 9000),
+                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                userId: auth.currentUser.uid, // Customer ID jodna zaroori hai
+                userName: "Customer", // Agar naam ho to wo dalein
+                service: activeOrder.service || "Home Painting" // Service name zaroori hai filter ke liye
+            };
+
+            // 2. Magic Line: Ek unique ID banao
+            const newOrderKey = db.ref().child('orders').push().key;
+
+            // 3. Dono jagah save karo (Ek sath)
+            const updates = {};
+            updates[`/orders/${newOrderKey}`] = newOrder; // Public Orders Node (Partner ke liye)
+            updates[`/users/${auth.currentUser.uid}/orders/${newOrderKey}`] = newOrder; // Private User Node
+            
+            // Purana order complete mark karo (agar flow waisa hai)
+            if (activeId) {
+                updates[`/users/${auth.currentUser.uid}/orders/${activeId}/status`] = 'converted';
             }
+
+            db.ref().update(updates, (error) => {
+                if (error) {
+                    showToast("Booking Failed: " + error.message, "error");
+                } else {
+                    closeSheet();
+                    showToast("Booking Successful! Partner notified.", "success");
+                    renderList();
+                }
+            });
+        }
+    });
+}
+
 
             showModal({
                 type: 'info',
