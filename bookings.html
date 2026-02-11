@@ -1070,8 +1070,10 @@
         }
 
         function acceptQuote() {
-    const date = document.getElementById('workDate').value;
-    if(!date) {
+    const dateInput = document.getElementById('workDate');
+    const date = dateInput ? dateInput.value : null;
+
+    if (!date) {
         showModal({
             type: 'warning',
             icon: '<i class="fa-solid fa-circle-exclamation"></i>',
@@ -1091,48 +1093,50 @@
         confirmText: 'Proceed',
         cancelText: 'Cancel',
         onConfirm: () => {
-            // 1. Order Data Taiyaar Karo
+            // 1. Unique ID banao
+            const newOrderKey = db.ref().child('orders').push().key;
+
+            // 2. Naya Order Data
             const newOrder = {
                 ...activeOrder,
-                status: 'pending', // Partner ke liye status 'pending' ya 'new' rakhein
+                status: 'pending', // Partner ko 'New Request' dikhane ke liye
                 total: 13570,
                 slot: { date: date, time: "09:00 AM" },
                 startOtp: Math.floor(1000 + Math.random() * 9000),
                 createdAt: firebase.database.ServerValue.TIMESTAMP,
-                userId: auth.currentUser.uid, // Customer ID jodna zaroori hai
-                userName: "Customer", // Agar naam ho to wo dalein
-                service: activeOrder.service || "Home Painting" // Service name zaroori hai filter ke liye
+                userId: auth.currentUser.uid,
+                userName: "Customer", 
+                service: activeOrder.service || "Home Painting"
             };
 
-            // 2. Magic Line: Ek unique ID banao
-            const newOrderKey = db.ref().child('orders').push().key;
+            // 3. Updates Object (Jugaad: Plus (+) use kiya hai taaki galti na ho)
+            const updates = {};
+            
+            // Partner ke liye (Public)
+            updates['/orders/' + newOrderKey] = newOrder; 
+            
+            // Customer ke liye (Private)
+            updates['/users/' + auth.currentUser.uid + '/orders/' + newOrderKey] = newOrder;
 
-            // 1. Unique ID banao
-const newOrderKey = db.ref().child('orders').push().key;
+            // Purana order complete mark karo (agar flow waisa hai)
+            if (activeId) {
+                updates['/users/' + auth.currentUser.uid + '/orders/' + activeId + '/status'] = 'converted';
+            }
 
-// 2. Updates Object (Maine Backticks hata kar simple tarika kar diya hai)
-const updates = {};
-
-// PUBLIC ORDER (Partner ke liye)
-updates['/orders/' + newOrderKey] = newOrder; 
-
-// PRIVATE ORDER (Customer ke liye)
-updates['/users/' + auth.currentUser.uid + '/orders/' + newOrderKey] = newOrder;
-
-// PURANA STATUS UPDATE
-if (activeId) {
-    updates['/users/' + auth.currentUser.uid + '/orders/' + activeId + '/status'] = 'converted';
+            // 4. Save karo
+            db.ref().update(updates, (error) => {
+                if (error) {
+                    showToast("Error: " + error.message, "error");
+                } else {
+                    closeSheet();
+                    showToast("Booking Successful! Partner notified.", "success");
+                    // List refresh karne ke liye (agar function hai to)
+                    if(typeof renderList === 'function') renderList();
+                }
+            });
+        }
+    });
 }
-
-// 3. Save karo
-db.ref().update(updates, (error) => {
-    if (error) {
-        showToast("Error: " + error.message, "error");
-    } else {
-        closeSheet();
-        showToast("Booking Successful!", "success");
-    }
-});
 
 
 
