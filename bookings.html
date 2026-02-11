@@ -766,11 +766,20 @@
                 setTimeout(() => toast.remove(), 400);
             }, 4000);
         }
-    0%' : '0';
+            function showConfetti() {
+            const colors = ['#0D9488', '#14B8A6', '#F59E0B', '#22C55E', '#3B82F6'];
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
                 document.body.appendChild(confetti);
                 setTimeout(() => confetti.remove(), 3000);
             }
         }
+
 
         // ==================== QUOTE FLOW ====================
         async function openQuoteReview(id) {
