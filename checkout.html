@@ -459,10 +459,101 @@
             document.getElementById('mainBtn').disabled = true;
             document.getElementById('mainBtn').textContent = 'Processing...';
 
-            const fullOrder = {
+            function getCategoryFromService(serviceName) {
+    if (!serviceName) return 'painting'; // Default fallback
+    const name = serviceName.toLowerCase();
+
+    // --- 1. PAINTING & WATERPROOFING (Both go to Painter) ---
+    // Isme Brands, Product Names, aur Waterproofing services sab included hain
+    const paintingKeywords = [
+        // Generic Terms
+        'paint', 'wall', 'primer', 'putty', 'texture', 'stencil', 'whitewash', 'enamel', 'distemper', 'rental makeover',
+        // Waterproofing Terms
+        'waterproof', 'damp', 'leakage', 'dr. fixit', 'dr fixit', 'terrace', 'roof', 'crack', 'coating', 'seepage', 'dampstop', 'seal-o-prime', 'dampguard', 'roofseal', 'raincoat',
+        // Brands & Series (Asian)
+        'asian', 'tractor', 'apcolite', 'royale', 'matt', 'aspira', 'glitz', 'ace', 'apex', 'ultima', 'protek', 'smartcare',
+        // Brands & Series (Berger)
+        'berger', 'bison', 'rangoli', 'silk', 'glamor', 'walmasta', 'weathercoat', 'home shield',
+        // Brands & Series (Dulux)
+        'dulux', 'supercover', 'velvet touch', 'living diamond', 'weathershield', 'powerflex',
+        // Brands & Series (Nerolac)
+        'nerolac', 'beauty smooth', 'pearls', 'impressions', 'eco clean', 'excel', 'mica marble', 'suraksha'
+    ];
+    if (paintingKeywords.some(key => name.includes(key))) {
+        return 'painting'; 
+    }
+
+    // --- 2. AC REPAIR ---
+    const acKeywords = [
+        'ac ', 'split', 'window', 'gas', 'cooling', 'pcb', 'service', 'install', 'uninstallation', 
+        'r32', 'r22', 'filling', 'copper'
+    ];
+    // Special check: 'ac' word match kare but 'surface' ya 'place' jaisa word na ho
+    if (acKeywords.some(key => name.includes(key)) && (name.includes('ac') || name.includes('gas') || name.includes('pcb'))) {
+        return 'ac';
+    }
+
+    // --- 3. PLUMBER ---
+    const plumberKeywords = [
+        'plumb', 'tap', 'washbasin', 'sink', 'pipe', 'leak', 'toilet', 'flush', 
+        'jet spray', 'water tank cleaning', 'tank cleaning', 'shower', 'drain', 'blockage', 'washer'
+    ];
+    // Note: 'Water Tank Waterproofing' upar painting me pakda jayega (kyunki 'waterproof' keyword pehle check hota hai)
+    // 'Water Tank Cleaning' yahan pakda jayega.
+    if (plumberKeywords.some(key => name.includes(key))) {
+        return 'plumbing';
+    }
+
+    // --- 4. ELECTRICIAN ---
+    const electricKeywords = [
+        'electric', 'fan', 'switch', 'socket', 'light', 'tube', 'led', 
+        'mcb', 'inverter', 'geyser', 'wire', 'wiring', 'chandelier', 'fuse', 'holder', 'board'
+    ];
+    if (electricKeywords.some(key => name.includes(key))) {
+        return 'electrician';
+    }
+
+    // --- 5. CARPENTER ---
+    const carpenterKeywords = [
+        'carpen', 'wood', 'door', 'lock', 'handle', 'hinge', 'stopper', 'latch',
+        'drill', 'hang', 'curtain', 'rod', 'drawer', 'channel', 'furniture', 'bed', 'sofa repair', 
+        'assemble', 'dismantle', 'cupboard', 'shelf'
+    ];
+    if (carpenterKeywords.some(key => name.includes(key))) {
+        return 'carpenter';
+    }
+
+    // --- 6. CLEANING ---
+    const cleaningKeywords = [
+        'clean', 'deep', 'dusting', 'mop', 'washroom', 'kitchen', 'sanitization',
+        'sofa cleaning', 'carpet', 'fridge', 'mat', 'chair', 'chimney'
+    ];
+    // Ensure 'Water Tank Cleaning' plumber me jaye, cleaning me nahi (Order of checking matters)
+    // Lekin agar plumber check pehle ho gaya hai to yahan conflict nahi hoga.
+    if (cleaningKeywords.some(key => name.includes(key))) {
+        return 'cleaning';
+    }
+
+    // --- 7. PEST CONTROL ---
+    const pestKeywords = [
+        'pest', 'cockroach', 'termite', 'bug', 'rat', 'mouse', 'mosquito', 'ant', 'spray', 'rodent'
+    ];
+    if (pestKeywords.some(key => name.includes(key))) {
+        return 'pest';
+    }
+
+    // Default
+    return 'painting';
+            }
+            
+                        const fullOrder = {
                 orderId: orderData.orderId || '',
-                service: orderData.service || 'Custom Service', 
+                service: orderData.service || 'Custom Service',
                 type: orderData.type || 'service',
+                
+                // Ye line service name se automatically category nikaal legi
+                category: getCategoryFromService(orderData.service || ''),
+
                 userId: user.uid,
                 customer: {
                     name: document.getElementById('userName').value,
@@ -484,12 +575,14 @@
                 createdAt: firebase.database.ServerValue.TIMESTAMP
             };
 
+
             if(paymentMethod === 'cod') saveOrder(fullOrder);
             else openRazorpay(fullOrder);
         }
 
-        async function saveOrder(order) {
+                async function saveOrder(order) {
             try {
+                // User Profile Update
                 if(order.customer.address) {
                     db.ref(`users/${order.userId}/profile`).update({
                         address: order.customer.address,
@@ -498,6 +591,7 @@
                     });
                 }
 
+                // Advance Payment Logic
                 if(order.type === 'advance_payment') {
                     await db.ref(`orders/${order.orderId}`).update({
                         advancePaid: true, status: 'work_scheduled', paymentStatus: 'advance_received',
@@ -505,15 +599,44 @@
                     });
                     showSuccess("Advance Paid!", "Work Scheduled");
                 } else {
+                    // --- यहाँ मुख्य बदलाव किया गया है ---
+                    
+                    // 1. एक नई ID बनाएं
                     const ref = db.ref('orders').push();
+                    const orderId = ref.key;
+                    
+                    // ऑर्डर में ID सेट करें
+                    order.orderId = orderId; 
+
+                    // 2. Master Order (Technical Record)
                     await ref.set(order);
-                    await db.ref(`users/${order.userId}/orders/${ref.key}`).set(order);
+                    
+                    // 3. User History (Customer App ke liye)
+                    await db.ref(`users/${order.userId}/orders/${orderId}`).set(order);
+
+                    // 4. Leads Node (Partner App ke liye) - Status 'new' होना जरूरी है
+                    const leadData = {
+                        ...order,
+                        status: 'new', // पार्टनर एप 'new' स्टेटस ढूंढता है
+                        urgency: 'medium',
+                        createdAt: firebase.database.ServerValue.TIMESTAMP
+                    };
+                    await db.ref(`leads/${orderId}`).set(leadData);
+
+                    // 5. Bookings Node (Admin Panel ke liye)
+                    await db.ref(`bookings/${orderId}`).set(order);
+
                     showSuccess("Order Placed!", "Booking Confirmed");
                 }
             } catch(e) {
                 console.error(e);
-                if(order.paymentMethod === 'cod') showSuccess("Order Placed!", "Booking Confirmed");
-                else { showError("Error", "Try Again"); document.getElementById('mainBtn').disabled = false; }
+                // अगर ऑनलाइन पेमेंट फेल भी हो जाए, तो भी डेटा सेव करने की कोशिश करें
+                if(order.paymentMethod === 'cod') {
+                    showSuccess("Order Placed!", "Booking Confirmed");
+                } else { 
+                    showError("Error", "Try Again"); 
+                    document.getElementById('mainBtn').disabled = false; 
+                }
             }
         }
 
