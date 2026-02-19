@@ -230,14 +230,30 @@
             renderList();
         }
 
-        function renderList() {
+                function renderList() {
             const list = document.getElementById('ordersList');
             list.innerHTML = '';
             
-            const orders = Object.entries(allOrders).sort((a, b) => {
-                return (b[1].createdAt || 0) - (a[1].createdAt || 0);
-            });
+            // ... (sorting code wahi rahega) ...
             
+            orders.forEach(([id, order]) => {
+                // ... (filtering logic wahi rahega) ...
+
+                if(show) {
+                    // ... (card rendering wahi rahega) ...
+                    
+                    // --- 🔴 YE NYA CODE JODEIN ---
+                    // Agar user ne koi sheet khol rakhi hai, to use bhi update karein
+                    if (activeId === id && document.getElementById('detailSheet').classList.contains('active')) {
+                        // Current open sheet ko refresh karein
+                        openSheet(id, order);
+                    }
+                    // -----------------------------
+                }
+            });
+            // ...
+        }
+
             let hasItems = false;
 
             orders.forEach(([id, order]) => {
