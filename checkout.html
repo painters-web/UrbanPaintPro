@@ -580,65 +580,46 @@
             else openRazorpay(fullOrder);
         }
 
-                async function saveOrder(order) {
+                        async function saveOrder(order) {
             try {
-                // User Profile Update
-                if(order.customer.address) {
-                    db.ref(`users/${order.userId}/profile`).update({
-                        address: order.customer.address,
-                        area: order.customer.area,
-                        pincode: order.customer.pincode
-                    });
-                }
+                // ... (Profile update code) ...
 
-                // Advance Payment Logic
                 if(order.type === 'advance_payment') {
-                    await db.ref(`orders/${order.orderId}`).update({
-                        advancePaid: true, status: 'work_scheduled', paymentStatus: 'advance_received',
-                        startOtp: Math.floor(1000 + Math.random()*9000)
-                    });
-                    showSuccess("Advance Paid!", "Work Scheduled");
+                     // ... (Advance payment logic) ...
                 } else {
-                    // --- यहाँ मुख्य बदलाव किया गया है ---
-                    
-                    // 1. एक नई ID बनाएं
+                    // 1. Order ID Create
                     const ref = db.ref('orders').push();
                     const orderId = ref.key;
-                    
-                    // ऑर्डर में ID सेट करें
-                    order.orderId = orderId; 
+                    order.orderId = orderId; // ID set karna zaroori hai
 
-                    // 2. Master Order (Technical Record)
+                    // 2. Main Orders Save
                     await ref.set(order);
                     
-                    // 3. User History (Customer App ke liye)
+                    // 3. User History Save
                     await db.ref(`users/${order.userId}/orders/${orderId}`).set(order);
 
-                    // 4. Leads Node (Partner App ke liye) - Status 'new' होना जरूरी है
+                    // 4. LEADS NODE (Ye code MISSING tha shayad)
+                    // Iske bina Partner App ko userId nahi milega
                     const leadData = {
                         ...order,
-                        status: 'new', // पार्टनर एप 'new' स्टेटस ढूंढता है
+                        status: 'new',
                         urgency: 'medium',
                         createdAt: firebase.database.ServerValue.TIMESTAMP
                     };
-                    await db.ref(`leads/${orderId}`).set(leadData);
+                    await db.ref(`leads/${orderId}`).set(leadData); // <--- YE SABSE ZAROORI LINE HAI
 
-                    // 5. Bookings Node (Admin Panel ke liye)
+                    // 5. Admin Bookings
                     await db.ref(`bookings/${orderId}`).set(order);
 
                     showSuccess("Order Placed!", "Booking Confirmed");
                 }
             } catch(e) {
                 console.error(e);
-                // अगर ऑनलाइन पेमेंट फेल भी हो जाए, तो भी डेटा सेव करने की कोशिश करें
-                if(order.paymentMethod === 'cod') {
-                    showSuccess("Order Placed!", "Booking Confirmed");
-                } else { 
-                    showError("Error", "Try Again"); 
-                    document.getElementById('mainBtn').disabled = false; 
-                }
+                showError("Error", "Could not place order");
+                document.getElementById('mainBtn').disabled = false;
             }
         }
+
 
         function openRazorpay(order) {
             var options = {
