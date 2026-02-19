@@ -229,78 +229,7 @@
             btn.classList.add('active');
             renderList();
         }
-        function renderList() {
-            const list = document.getElementById('ordersList');
-            list.innerHTML = '';
-            
-            // 1. Sorting (Newest First) - Jo code gayab ho gaya tha
-            const orders = Object.entries(allOrders).sort((a, b) => {
-                return (b[1].createdAt || 0) - (a[1].createdAt || 0);
-            });
-            
-            let hasItems = false;
-
-            orders.forEach(([id, order]) => {
-                let show = false;
-                const status = order.status || 'pending';
                 
-                // 2. Filtering Logic - Jo code gayab ho gaya tha
-                if(currentFilter === 'all') show = true;
-                else if(currentFilter === 'active' && ['pending','assigned','otp_shared','quote_received','awaiting_advance','advance_paid','in_progress'].includes(status)) show = true;
-                else if(currentFilter === 'payment' && (status === 'payment_pending')) show = true;
-                else if(currentFilter === 'review' && status === 'awaiting_review') show = true;
-
-                if(show) {
-                    hasItems = true;
-                    
-                    // --- 🔴 REAL-TIME UPDATE FIX (Isse Sheet update hogi) ---
-                    // Check karein agar user ne wahi sheet khol rakhi hai jo update hui hai
-                    if (activeId === id && document.getElementById('detailSheet').classList.contains('active')) {
-                        openSheet(id, order); // Sheet ka content refresh karein
-                    }
-                    // -------------------------------------------------------
-
-                    // 3. Card Rendering
-                    const info = getStatusInfo(status);
-                    const card = document.createElement('div');
-                    card.className = 'booking-card';
-                    card.onclick = () => openSheet(id, order);
-                    
-                    card.innerHTML = `
-                        <div class="card-header">
-                            <span class="order-id">#${id.slice(-6).toUpperCase()}</span>
-                            <span class="status-badge ${info.class}">${info.text}</span>
-                        </div>
-                        <div class="service-name">${order.service || 'Home Service'}</div>
-                        <div class="card-meta">
-                            <i class="fa-regular fa-calendar"></i> ${order.slot?.date || 'Date TBD'}
-                        </div>
-                        ${order.partnerName ? `
-                            <div class="card-meta" style="margin-top: 6px;">
-                                <i class="fa-solid fa-user" style="color: var(--p);"></i> ${order.partnerName}
-                            </div>
-                        ` : ''}
-                        ${order.quote ? `
-                            <div style="margin-top: 12px; padding: 8px 12px; background: ${status === 'quote_received' ? '#FEF3C7' : '#F0FDF4'}; border-radius: 8px; display: inline-block; font-size: 0.8rem; font-weight: 700; color: ${status === 'quote_received' ? '#92400E' : '#15803D'};">
-                                ${status === 'quote_received' ? '⚡ Quote Received' : '💰 ₹' + order.quote.total}
-                            </div>
-                        ` : ''}
-                    `;
-                    list.appendChild(card);
-                }
-            });
-
-            // 4. Empty State
-            if(!hasItems) {
-                list.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fa-solid fa-inbox" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.3;"></i>
-                        <h3>No ${currentFilter} orders</h3>
-                    </div>
-                `;
-            }
-        }
-
 
         // Main Detail Sheet Logic
         function openSheet(id, order) {
@@ -349,7 +278,82 @@
                 renderCompletedState(content, actions);
             }
         }
+        function renderList() {
+            const list = document.getElementById('ordersList');
+            list.innerHTML = '';
+            
+            // 1. Sorting (Newest First)
+            // Agar orders nahi hain to empty object use karein
+            if (!allOrders) return;
+            
+            const orders = Object.entries(allOrders).sort((a, b) => {
+                return (b[1].createdAt || 0) - (a[1].createdAt || 0);
+            });
+            
+            let hasItems = false;
 
+            orders.forEach(([id, order]) => {
+                let show = false;
+                const status = order.status || 'pending';
+                
+                // 2. Filtering Logic
+                if(currentFilter === 'all') show = true;
+                else if(currentFilter === 'active' && ['pending','assigned','otp_shared','quote_received','awaiting_advance','advance_paid','in_progress'].includes(status)) show = true;
+                else if(currentFilter === 'payment' && (status === 'payment_pending')) show = true;
+                else if(currentFilter === 'review' && status === 'awaiting_review') show = true;
+
+                if(show) {
+                    hasItems = true;
+                    
+                    // --- 🔴 REAL-TIME UPDATE LOGIC (Status Change Fix) ---
+                    // Agar customer ne wahi sheet khol rakhi hai jo update hui hai
+                    if (activeId === id && document.getElementById('detailSheet').classList.contains('active')) {
+                        // Sheet ko refresh karein taaki naya status dikhe
+                        openSheet(id, order);
+                    }
+                    // -----------------------------------------------------
+
+                    // 3. Card UI Create Karna
+                    const info = getStatusInfo(status);
+                    const card = document.createElement('div');
+                    card.className = 'booking-card';
+                    card.onclick = () => openSheet(id, order);
+                    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <span class="order-id">#${id.slice(-6).toUpperCase()}</span>
+                            <span class="status-badge ${info.class}">${info.text}</span>
+                        </div>
+                        <div class="service-name">${order.service || 'Home Service'}</div>
+                        <div class="card-meta">
+                            <i class="fa-regular fa-calendar"></i> ${order.slot?.date || 'Date TBD'}
+                        </div>
+                        ${order.partnerName ? `
+                            <div class="card-meta" style="margin-top: 6px;">
+                                <i class="fa-solid fa-user" style="color: var(--p);"></i> ${order.partnerName}
+                            </div>
+                        ` : ''}
+                        ${order.quote ? `
+                            <div style="margin-top: 12px; padding: 8px 12px; background: ${status === 'quote_received' ? '#FEF3C7' : '#F0FDF4'}; border-radius: 8px; display: inline-block; font-size: 0.8rem; font-weight: 700; color: ${status === 'quote_received' ? '#92400E' : '#15803D'};">
+                                ${status === 'quote_received' ? '⚡ Quote Received' : '💰 ₹' + order.quote.total}
+                            </div>
+                        ` : ''}
+                    `;
+                    list.appendChild(card);
+                }
+            });
+
+            // 4. Empty State Handle Karna
+            if(!hasItems) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-inbox" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.3;"></i>
+                        <h3>No ${currentFilter} orders</h3>
+                    </div>
+                `;
+            }
+        }
+        
         // State Render Functions
         function renderSearchingState(content, actions) {
             content.innerHTML = `
