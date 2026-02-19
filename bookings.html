@@ -233,26 +233,6 @@
                 function renderList() {
             const list = document.getElementById('ordersList');
             list.innerHTML = '';
-            
-            // ... (sorting code wahi rahega) ...
-            
-            orders.forEach(([id, order]) => {
-                // ... (filtering logic wahi rahega) ...
-
-                if(show) {
-                    // ... (card rendering wahi rahega) ...
-                    
-                    // --- 🔴 YE NYA CODE JODEIN ---
-                    // Agar user ne koi sheet khol rakhi hai, to use bhi update karein
-                    if (activeId === id && document.getElementById('detailSheet').classList.contains('active')) {
-                        // Current open sheet ko refresh karein
-                        openSheet(id, order);
-                    }
-                    // -----------------------------
-                }
-            });
-            // ...
-        }
 
             let hasItems = false;
 
@@ -271,6 +251,9 @@
                     const card = document.createElement('div');
                     card.className = 'booking-card';
                     card.onclick = () => openSheet(id, order);
+                    if (activeId === id && document.getElementById('detailSheet').classList.contains('active')) 
+                        // Current open sheet ko refresh karein
+                        openSheet(id, order);
                     
                     card.innerHTML = `
                         <div class="card-header">
