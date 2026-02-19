@@ -229,17 +229,22 @@
             btn.classList.add('active');
             renderList();
         }
-
-                function renderList() {
+        function renderList() {
             const list = document.getElementById('ordersList');
             list.innerHTML = '';
-
+            
+            // 1. Sorting (Newest First) - Jo code gayab ho gaya tha
+            const orders = Object.entries(allOrders).sort((a, b) => {
+                return (b[1].createdAt || 0) - (a[1].createdAt || 0);
+            });
+            
             let hasItems = false;
 
             orders.forEach(([id, order]) => {
                 let show = false;
                 const status = order.status || 'pending';
                 
+                // 2. Filtering Logic - Jo code gayab ho gaya tha
                 if(currentFilter === 'all') show = true;
                 else if(currentFilter === 'active' && ['pending','assigned','otp_shared','quote_received','awaiting_advance','advance_paid','in_progress'].includes(status)) show = true;
                 else if(currentFilter === 'payment' && (status === 'payment_pending')) show = true;
@@ -247,13 +252,19 @@
 
                 if(show) {
                     hasItems = true;
+                    
+                    // --- 🔴 REAL-TIME UPDATE FIX (Isse Sheet update hogi) ---
+                    // Check karein agar user ne wahi sheet khol rakhi hai jo update hui hai
+                    if (activeId === id && document.getElementById('detailSheet').classList.contains('active')) {
+                        openSheet(id, order); // Sheet ka content refresh karein
+                    }
+                    // -------------------------------------------------------
+
+                    // 3. Card Rendering
                     const info = getStatusInfo(status);
                     const card = document.createElement('div');
                     card.className = 'booking-card';
                     card.onclick = () => openSheet(id, order);
-                    if (activeId === id && document.getElementById('detailSheet').classList.contains('active')) 
-                        // Current open sheet ko refresh karein
-                        openSheet(id, order);
                     
                     card.innerHTML = `
                         <div class="card-header">
@@ -279,6 +290,7 @@
                 }
             });
 
+            // 4. Empty State
             if(!hasItems) {
                 list.innerHTML = `
                     <div class="empty-state">
@@ -288,6 +300,7 @@
                 `;
             }
         }
+
 
         // Main Detail Sheet Logic
         function openSheet(id, order) {
