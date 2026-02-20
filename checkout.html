@@ -581,45 +581,59 @@
         }
 
                         async function saveOrder(order) {
-            try {
-                // ... (Profile update code) ...
-
-                if(order.type === 'advance_payment') {
-                     // ... (Advance payment logic) ...
-                } else {
-                    // 1. Order ID Create
-                    const ref = db.ref('orders').push();
-                    const orderId = ref.key;
-                    order.orderId = orderId; // ID set karna zaroori hai
-
-                    // 2. Main Orders Save
-                    await ref.set(order);
-                    
-                    // 3. User History Save
-                    await db.ref(`users/${order.userId}/orders/${orderId}`).set(order);
-
-                    // 4. LEADS NODE (Ye code MISSING tha shayad)
-                    // Iske bina Partner App ko userId nahi milega
-                    const leadData = {
-                        ...order,
-                        status: 'new',
-                        urgency: 'medium',
-                        createdAt: firebase.database.ServerValue.TIMESTAMP
-                    };
-                    await db.ref(`leads/${orderId}`).set(leadData); // <--- YE SABSE ZAROORI LINE HAI
-
-                    // 5. Admin Bookings
-                    await db.ref(`bookings/${orderId}`).set(order);
-
-                    showSuccess("Order Placed!", "Booking Confirmed");
-                }
-            } catch(e) {
-                console.error(e);
-                showError("Error", "Could not place order");
-                document.getElementById('mainBtn').disabled = false;
-            }
+    try {
+        if(order.customer.address) {
+            db.ref(`users/${order.userId}/profile`).update({
+                address: order.customer.address,
+                area: order.customer.area,
+                pincode: order.customer.pincode
+            });
         }
 
+        if(order.type === 'advance_payment') {
+            // ... advance payment logic
+        } else {
+            // 1. Order ID Create
+            const ref = db.ref('orders').push();
+            const orderId = ref.key;
+            order.orderId = orderId;
+
+            // 2. Main Orders Save
+            await ref.set(order);
+            
+            // 3. User History Save
+            await db.ref(`users/${order.userId}/orders/${orderId}`).set(order);
+
+            // 4. LEADS NODE - EXPLICITLY userId aur orderId daalo
+            const leadData = {
+                ...order,
+                userId: order.userId,        // <-- EXPLICITLY ADD KARO
+                orderId: orderId,            // <-- EXPLICITLY ADD KARO
+                status: 'new',
+                urgency: 'medium',
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            // Ensure karne ke liye delete bhi kar do agar koi undefined hai
+            if(!leadData.userId) {
+                console.error("ERROR: userId is undefined!");
+                alert("Error: User ID missing");
+                return;
+            }
+            
+            await db.ref(`leads/${orderId}`).set(leadData);
+
+            // 5. Admin Bookings
+            await db.ref(`bookings/${orderId}`).set(order);
+
+            showSuccess("Order Placed!", "Booking Confirmed");
+        }
+    } catch(e) {
+        console.error(e);
+        showError("Error", "Could not place order");
+        document.getElementById('mainBtn').disabled = false;
+    }
+}
 
         function openRazorpay(order) {
             var options = {
